@@ -1,0 +1,82 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "CSW/Character/PlayerCharacter.h"
+
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "EnhancedInputComponent.h"
+
+// Sets default values
+APlayerCharacter::APlayerCharacter()
+{
+ 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	// 스켈레탈 메시 세팅
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMesh(TEXT(
+		"/Script/Engine.SkeletalMesh'/Game/CSW/SWAT/SK_SWAT.SK_SWAT'"));
+	if (TempMesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(TempMesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f),
+			FRotator(0.f, -90.f, 0.f));
+	}
+
+	// 스프링암과 카메라
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	SpringArmComp->SetupAttachment(GetMesh());
+	SpringArmComp->TargetArmLength = 0.f; // FPS
+	SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
+	SpringArmComp->SetRelativeLocation(FVector(0.f, 0.f, 170.f));
+	
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
+	 // SpringArmComponent.cpp - const FName USpringArmComponent::SocketName(TEXT("SpringEndpoint"));
+	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
+	
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+}
+
+// Called when the game starts or when spawned
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
+{
+}
+
+// Called every frame
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	auto PlayerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+#pragma region 이동 및 회전
+	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, this, &ThisClass::PlayerMove);
+	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, this, &ThisClass::PlayerTurn);
+
+	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, this, &ThisClass::PlayerLookUp);
+
+#pragma endregion
+
+}
+
