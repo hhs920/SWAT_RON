@@ -25,6 +25,9 @@ protected:
 
 public:
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Anim)
+	class UPlayerAnimInstance* AnimInstance;
+
 #pragma region 이동 및 회전
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UInputMappingContext* IMC_PlayerInput;

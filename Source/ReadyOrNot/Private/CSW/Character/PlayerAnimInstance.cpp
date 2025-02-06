@@ -28,4 +28,15 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Speed = Velocity.Size();
 
 	bIsAccelerating = PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+
+	// 이동방향 세팅
+	if (Speed == 0.f)
+	{
+		MoveDir = FVector::ZeroVector;
+	}
+}
+
+void UPlayerAnimInstance::SetMoveDir(FVector InMoveDir)
+{
+	MoveDir = InMoveDir;
 }

@@ -27,5 +27,11 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
 	bool bIsAccelerating;
+
+	UPROPERTY(BluePrintReadWrite, Category = Movement, meta = (AllowPrivateAccess = true))
+	FVector MoveDir;
+
+public:
+	void SetMoveDir(FVector InMoveDir);
 	
 };

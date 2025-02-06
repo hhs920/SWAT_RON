@@ -8,7 +8,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-	
+#include "CSW/Character/PlayerAnimInstance.h"
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -45,7 +46,9 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+
 }
 
 // Called every frame
@@ -84,8 +87,12 @@ void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 	MoveDir.X = value.X;
 	MoveDir.Y = value.Y;
 
+	AnimInstance->SetMoveDir(MoveDir);
+
 	FVector localMoveDir = FTransform(GetControlRotation()).TransformVector(MoveDir);
 	AddMovementInput(localMoveDir);
+	
+	MoveDir = FVector::ZeroVector;
 }
 
 void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
