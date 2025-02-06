@@ -5,8 +5,10 @@
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "EnhancedInputComponent.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+	
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -46,22 +48,23 @@ void APlayerCharacter::BeginPlay()
 	
 }
 
-void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
-{
-}
-
-void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
-{
-}
-
-void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
-{
-}
-
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// EnhancedMappingContext
+	APlayerController* playerController =Cast<APlayerController>(Controller);
+	if (playerController)
+	{
+		// 서브시스템에 등록
+		auto subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+			playerController->GetLocalPlayer());
+		if (subSystem)
+		{
+			subSystem->AddMappingContext(IMC_PlayerInput, 0);
+		}
+	}
 
 }
 
@@ -70,13 +73,34 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	auto PlayerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-#pragma region 이동 및 회전
 	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, this, &ThisClass::PlayerMove);
 	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, this, &ThisClass::PlayerTurn);
-
 	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, this, &ThisClass::PlayerLookUp);
+}
 
-#pragma endregion
+void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
+{
+	FVector2D value = inputValue.Get<FVector2D>().GetSafeNormal();
+	MoveDir.X = value.X;
+	MoveDir.Y = value.Y;
+
+	FVector localMoveDir = FTransform(GetControlRotation()).TransformVector(MoveDir);
+	AddMovementInput(localMoveDir);
+}
+
+void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
+{
+	float value = inputValue.Get<float>();
+	AddControllerYawInput(value * TurnSpeed * GetWorld()->GetDeltaSeconds());
+	
+}
+
+void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
+{
+	float value = inputValue.Get<float>();
+	AddControllerPitchInput(value * LookUpSpeed * GetWorld()->GetDeltaSeconds()); // Picth는 x축기준 회전
 
 }
+
+
 

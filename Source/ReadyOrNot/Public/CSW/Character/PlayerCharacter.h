@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "PlayerCharacter.generated.h"
 #include "InputActionValue.h"
+
+#include "PlayerCharacter.generated.h"
 
 UCLASS()
 class READYORNOT_API APlayerCharacter : public ACharacter
@@ -25,7 +26,7 @@ protected:
 public:
 
 #pragma region 이동 및 회전
-	UPROPERTY(EditDefaultsOnly, Category = Input)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UInputMappingContext* IMC_PlayerInput;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Input)
@@ -39,6 +40,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputAction* IA_PlayerLookUp;
 	void PlayerLookUp(const FInputActionValue& inputValue);
+
+	UPROPERTY(VisibleAnywhere, Category = Input)
+	FVector MoveDir;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	float TurnSpeed = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	float LookUpSpeed = 5.f;
+	
 	
 #pragma endregion
 
