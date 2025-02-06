@@ -25,12 +25,12 @@ APlayerCharacter::APlayerCharacter()
 			FRotator(0.f, -90.f, 0.f));
 	}
 
-	// 스프링암과 카메라
+	// 스프링암과 카메라	
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(GetMesh());
 	SpringArmComp->TargetArmLength = 0.f; // FPS
 	SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
-	SpringArmComp->SetRelativeLocation(FVector(0.f, 0.f, 170.f));
+	SpringArmComp->SetRelativeLocation(FVector(0.f, 10.f, 170.f));
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	 // SpringArmComponent.cpp - const FName USpringArmComponent::SocketName(TEXT("SpringEndpoint"));
