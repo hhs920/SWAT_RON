@@ -12,10 +12,11 @@ struct FInputActionValue;
 UENUM(BlueprintType)
 enum class EEquipmentType : uint8
 {
-	Primary		UMETA(DisplayName = "주무기"),
-	Secondary	UMETA(DisplayName = "보조무기"),
-	Grenade		UMETA(DisplayName = "수류탄"),
-	Tactical	UMETA(DisplayName = "전술장비"),
+	Primary			UMETA(DisplayName = "주무기"),
+	Secondary		UMETA(DisplayName = "보조무기"),
+	Grenade			UMETA(DisplayName = "수류탄"),
+	Tactical		UMETA(DisplayName = "전술장비"),
+	LongTactical	UMETA(DisplayName = "긴 전술장비"),
 };
 
 UCLASS()
