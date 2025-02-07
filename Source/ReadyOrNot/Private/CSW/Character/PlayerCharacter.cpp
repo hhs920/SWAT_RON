@@ -3,12 +3,11 @@
 
 #include "CSW/Character/PlayerCharacter.h"
 
-#include "GameFramework/SpringArmComponent.h"
+#include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
+#include "CSW/Character/PlayerInputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "CSW/Character/PlayerAnimInstance.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -25,6 +24,9 @@ APlayerCharacter::APlayerCharacter()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f),
 			FRotator(0.f, -90.f, 0.f));
 	}
+
+	// 인풋 컴포넌트 만들어 넣기
+	InputComp = CreateDefaultSubobject<UPlayerInputComponent>(TEXT("PlayerInputComp"));
 
 	// 스프링암과 카메라	
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -55,30 +57,14 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// EnhancedMappingContext
-	APlayerController* playerController =Cast<APlayerController>(Controller);
-	if (playerController)
-	{
-		// 서브시스템에 등록
-		auto subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-			playerController->GetLocalPlayer());
-		if (subSystem)
-		{
-			subSystem->AddMappingContext(IMC_PlayerInput, 0);
-		}
-	}
-
 }
 
-// Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	auto PlayerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, this, &ThisClass::PlayerMove);
-	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, this, &ThisClass::PlayerTurn);
-	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, this, &ThisClass::PlayerLookUp);
+	
+	InputComp->SetUpInputMappingContext(Controller);
+	InputComp->SetUpPlayerInputAction(PlayerInputComponent);
 }
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
@@ -91,19 +77,23 @@ void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 	AddMovementInput(localMoveDir);
 	
 	MoveDir = FVector::ZeroVector;
+
+    UE_LOG(LogTemp, Warning, TEXT("PlayerMove"));
 }
 
 void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
 {
 	float value = inputValue.Get<float>();
 	AddControllerYawInput(value * TurnSpeed * GetWorld()->GetDeltaSeconds());
-	
+	UE_LOG(LogTemp, Warning, TEXT("PlayerTurn"));
+
 }
 
 void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
 {
 	float value = inputValue.Get<float>();
 	AddControllerPitchInput(value * LookUpSpeed * GetWorld()->GetDeltaSeconds()); // Picth는 x축기준 회전
+	UE_LOG(LogTemp, Warning, TEXT("PlayerLookUp"));
 
 }
 

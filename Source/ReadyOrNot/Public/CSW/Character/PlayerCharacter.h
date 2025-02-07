@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "InputActionValue.h"
 
 #include "PlayerCharacter.generated.h"
+
+struct FInputActionValue;
 
 UENUM(BlueprintType)
 enum class EEquipmentType : uint8
@@ -32,25 +33,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
-#pragma region 이동 및 회전
-
-public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
-	class UInputMappingContext* IMC_PlayerInput;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Input)
-	class UInputAction* IA_PlayerMove;
-	void PlayerMove(const FInputActionValue& inputValue);
-
-	UPROPERTY(EditDefaultsOnly, Category = Input)
-	class UInputAction* IA_PlayerTurn;
-	void PlayerTurn(const FInputActionValue& inputValue);
-	
-	UPROPERTY(EditDefaultsOnly, Category = Input)
-	class UInputAction* IA_PlayerLookUp;
-	void PlayerLookUp(const FInputActionValue& inputValue);
-
 	UPROPERTY(VisibleAnywhere, Category = Input)
 	FVector MoveDir;
 
@@ -60,6 +42,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float LookUpSpeed = 5.f;
 	
+#pragma region 입력
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
+	class UPlayerInputComponent* InputComp;
+	
+	void PlayerMove(const FInputActionValue& inputValue);
+	void PlayerTurn(const FInputActionValue& inputValue);
+	void PlayerLookUp(const FInputActionValue& inputValue);
 	
 #pragma endregion
 #pragma region 스프링암, 카메라
