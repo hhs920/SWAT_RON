@@ -8,6 +8,15 @@
 
 #include "PlayerCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EEquipmentType : uint8
+{
+	Primary		UMETA(DisplayName = "주무기"),
+	Secondary	UMETA(DisplayName = "보조무기"),
+	Grenade		UMETA(DisplayName = "수류탄"),
+	Tactical	UMETA(DisplayName = "전술장비"),
+};
+
 UCLASS()
 class READYORNOT_API APlayerCharacter : public ACharacter
 {
@@ -23,12 +32,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Anim)
-	class UPlayerAnimInstance* AnimInstance;
 
 #pragma region 이동 및 회전
+
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UInputMappingContext* IMC_PlayerInput;
 	
@@ -55,14 +62,23 @@ public:
 	
 	
 #pragma endregion
-
 #pragma region 스프링암, 카메라
+
+public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
 	class USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere, Category=Camera)
 	class UCameraComponent* CameraComp;
 	
-#pragma region
+#pragma endregion
+#pragma region 장비
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Equipment)
+	EEquipmentType EquipmentType { EEquipmentType::Primary }; // 기본으로 주무기 들고있기
+
+#pragma endregion
+
 	
 };

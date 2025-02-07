@@ -26,10 +26,10 @@ private:
 	float Speed;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
-	bool bIsAccelerating;
+	float Direction;
 
-	UPROPERTY(BluePrintReadWrite, Category = Movement, meta = (AllowPrivateAccess = true))
-	FVector MoveDir;
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
+	bool bIsAccelerating;
 
 public:
 	void SetMoveDir(FVector InMoveDir);

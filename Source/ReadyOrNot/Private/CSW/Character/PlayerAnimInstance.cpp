@@ -26,17 +26,12 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector Velocity = PlayerCharacter->GetVelocity();
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
-
 	bIsAccelerating = PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 
-	// 이동방향 세팅
-	if (Speed == 0.f)
-	{
-		MoveDir = FVector::ZeroVector;
-	}
-}
+	// 방향
+	// World -> Local 회전 방향을 구하는 방법.
+	// PlayerCharacter의 트랜스폼 변환 행렬을, Velocity에 적용한다.
+	FVector InverseTransformDirection = PlayerCharacter->GetActorTransform().InverseTransformVectorNoScale(Velocity);
+	Direction = FRotationMatrix::MakeFromX(InverseTransformDirection).Rotator().Yaw;
 
-void UPlayerAnimInstance::SetMoveDir(FVector InMoveDir)
-{
-	MoveDir = InMoveDir;
 }

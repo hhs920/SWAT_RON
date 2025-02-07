@@ -47,7 +47,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 }
 
@@ -86,9 +86,7 @@ void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 	FVector2D value = inputValue.Get<FVector2D>().GetSafeNormal();
 	MoveDir.X = value.X;
 	MoveDir.Y = value.Y;
-
-	AnimInstance->SetMoveDir(MoveDir);
-
+	
 	FVector localMoveDir = FTransform(GetControlRotation()).TransformVector(MoveDir);
 	AddMovementInput(localMoveDir);
 	
