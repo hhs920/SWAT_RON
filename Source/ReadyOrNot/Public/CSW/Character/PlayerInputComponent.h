@@ -63,7 +63,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_LowReady;			// 로우레디			spacebar
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
-	class UInputAction* IA_SitDown;				// 앉기				ctrl
+	class UInputAction* IA_Crouch;				// 앉기				ctrl
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_Reload;				// 재장전			R
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))

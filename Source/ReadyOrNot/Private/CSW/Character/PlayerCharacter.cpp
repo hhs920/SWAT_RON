@@ -99,50 +99,63 @@ void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
 
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
 }
 
 void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanLeft");
 }
 
 void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanRight");
 }
 
 void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
 }
 
-void APlayerCharacter::SitDown(const FInputActionValue& inputValue)
+void APlayerCharacter::PlayerCrouch(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayerCrouch");
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reload");
 }
 
 void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
+
 }
 
 

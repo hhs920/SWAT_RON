@@ -17,6 +17,7 @@ enum class EEquipmentType : uint8
 	Grenade			UMETA(DisplayName = "수류탄"),
 	Tactical		UMETA(DisplayName = "전술장비"),
 	LongTactical	UMETA(DisplayName = "긴 전술장비"),
+	CableTie		UMETA(DisplayName = "케이블 타이"),
 };
 
 UCLASS()
@@ -42,10 +43,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	float LookUpSpeed = 5.f;
-	
-#pragma region 입력
 
 public:
+
+#pragma region 입력
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UPlayerInputComponent* InputComp;
 	
@@ -64,7 +66,7 @@ public:
 	void LeanRight(const FInputActionValue& inputValue);		// 기울이기_오른쪽	E
 
 	void LowReady(const FInputActionValue& inputValue);			// 로우레디			spacebar
-	void SitDown(const FInputActionValue& inputValue);			// 앉기				ctrl
+	void PlayerCrouch(const FInputActionValue& inputValue);			// 앉기				ctrl
 	void Reload(const FInputActionValue& inputValue);			// 재장전			R
 	void ChangeSelector(const FInputActionValue& inputValue);	// 조정간			X
 	
