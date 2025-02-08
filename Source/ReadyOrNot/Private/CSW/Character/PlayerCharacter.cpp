@@ -97,5 +97,53 @@ void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
 
 }
 
+void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::SitDown(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::Reload(const FInputActionValue& inputValue)
+{
+}
+
+void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
+{
+}
+
 
 

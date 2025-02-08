@@ -19,7 +19,7 @@ void UPlayerInputComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 }
 
 // Called every frame
@@ -49,12 +49,22 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 {
 	auto PlayerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
-	if (PlayerCharacter == nullptr)
-    		PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+	if (OwnerCharacter == nullptr)
+    		OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 	
-	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, PlayerCharacter, &APlayerCharacter::PlayerMove);
-	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, PlayerCharacter, &APlayerCharacter::PlayerTurn);
-	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, PlayerCharacter, &APlayerCharacter::PlayerLookUp);
+	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerMove);
+	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerTurn);
+	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerLookUp);
+	PlayerInput->BindAction(IA_PrimaryEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PrimaryEquip);
+	PlayerInput->BindAction(IA_SecondaryEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::SecondaryEquip);
+	PlayerInput->BindAction(IA_GrenadeEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::GrenadeEquip);
+	PlayerInput->BindAction(IA_TacticalEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::TacticalEquip);
+	PlayerInput->BindAction(IA_LongTacticalEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::LongTacticalEquip);
+	PlayerInput->BindAction(IA_CableTieEquip, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::CableTieEquip);
+	PlayerInput->BindAction(IA_LeanLeft, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::LeanLeft);
+	PlayerInput->BindAction(IA_LeanRight, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::LeanRight);
+	PlayerInput->BindAction(IA_LowReady, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::LowReady);
+	PlayerInput->BindAction(IA_SitDown, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::SitDown);
+	PlayerInput->BindAction(IA_Reload, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::Reload);
+	PlayerInput->BindAction(IA_ChangeSelector, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::ChangeSelector);
 }
-
-

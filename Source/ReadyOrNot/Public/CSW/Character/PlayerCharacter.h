@@ -53,6 +53,21 @@ public:
 	void PlayerTurn(const FInputActionValue& inputValue);
 	void PlayerLookUp(const FInputActionValue& inputValue);
 	
+	void PrimaryEquip(const FInputActionValue& inputValue);		// 주무기			1
+	void SecondaryEquip(const FInputActionValue& inputValue);	// 보조무기			2
+	void GrenadeEquip(const FInputActionValue& inputValue);	// 수류탄			3
+	void TacticalEquip(const FInputActionValue& inputValue);		// 전술장비			4
+	void LongTacticalEquip(const FInputActionValue& inputValue);	// 긴전술장비		5
+	void CableTieEquip(const FInputActionValue& inputValue);	// 케이블타이		6
+
+	void LeanLeft(const FInputActionValue& inputValue);			// 기울이기_왼쪽		Q 
+	void LeanRight(const FInputActionValue& inputValue);		// 기울이기_오른쪽	E
+
+	void LowReady(const FInputActionValue& inputValue);			// 로우레디			spacebar
+	void SitDown(const FInputActionValue& inputValue);			// 앉기				ctrl
+	void Reload(const FInputActionValue& inputValue);			// 재장전			R
+	void ChangeSelector(const FInputActionValue& inputValue);	// 조정간			X
+	
 #pragma endregion
 #pragma region 스프링암, 카메라
 

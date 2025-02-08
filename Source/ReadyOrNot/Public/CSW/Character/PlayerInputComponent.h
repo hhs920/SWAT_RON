@@ -23,7 +23,7 @@ public:
 public:
 
 	UPROPERTY(EditAnywhere)
-	class APlayerCharacter* PlayerCharacter;
+	class APlayerCharacter* OwnerCharacter;
 
 	// EnhancedMappingContext, IMC 세팅 
 	void SetUpInputMappingContext(class AController* Controller);
@@ -37,10 +37,36 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_PlayerMove;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_PlayerTurn;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_PlayerLookUp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_PrimaryEquip;		// 주무기			1
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_SecondaryEquip;		// 보조무기			2
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_GrenadeEquip;		// 수류탄			3
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_TacticalEquip;		// 전술장비			4
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_LongTacticalEquip;	// 긴전술장비		5
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_CableTieEquip;		// 케이블타이		6
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_LeanLeft;			// 기울이기_왼쪽		Q 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_LeanRight;			// 기울이기_오른쪽	E
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_LowReady;			// 로우레디			spacebar
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_SitDown;				// 앉기				ctrl
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_Reload;				// 재장전			R
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_ChangeSelector;		// 조정간			X
+
 };
