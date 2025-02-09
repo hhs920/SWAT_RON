@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CSW/RONComponents/CombatComponent.h"
 #include "GameFramework/Character.h"
 
 #include "PlayerCharacter.generated.h"
@@ -10,14 +11,11 @@
 struct FInputActionValue;
 
 UENUM(BlueprintType)
-enum class EEquipmentType : uint8
+enum class EPlayerStance : uint8
 {
-	Primary			UMETA(DisplayName = "주무기"),
-	Secondary		UMETA(DisplayName = "보조무기"),
-	Grenade			UMETA(DisplayName = "수류탄"),
-	Tactical		UMETA(DisplayName = "전술장비"),
-	LongTactical	UMETA(DisplayName = "긴 전술장비"),
-	CableTie		UMETA(DisplayName = "케이블 타이"),
+	EPS_Aiming        UMETA(DisplayName = "Aiming"),        // 조준 상태
+	EPS_Crouching     UMETA(DisplayName = "Crouching"),     // 웅크리기
+	EPS_LowReady      UMETA(DisplayName = "Low Ready"),     // 무기를 아래로 내린 상태 (저준비 자세)
 };
 
 UCLASS()
@@ -84,13 +82,7 @@ public:
 	class UCameraComponent* CameraComp;
 	
 #pragma endregion
-#pragma region 현재 손에 들고있는 장비
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Equipment)
-	EEquipmentType EquipmentType { EEquipmentType::Primary }; // 기본으로 주무기 들고있기
-
-#pragma endregion
 #pragma region 상호작용
 	
 public:
@@ -100,12 +92,19 @@ public:
 	void SetInteractingWeapon(AWeapon* Weapon);
 	
 #pragma endregion
-#pragma region 전투 컴포넌트
+#pragma region 컴뱃 컴포넌트
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = Combat)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* CombatComp;
+
+public:
+	EEquipmentType GetEquipmentType();
 	
 #pragma endregion
-	
+
+private:
+	EPlayerStance PlayerStance;
+public:
+	FORCEINLINE EPlayerStance GetPlayerStance() const {return PlayerStance;}
 };

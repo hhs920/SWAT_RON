@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayerCharacter.h"
+#include "CSW/RONComponents/CombatComponent.h"
 #include "PlayerAnimInstance.generated.h"
 
 /**
@@ -29,5 +31,13 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
 	bool bIsAccelerating;
-	
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	EEquipmentType EquipmentType;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	EPlayerStance PlayerStance;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	bool bIsCrouched;
 };

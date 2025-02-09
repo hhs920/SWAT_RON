@@ -34,4 +34,9 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector InverseTransformDirection = PlayerCharacter->GetActorTransform().InverseTransformVectorNoScale(Velocity);
 	Direction = FRotationMatrix::MakeFromX(InverseTransformDirection).Rotator().Yaw;
 
+	EquipmentType = PlayerCharacter->GetEquipmentType();
+
+	PlayerStance = PlayerCharacter->GetPlayerStance();
+	bIsCrouched = PlayerCharacter->bIsCrouched;
+
 }

@@ -8,6 +8,7 @@
 #include "CSW/Character/PlayerInputComponent.h"
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -45,7 +46,10 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
-	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));;
+	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));
+
+	// CharacterMovement의 Crouch 기능 켜기
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 // Called when the game starts or when spawned
@@ -159,6 +163,16 @@ void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 void APlayerCharacter::PlayerCrouch(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayerCrouch");
+	if (bIsCrouched)
+	{
+		PlayerStance = EPlayerStance::EPS_Aiming;
+		UnCrouch();
+	}
+	else
+	{
+		PlayerStance = EPlayerStance::EPS_Crouching;
+		Crouch();
+	}
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
@@ -174,6 +188,8 @@ void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 
 void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 {
+	// TODO : LineTrace를 쏴서 Interact 대상이 총기(증거품)인지 범죄증거물인지 확인해야한다.
+	
 	if (CombatComp)
 	{
 		CombatComp->EquipWeapon(InteractingWeapon);
@@ -194,5 +210,11 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 	}
 }
 
+EEquipmentType APlayerCharacter::GetEquipmentType()
+{
+	if (CombatComp == nullptr)
+		return EEquipmentType::None;
+	return CombatComp->EquipmentType;
+}
 
 

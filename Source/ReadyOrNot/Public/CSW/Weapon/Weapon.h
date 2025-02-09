@@ -6,14 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+enum class EEquipmentType : uint8;
+
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
 {
-	Equipped UMETA(DisplayName = "Equipped State"),
-	Dropped UMETA(DisplayName = "Dropped State"),
-	Gathered UMETA(DisplayName = "Gathered State"),
+	EWS_Dropped UMETA(DisplayName = "Dropped State"),
+	EWS_Equipped UMETA(DisplayName = "Equipped State"),
+	EWS_Gathered UMETA(DisplayName = "Gathered State"),
 
-	Max UMETA(DisplayName = "Default MAX")
+	EWS_Max UMETA(DisplayName = "Default MAX")
 };
 
 UCLASS()
@@ -59,7 +61,10 @@ private:
 	class USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* AreaSphere; 
+	class USphereComponent* AreaSphere;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	EEquipmentType EquipmentType;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
@@ -70,4 +75,5 @@ private:
 public:	
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
+	FORCEINLINE EEquipmentType GetEquipmentType() const {	return EquipmentType; }
 };

@@ -81,17 +81,17 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	WeaponState = State;
 	switch (WeaponState)
 	{
-	case EWeaponState::Equipped:
+	case EWeaponState::EWS_Equipped:
 		{
 			ShowGatherEvidenceWidget(false);
 			AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 		break;
 		
-	case EWeaponState::Dropped:
+	case EWeaponState::EWS_Dropped:
 		break;
 		
-	case EWeaponState::Gathered:
+	case EWeaponState::EWS_Gathered:
 		break;
 
 	default:
