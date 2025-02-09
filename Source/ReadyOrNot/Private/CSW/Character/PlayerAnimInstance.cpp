@@ -38,5 +38,6 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	PlayerStance = PlayerCharacter->GetPlayerStance();
 	bIsCrouched = PlayerCharacter->bIsCrouched;
+	bAiming = PlayerCharacter->IsAiming();
 
 }

@@ -24,6 +24,8 @@ class READYORNOT_API APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	friend class UCombatComponent; 
+	
 	// Sets default values for this character's properties
 	APlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
@@ -65,11 +67,15 @@ public:
 	void LeanRight(const FInputActionValue& inputValue);			// 기울이기_오른쪽	E
 	
 	void LowReady(const FInputActionValue& inputValue);				// 로우레디			spacebar
-	void PlayerCrouch(const FInputActionValue& inputValue);			// 앉기				ctrl
+	void CrouchStarted(const FInputActionValue& inputValue);			// 앉기				ctrl
+	void CrouchCompleted(const FInputActionValue& inputValue);			// 앉기				ctrl
 	void Reload(const FInputActionValue& inputValue);				// 재장전			R
 	void ChangeSelector(const FInputActionValue& inputValue);		// 조정간			X
 	
 	void Interact(const FInputActionValue& inputValue);				// 상호작용			F
+
+	void AimStarted(const FInputActionValue& inputValue);			// 상호작용			RMB
+	void AimCompleted(const FInputActionValue& inputValue);			// 상호작용			RMB
 	
 #pragma endregion
 #pragma region 스프링암, 카메라
@@ -100,6 +106,7 @@ private:
 
 public:
 	EEquipmentType GetEquipmentType();
+	bool IsAiming();
 	
 #pragma endregion
 

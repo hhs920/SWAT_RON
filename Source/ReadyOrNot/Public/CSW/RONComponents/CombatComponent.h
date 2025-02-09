@@ -75,5 +75,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class AWeapon* CableTie;
 	
+	bool bAiming;
+	
 };
 

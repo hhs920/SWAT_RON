@@ -125,9 +125,15 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 	PlayerInput->BindAction(IA_LeanRight, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::LeanRight);
 
 	PlayerInput->BindAction(IA_LowReady, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LowReady);
-	PlayerInput->BindAction(IA_Crouch, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::PlayerCrouch);
+	
+	PlayerInput->BindAction(IA_Crouch, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::CrouchStarted);
+	PlayerInput->BindAction(IA_Crouch, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::CrouchCompleted);
+	
 	PlayerInput->BindAction(IA_Reload, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::Reload);
 	PlayerInput->BindAction(IA_ChangeSelector, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::ChangeSelector);
 
 	PlayerInput->BindAction(IA_Interact, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::Interact);
+	
+	PlayerInput->BindAction(IA_Aim, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::AimStarted);
+	PlayerInput->BindAction(IA_Aim, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::AimCompleted);
 }

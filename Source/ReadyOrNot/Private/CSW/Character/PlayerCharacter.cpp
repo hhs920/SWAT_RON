@@ -160,18 +160,24 @@ void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
 }
 
-void APlayerCharacter::PlayerCrouch(const FInputActionValue& inputValue)
+void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayerCrouch");
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchStarted");
+
+	if (!bIsCrouched)
+	{
+		PlayerStance = EPlayerStance::EPS_Crouching;
+		Crouch();
+	}
+}
+
+void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
 	if (bIsCrouched)
 	{
 		PlayerStance = EPlayerStance::EPS_Aiming;
 		UnCrouch();
-	}
-	else
-	{
-		PlayerStance = EPlayerStance::EPS_Crouching;
-		Crouch();
 	}
 }
 
@@ -196,6 +202,22 @@ void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 	}
 }
 
+void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
+{
+	if (CombatComp)
+	{
+		CombatComp->bAiming = true;
+	}
+}
+
+void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
+{
+	if (CombatComp)
+	{
+		CombatComp->bAiming = false;
+	}
+}
+
 void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 {
 	if (InteractingWeapon)
@@ -215,6 +237,11 @@ EEquipmentType APlayerCharacter::GetEquipmentType()
 	if (CombatComp == nullptr)
 		return EEquipmentType::None;
 	return CombatComp->EquipmentType;
+}
+
+bool APlayerCharacter::IsAiming()
+{
+	return CombatComp && CombatComp->bAiming;
 }
 
 
