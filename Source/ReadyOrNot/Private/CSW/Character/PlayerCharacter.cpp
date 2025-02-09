@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
+#include "CSW/Weapon/Weapon.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -156,6 +157,20 @@ void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
 
+}
+
+void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
+{
+	if (InteractingWeapon)
+	{
+		InteractingWeapon->ShowGatherEvidenceWidget(false);
+	}
+
+	InteractingWeapon = Weapon;
+	if (InteractingWeapon)
+	{
+		InteractingWeapon->ShowGatherEvidenceWidget(true);
+	}
 }
 
 

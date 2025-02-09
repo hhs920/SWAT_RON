@@ -28,6 +28,7 @@ AWeapon::AWeapon()
 	AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
+	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
 
 	GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
 	GatherEvidenceWidget->SetupAttachment(RootComponent);
@@ -39,19 +40,7 @@ void AWeapon::BeginPlay()
 	
 	if (GatherEvidenceWidget)
 	{
-		GatherEvidenceWidget->SetVisibility(false);
-	}
-}
-
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("..."));
-	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-	if (PlayerCharacter && GatherEvidenceWidget)
-	{
-		GatherEvidenceWidget->SetVisibility(true);
-		
+		ShowGatherEvidenceWidget(false);
 	}
 }
 
@@ -61,3 +50,28 @@ void AWeapon::Tick(float DeltaTime)
 
 }
 
+
+void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
+{
+	GatherEvidenceWidget->SetVisibility(bShowWidget);
+}
+
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->SetInteractingWeapon(this);
+	}
+}
+
+void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->SetInteractingWeapon(nullptr);
+	}
+}

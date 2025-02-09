@@ -88,6 +88,14 @@ public:
 	EEquipmentType EquipmentType { EEquipmentType::Primary }; // 기본으로 주무기 들고있기
 
 #pragma endregion
-
+#pragma region 상호작용
+	
+public:
+	UPROPERTY(VisibleAnywhere, Category = Interaction)
+	class AWeapon* InteractingWeapon;
+	
+	void SetInteractingWeapon(AWeapon* Weapon);
+	
+#pragma endregion
 	
 };
