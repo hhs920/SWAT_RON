@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
+#include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -43,6 +44,8 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
+
+	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));;
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +69,16 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 	InputComp->SetUpInputMappingContext(Controller);
 	InputComp->SetUpPlayerInputAction(PlayerInputComponent);
+}
+
+void APlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (CombatComp)
+	{
+		CombatComp->PlayerCharacter = this;
+	}
 }
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
@@ -157,6 +170,14 @@ void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
 
+}
+
+void APlayerCharacter::Interact(const FInputActionValue& inputValue)
+{
+	if (CombatComp)
+	{
+		CombatComp->EquipWeapon(InteractingWeapon);
+	}
 }
 
 void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)

@@ -11,6 +11,7 @@ enum class EWeaponState : uint8
 {
 	Equipped UMETA(DisplayName = "Equipped State"),
 	Dropped UMETA(DisplayName = "Dropped State"),
+	Gathered UMETA(DisplayName = "Gathered State"),
 
 	Max UMETA(DisplayName = "Default MAX")
 };
@@ -67,5 +68,6 @@ private:
 	class UWidgetComponent* GatherEvidenceWidget;
 	
 public:	
-
+	void SetWeaponState(EWeaponState State);
+	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
 };

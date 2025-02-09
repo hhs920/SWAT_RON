@@ -75,3 +75,26 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		PlayerCharacter->SetInteractingWeapon(nullptr);
 	}
 }
+
+void AWeapon::SetWeaponState(EWeaponState State)
+{
+	WeaponState = State;
+	switch (WeaponState)
+	{
+	case EWeaponState::Equipped:
+		{
+			ShowGatherEvidenceWidget(false);
+			AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		break;
+		
+	case EWeaponState::Dropped:
+		break;
+		
+	case EWeaponState::Gathered:
+		break;
+
+	default:
+		break;
+	}
+}

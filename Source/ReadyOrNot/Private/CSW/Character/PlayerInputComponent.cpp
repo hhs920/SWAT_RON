@@ -58,6 +58,9 @@ UPlayerInputComponent::UPlayerInputComponent()
     static ConstructorHelpers::FObjectFinder<UInputAction> ChangeSelectorAction(TEXT("/Game/CSW/Input/IA_ChangeSelector.IA_ChangeSelector"));
     if (ChangeSelectorAction.Succeeded()) { IA_ChangeSelector = ChangeSelectorAction.Object; }
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InteractAction(TEXT("/Game/CSW/Input/IA_Interact.IA_Interact"));
+	if (InteractAction.Succeeded()) { IA_Interact = InteractAction.Object; }
+
 }
 
 // Called when the game starts
@@ -125,4 +128,6 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 	PlayerInput->BindAction(IA_Crouch, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::PlayerCrouch);
 	PlayerInput->BindAction(IA_Reload, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::Reload);
 	PlayerInput->BindAction(IA_ChangeSelector, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::ChangeSelector);
+
+	PlayerInput->BindAction(IA_Interact, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::Interact);
 }

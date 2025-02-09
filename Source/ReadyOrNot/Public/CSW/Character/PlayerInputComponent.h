@@ -69,4 +69,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_ChangeSelector;		// 조정간			X
 
-};
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_Interact;			// 상호작용			F
+
+}; 
