@@ -8,6 +8,7 @@
 #include "CSW/Character/PlayerInputComponent.h"
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -32,15 +33,16 @@ APlayerCharacter::APlayerCharacter()
 	InputComp = CreateDefaultSubobject<UPlayerInputComponent>(TEXT("PlayerInputComp"));
 
 	// 스프링암과 카메라	
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(GetMesh());
-	SpringArmComp->TargetArmLength = 0.f; // FPS
-	SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
-	SpringArmComp->SetRelativeLocation(FVector(0.f, 10.f, 170.f));
+	// SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	// SpringArmComp->SetupAttachment(GetMesh());
+	// SpringArmComp->TargetArmLength = 0.f; // FPS
+	// SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
+	// SpringArmComp->SetRelativeLocation(FVector(0.f, 10.f, 170.f));
 	
+	// CameraComp 생성
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-	 // SpringArmComponent.cpp - const FName USpringArmComponent::SocketName(TEXT("SpringEndpoint"));
-	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
+	CameraComp->SetupAttachment(GetMesh());
+
 	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
@@ -83,6 +85,10 @@ void APlayerCharacter::PostInitializeComponents()
 	{
 		CombatComp->PlayerCharacter = this;
 	}
+
+	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+		TEXT("Camera"));
+	CameraComp->bUsePawnControlRotation = true;
 }
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
