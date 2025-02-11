@@ -3,6 +3,11 @@
 
 #include "HHS/FPSCharacter.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnemyFSM.h"
+#include "Components/CapsuleComponent.h"
+
 // Sets default values
 AFPSCharacter::AFPSCharacter()
 {
@@ -15,7 +20,17 @@ AFPSCharacter::AFPSCharacter()
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc)
+	{
+		UEnhancedInputLocalPlayerSubsystem* subSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
+
+		if (subSys)
+		{
+			subSys->AddMappingContext(IMC_Weapon, 0);
+		}
+	}
 }
 
 // Called every frame
@@ -30,5 +45,39 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	auto playerInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (playerInput)
+	{
+		playerInput->BindAction(IA_Shoot, ETriggerEvent::Started, this, &AFPSCharacter::Shoot);
+	}
+}
+
+void AFPSCharacter::Shoot(const struct FInputActionValue& InputValue)
+{
+}
+
+float AFPSCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	Hp -= damage;
+
+	if (Hp <= 0)
+	{
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	else 
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance != nullptr)
+		{
+			//AnimInstance->Montage_Play(AM_Hit);
+		}
+	}
+
+
+	return damage;
 }
 

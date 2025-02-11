@@ -26,4 +26,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-};
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputMappingContext* IMC_Weapon;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* IA_Shoot;
+
+	void Shoot(const struct FInputActionValue& InputValue);
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=FSMComponent)
+	float Hp = 3;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
+  };
