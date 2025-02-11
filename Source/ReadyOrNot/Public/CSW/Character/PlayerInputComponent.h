@@ -43,6 +43,10 @@ private:
 	class UInputAction* IA_PlayerLookUp;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
+	class UInputAction* IA_Fire;
+
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_PrimaryEquip;		// 주무기			1
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_SecondaryEquip;		// 보조무기			2

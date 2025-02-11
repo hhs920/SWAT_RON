@@ -45,16 +45,21 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float LookUpSpeed = 5.f;
 
-public:
 
 #pragma region 입력
-
+	
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UPlayerInputComponent* InputComp;
 	
 	void PlayerMove(const FInputActionValue& inputValue);
 	void PlayerTurn(const FInputActionValue& inputValue);
 	void PlayerLookUp(const FInputActionValue& inputValue);
+
+	void FireStarted(const FInputActionValue& inputValue);
+	void FireCompleted(const FInputActionValue& inputValue);
+
+	void Fire(const FInputActionValue& inputValue);
 	
 	void PrimaryEquip(const FInputActionValue& inputValue);			// 주무기			1
 	void SecondaryEquip(const FInputActionValue& inputValue);		// 보조무기			2
@@ -78,37 +83,27 @@ public:
 	void AimCompleted(const FInputActionValue& inputValue);			// 상호작용			RMB
 	
 #pragma endregion
-#pragma region 스프링암, 카메라
 
 public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
-	class USpringArmComponent* SpringArmComp;
-
-	UPROPERTY(VisibleAnywhere, Category=Camera)
 	class UCameraComponent* CameraComp;
-	
-#pragma endregion
 
-#pragma region 상호작용
-	
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
+
 public:
 	UPROPERTY(VisibleAnywhere, Category = Interaction)
 	class AWeapon* InteractingWeapon;
 	
 	void SetInteractingWeapon(AWeapon* Weapon);
 	
-#pragma endregion
-#pragma region 컴뱃 컴포넌트
-
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* CombatComp;
 
 public:
 	EEquipmentType GetEquipmentType();
+	void SetEquippedWeapon(AWeapon* weapon);
 	bool IsAiming();
-	
-#pragma endregion
 
 private:
 	EPlayerStance PlayerStance;

@@ -37,8 +37,9 @@ public:
 	void GatherEvidence(class AWeapon* EvidenceToGather);
 	void SetUpEquipments();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Equipment)
-	EEquipmentType EquipmentType { EEquipmentType::EET_Primary }; // 기본으로 주무기 들고있기
+	// 현재 들고있는 무기. 기본으로 주무기 들고있기
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
+	class AWeapon* EquippedWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> PrimaryWeaponClass;
@@ -57,10 +58,31 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> CableTieWeaponClass;
+
+	/**
+	 * Aiming and FOV
+	 */
+	
+	// BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
+	float DefaultFOV;
+
+	//UPROPERTY(EditAnywhere, Category = "FOV")
+	//float ZoomedFOV = 80.f;
+
+	float CurrentFOV;
+
+	// UPROPERTY(EditAnywhere, Category = "FOV")
+	// float ZoomInterpSpeed = 20.f;
+
+	// Weapon의 FOV 관련 세팅값에 따라 동작한다.
+	void InterpFOV(float DeltaTime);
+
+protected:
+	void FireButtonPressed(bool bPressed);
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = PlayerCharacter)
-	class APlayerCharacter* PlayerCharacter;
+	class APlayerCharacter* Character;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class AWeapon* Primary;
@@ -76,6 +98,10 @@ private:
 	class AWeapon* CableTie;
 	
 	bool bAiming;
+	bool bFireButtonPressed;
+	
+
+	
 	
 };
 

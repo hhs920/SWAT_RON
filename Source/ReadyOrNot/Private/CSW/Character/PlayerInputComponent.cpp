@@ -22,6 +22,10 @@ UPlayerInputComponent::UPlayerInputComponent()
     static ConstructorHelpers::FObjectFinder<UInputAction> LookUpAction(TEXT("/Game/CSW/Input/IA_PlayerLookUp.IA_PlayerLookUp"));
     if (LookUpAction.Succeeded()) { IA_PlayerLookUp = LookUpAction.Object; }
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> FireAction(TEXT("/Game/CSW/Input/IA_Fire.IA_Fire"));
+	if (FireAction.Succeeded()) { IA_Fire = FireAction.Object; }
+
+
     static ConstructorHelpers::FObjectFinder<UInputAction> PrimaryEquipAction(TEXT("/Game/CSW/Input/IA_PrimaryEquip.IA_PrimaryEquip"));
     if (PrimaryEquipAction.Succeeded()) { IA_PrimaryEquip = PrimaryEquipAction.Object; }
 
@@ -61,6 +65,9 @@ UPlayerInputComponent::UPlayerInputComponent()
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractAction(TEXT("/Game/CSW/Input/IA_Interact.IA_Interact"));
 	if (InteractAction.Succeeded()) { IA_Interact = InteractAction.Object; }
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> AimAction(TEXT("/Game/CSW/Input/IA_Aim.IA_Aim"));
+	if (AimAction.Succeeded()) { IA_Aim = AimAction.Object; }
+	
 }
 
 // Called when the game starts
@@ -111,6 +118,9 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 	PlayerInput->BindAction(IA_PlayerMove, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerMove);
 	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerTurn);
 	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerLookUp);
+
+	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::FireStarted);
+	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::FireCompleted);
 
 	PlayerInput->BindAction(IA_PrimaryEquip, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::PrimaryEquip);
 	PlayerInput->BindAction(IA_SecondaryEquip, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::SecondaryEquip);

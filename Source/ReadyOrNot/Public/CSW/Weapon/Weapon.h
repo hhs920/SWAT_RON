@@ -32,8 +32,19 @@ protected:
 
 
 public:
-
 	void ShowGatherEvidenceWidget(bool bShowWidget);
+
+	/*
+	 * Zoomed FOV while aiming
+	 */
+	UPROPERTY(EditAnywhere)
+	float ZoomedFOV = 70.f;
+	
+	UPROPERTY(EditAnywhere)
+	float ZoomInterpSpeed = 20.f;
+	
+private:
+	bool bCanZoom = false;
 
 protected:
 	
@@ -63,7 +74,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EEquipmentType EquipmentType;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -71,9 +82,14 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* GatherEvidenceWidget;
-	
-public:	
+
+public:
 	void SetWeaponState(EWeaponState State);
+	void SetWeaponType(EEquipmentType Type);
+	void SetCanZoom(bool bEnabled);
 	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
 	FORCEINLINE EEquipmentType GetEquipmentType() const {	return EquipmentType; }
+	FORCEINLINE float GetCanZoom() const { return bCanZoom; }
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 };

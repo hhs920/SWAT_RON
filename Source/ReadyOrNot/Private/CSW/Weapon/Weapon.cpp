@@ -98,3 +98,13 @@ void AWeapon::SetWeaponState(EWeaponState State)
 		break;
 	}
 }
+
+void AWeapon::SetWeaponType(EEquipmentType Type)
+{
+	EquipmentType = Type;
+}
+
+void AWeapon::SetCanZoom(bool bEnabled)
+{
+	bCanZoom = bEnabled;
+}

@@ -83,7 +83,7 @@ void APlayerCharacter::PostInitializeComponents()
 
 	if (CombatComp)
 	{
-		CombatComp->PlayerCharacter = this;
+		CombatComp->Character = this;
 	}
 
 	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
@@ -121,34 +121,61 @@ void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
 
 }
 
+void APlayerCharacter::FireStarted(const FInputActionValue& inputValue)
+{
+	if (CombatComp)
+	{
+		CombatComp->FireButtonPressed(true);
+	}
+}
+
+void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
+{
+	if (CombatComp)
+	{
+		CombatComp->FireButtonPressed(false);
+	}
+}
+
+void APlayerCharacter::Fire(const FInputActionValue& inputValue)
+{
+	
+}
+
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
+	SetEquippedWeapon(CombatComp->Primary);
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
+	SetEquippedWeapon(CombatComp->Secondary);
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
+	SetEquippedWeapon(CombatComp->Grenade);
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
+	SetEquippedWeapon(CombatComp->Tactical);
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
+	SetEquippedWeapon(CombatComp->LongTactical);
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
+	SetEquippedWeapon(CombatComp->CableTie);
 }
 
 void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
@@ -210,17 +237,27 @@ void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 
 void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimStarted");
+
 	if (CombatComp)
 	{
-		CombatComp->bAiming = true;
+		if (CombatComp->EquippedWeapon->GetCanZoom())
+		{
+			CombatComp->bAiming = true;
+		}
 	}
 }
 
 void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimCompleted");
+
 	if (CombatComp)
 	{
-		CombatComp->bAiming = false;
+		if (CombatComp->EquippedWeapon->GetCanZoom())
+		{
+			CombatComp->bAiming = false;
+		}
 	}
 }
 
@@ -240,9 +277,18 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {
-	if (CombatComp == nullptr)
+	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
 		return EEquipmentType::None;
-	return CombatComp->EquipmentType;
+	
+	return CombatComp->EquippedWeapon->GetEquipmentType();
+}
+
+void APlayerCharacter::SetEquippedWeapon(AWeapon* weapon)
+{
+	if (CombatComp == nullptr || weapon == nullptr)
+		return;
+
+	CombatComp->EquippedWeapon = weapon;
 }
 
 bool APlayerCharacter::IsAiming()
