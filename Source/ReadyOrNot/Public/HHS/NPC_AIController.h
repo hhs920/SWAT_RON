@@ -20,6 +20,7 @@ public:
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+	
 private:
 	class UAISenseConfig_Sight* SightConfig;
 

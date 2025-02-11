@@ -11,6 +11,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 
 // Sets default values
@@ -52,6 +54,8 @@ APlayerCharacter::APlayerCharacter()
 
 	// CharacterMovement의 Crouch 기능 켜기
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	SetupStimulusSource();	// AI 인식
 }
 
 // Called when the game starts or when spawned
@@ -248,6 +252,16 @@ EEquipmentType APlayerCharacter::GetEquipmentType()
 bool APlayerCharacter::IsAiming()
 {
 	return CombatComp && CombatComp->bAiming;
+}
+
+void APlayerCharacter::SetupStimulusSource()
+{
+	StimulusSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus"));
+	if (StimulusSource)
+	{
+		StimulusSource->RegisterForSense(TSubclassOf<UAISense_Sight>());
+		StimulusSource->RegisterWithPerceptionSystem();
+	}
 }
 
 

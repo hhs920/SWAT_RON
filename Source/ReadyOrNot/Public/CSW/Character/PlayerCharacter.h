@@ -114,4 +114,18 @@ private:
 	EPlayerStance PlayerStance;
 public:
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return PlayerStance;}
+
+
+
+
+	
+#pragma region AI 인식
+	
+private:
+	class UAIPerceptionStimuliSourceComponent* StimulusSource;
+	void SetupStimulusSource();
+	
+#pragma endregion
+
+	
 };
