@@ -62,20 +62,14 @@ public:
 	/**
 	 * Aiming and FOV
 	 */
-	
+	void SetAiming(bool bIsAiming);
 	// BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	float DefaultFOV;
-
-	//UPROPERTY(EditAnywhere, Category = "FOV")
-	//float ZoomedFOV = 80.f;
-
 	float CurrentFOV;
-
-	// UPROPERTY(EditAnywhere, Category = "FOV")
-	// float ZoomInterpSpeed = 20.f;
-
 	// Weapon의 FOV 관련 세팅값에 따라 동작한다.
 	void InterpFOV(float DeltaTime);
+	
+
 
 protected:
 	void FireButtonPressed(bool bPressed);
@@ -99,9 +93,6 @@ private:
 	
 	bool bAiming;
 	bool bFireButtonPressed;
-	
 
-	
-	
 };
 

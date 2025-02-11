@@ -13,7 +13,8 @@ struct FInputActionValue;
 UENUM(BlueprintType)
 enum class EPlayerStance : uint8
 {
-	EPS_Aiming        UMETA(DisplayName = "Aiming"),        // 조준 상태
+	EPS_Assault       UMETA(DisplayName = "Assault"),		// 돌격자세
+	//EPS_Aiming        UMETA(DisplayName = "Aiming"),        // 조준 상태
 	EPS_Crouching     UMETA(DisplayName = "Crouching"),     // 웅크리기
 	EPS_LowReady      UMETA(DisplayName = "Low Ready"),     // 무기를 아래로 내린 상태 (저준비 자세)
 };
@@ -31,7 +32,25 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
+	
+	UPROPERTY(EditAnywhere, Category = Input)
+	float LookUpSpeed = 5.f;
+			
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float AssaultWalkSpeed {320.f}; // Assault Stance
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float LowReadyWalkSpeed {400.f}; // LowReady Stance
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float AimWalkSpeed {280.f};
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float CrouchWalkSpeed {250.f}; // Crouch Stance
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float CrouchAimWalkSpeed {200.f}; // Crouch Stance
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,8 +61,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float TurnSpeed = 5.f;
 
-	UPROPERTY(EditAnywhere, Category = Input)
-	float LookUpSpeed = 5.f;
 
 
 #pragma region 입력
@@ -100,13 +117,20 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* CombatComp;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage*  FireWeaponMontage;
+
 public:
+	void PlayFireMontage(bool bAiming); 
+	
 	EEquipmentType GetEquipmentType();
 	void SetEquippedWeapon(AWeapon* weapon);
 	bool IsAiming();
 
 private:
-	EPlayerStance PlayerStance;
+	EPlayerStance _stance;
+
+
 public:
-	FORCEINLINE EPlayerStance GetPlayerStance() const {return PlayerStance;}
+	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
 };

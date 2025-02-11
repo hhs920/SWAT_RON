@@ -191,6 +191,20 @@ void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
 void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
+
+	if (!bIsCrouched)
+	{
+		if (_stance == EPlayerStance::EPS_Assault)
+		{
+			_stance = EPlayerStance::EPS_LowReady;
+			GetCharacterMovement()->MaxWalkSpeed = LowReadyWalkSpeed;
+		}
+		else if (_stance == EPlayerStance::EPS_LowReady)
+		{
+			_stance = EPlayerStance::EPS_Assault;
+			GetCharacterMovement()->MaxWalkSpeed = AssaultWalkSpeed;
+		}
+	}
 }
 
 void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
@@ -199,7 +213,8 @@ void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 
 	if (!bIsCrouched)
 	{
-		PlayerStance = EPlayerStance::EPS_Crouching;
+		_stance = EPlayerStance::EPS_Crouching;
+
 		Crouch();
 	}
 }
@@ -209,7 +224,7 @@ void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
 	if (bIsCrouched)
 	{
-		PlayerStance = EPlayerStance::EPS_Aiming;
+		_stance = EPlayerStance::EPS_Assault;
 		UnCrouch();
 	}
 }
@@ -243,7 +258,11 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 	{
 		if (CombatComp->EquippedWeapon->GetCanZoom())
 		{
-			CombatComp->bAiming = true;
+			CombatComp->SetAiming(true);
+			_stance = EPlayerStance::EPS_Assault;
+			
+			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
+			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
 		}
 	}
 }
@@ -256,7 +275,18 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 	{
 		if (CombatComp->EquippedWeapon->GetCanZoom())
 		{
-			CombatComp->bAiming = false;
+			CombatComp->SetAiming(false);
+
+			if (_stance == EPlayerStance::EPS_Assault)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = AssaultWalkSpeed;
+			}
+			else if (_stance == EPlayerStance::EPS_LowReady)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = LowReadyWalkSpeed;
+			}
+
+			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchWalkSpeed;
 		}
 	}
 }
@@ -274,6 +304,22 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 		InteractingWeapon->ShowGatherEvidenceWidget(true);
 	}
 }
+
+void APlayerCharacter::PlayFireMontage(bool bAiming)
+{
+	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
+		return;
+	
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if (animInstance && FireWeaponMontage)
+	{
+		animInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		// SectionName =	bAiming ? FName("FireAim") : FName("FireIronsight");
+		SectionName = FName("FireIronsight");
+		animInstance->Montage_JumpToSection(SectionName);
+	}
+} 
 
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {

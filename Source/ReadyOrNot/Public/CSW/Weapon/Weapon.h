@@ -44,7 +44,9 @@ public:
 	float ZoomInterpSpeed = 20.f;
 	
 private:
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	bool bCanZoom = false;
+	
 
 protected:
 	

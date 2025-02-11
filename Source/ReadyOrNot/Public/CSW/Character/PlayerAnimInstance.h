@@ -43,4 +43,8 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	bool bAiming;
+
+	float YawOffset;
+
+	float Lean;
 };

@@ -8,6 +8,7 @@
 #include "CSW/Character/PlayerCharacter.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -67,6 +68,11 @@ void UCombatComponent::SetUpEquipments()
 	// TODO : 플레이어 캐릭터의 장비로 만들기, 안보이게 하기
 }
 
+void UCombatComponent::SetAiming(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (bAiming)
@@ -89,6 +95,10 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
+	if (Character)
+	{
+		Character->PlayFireMontage(bAiming);
+	}
 }
 
 void UCombatComponent::EquipWeapon(class AWeapon* WeaponToEquip)
