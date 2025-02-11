@@ -13,5 +13,8 @@ UCLASS()
 class READYORNOT_API UBTTask_ChasePlayer : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	explicit UBTTask_ChasePlayer(FObjectInitializer const& ObjectInitializer);
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

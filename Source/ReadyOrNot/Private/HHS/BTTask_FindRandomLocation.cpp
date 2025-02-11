@@ -14,15 +14,15 @@ UBTTask_FindRandomLocation::UBTTask_FindRandomLocation(FObjectInitializer const&
 
 EBTNodeResult::Type UBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	// get AI controller and its npc
+	// AI controller, npc 가져오기
 	if (auto* const cont = Cast<ANPC_AIController>(OwnerComp.GetAIOwner()))
 	{
 		if (auto* const npc = cont->GetPawn())
 		{
-			// obtain npc location to use as an origin
+			// npc 위치 가져오기
 			auto const Origin = npc->GetActorLocation();
 
-			// get the navigation system and generate a random location
+			// 내비게이션 가져오고 랜덤 위치 생성
 			if (auto* const NavSys = UNavigationSystemV1::GetCurrent(GetWorld()))
 			{
 				FNavLocation Loc;
@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_FindRandomLocation::ExecuteTask(UBehaviorTreeCompone
 					OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), Loc.Location);
 				}
 
-				// finish with success
+				// 성공
 				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 				return EBTNodeResult::Succeeded;
 			}
