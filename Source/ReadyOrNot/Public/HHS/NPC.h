@@ -24,6 +24,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UBehaviorTree* GetBehaviorTree() const;
+
+	APatrolPath* GetPatrolPath() const;
 	
 protected:
 	// Called when the game starts or when spawned
