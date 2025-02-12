@@ -5,14 +5,11 @@
 
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
+#include "CSW/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -49,7 +46,7 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
-	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));
+	CombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("CombatComp"));
 
 	// CharacterMovement의 Crouch 기능 켜기
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
@@ -86,7 +83,7 @@ void APlayerCharacter::PostInitializeComponents()
 
 	if (CombatComp)
 	{
-		CombatComp->Character = this;
+		CombatComp->PlayerCharacter = this;
 	}
 
 	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
@@ -165,11 +162,6 @@ void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
 	{
 		CombatComp->FireButtonPressed(false);
 	}
-}
-
-void APlayerCharacter::Fire(const FInputActionValue& inputValue)
-{
-	
 }
 
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
@@ -354,11 +346,12 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {
 	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
-		return EEquipmentType::None;
-	
+		return EEquipmentType::EET_None;
+
 	return CombatComp->EquippedWeapon->GetEquipmentType();
 }
 
+// 플레이어의 입력을 받아서 weapon을 Set한다.
 void APlayerCharacter::SetEquippedWeapon(AWeapon* weapon)
 {
 	if (CombatComp == nullptr || weapon == nullptr)
@@ -369,7 +362,7 @@ void APlayerCharacter::SetEquippedWeapon(AWeapon* weapon)
 
 bool APlayerCharacter::IsAiming()
 {
-	return CombatComp && CombatComp->bAiming;
+	return CombatComp && CombatComp->GetAiming();
 }
 
 

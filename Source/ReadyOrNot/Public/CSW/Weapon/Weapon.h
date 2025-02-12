@@ -15,7 +15,7 @@ enum class EWeaponState : uint8
 	EWS_Equipped UMETA(DisplayName = "Equipped State"),
 	EWS_Gathered UMETA(DisplayName = "Gathered State"),
 
-	EWS_Max UMETA(DisplayName = "Default MAX")
+	// EWS_Max UMETA(DisplayName = "Default MAX")
 };
 
 UCLASS()
@@ -32,10 +32,15 @@ protected:
 
 
 public:
+	void DoAction();
+
+	//UPROPERTY(EditAnywhere)
+	//TSubclassOf<ABullet> Bullet;
+	
 	void ShowGatherEvidenceWidget(bool bShowWidget);
 
 	/*
-	 * Zoomed FOV while aiming
+	 * 총기마다 줌 FOV를 갖고있는다.
 	 */
 	UPROPERTY(EditAnywhere)
 	float ZoomedFOV = 70.f;
@@ -43,30 +48,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
 	
-private:
+protected:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	bool bCanZoom = false;
 	
-
-protected:
+	UFUNCTION()
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult );
 	
 	UFUNCTION()
-	virtual void OnSphereOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-	
-	UFUNCTION()
-	virtual void OnSphereEndOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 

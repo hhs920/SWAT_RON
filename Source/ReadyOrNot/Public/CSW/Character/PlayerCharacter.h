@@ -24,8 +24,8 @@ class READYORNOT_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	friend class UPlayerCombatComponent;
 public:
-	friend class UCombatComponent; 
 	
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -81,7 +81,7 @@ public:
 	void FireStarted(const FInputActionValue& inputValue);
 	void FireCompleted(const FInputActionValue& inputValue);
 
-	void Fire(const FInputActionValue& inputValue);
+	// void Fire(const FInputActionValue& inputValue);
 	
 	void PrimaryEquip(const FInputActionValue& inputValue);			// 주무기			1
 	void SecondaryEquip(const FInputActionValue& inputValue);		// 보조무기			2
@@ -119,7 +119,7 @@ public:
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class UCombatComponent* CombatComp;
+	class UPlayerCombatComponent* CombatComp;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage*  FireWeaponMontage;
