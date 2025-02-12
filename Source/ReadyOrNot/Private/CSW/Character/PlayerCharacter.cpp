@@ -11,6 +11,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -67,6 +68,8 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AimOffset(DeltaTime);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -89,6 +92,33 @@ void APlayerCharacter::PostInitializeComponents()
 	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 		TEXT("Camera"));
 	CameraComp->bUsePawnControlRotation = true;
+}
+
+void APlayerCharacter::AimOffset(float DeltaTime)
+{
+	if (CombatComp && CombatComp->EquippedWeapon == nullptr) return;
+	
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+
+	// AO_Yaw 세팅
+	// if (Speed == 0.f) // 멈춰있다
+	// {
+	// 	FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	// 	FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+	// 	AO_Yaw = DeltaAimRotation.Yaw;
+	// 	bUseControllerRotationPitch = false;
+	// }
+	// if (Speed > 0.f) // 움직이고 있다.
+	// {
+	// 	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	// 	AO_Yaw = 0.f;
+	// 	bUseControllerRotationPitch = true;
+	// }
+
+	// AO_Pitch 세팅
+	AO_Pitch = GetBaseAimRotation().Pitch;
 }
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)

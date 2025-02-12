@@ -61,7 +61,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float TurnSpeed = 5.f;
 
+	// Aim Offset
+	void AimOffset(float DeltaTime);
 
+	float AO_Yaw;
+	float AO_Pitch;
+	FRotator StartingAimRotation;
 
 #pragma region 입력
 	
@@ -107,7 +112,6 @@ public:
 
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
 
-public:
 	UPROPERTY(VisibleAnywhere, Category = Interaction)
 	class AWeapon* InteractingWeapon;
 	
@@ -120,17 +124,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage*  FireWeaponMontage;
 
+	EPlayerStance _stance;
+
 public:
 	void PlayFireMontage(bool bAiming); 
 	
 	EEquipmentType GetEquipmentType();
 	void SetEquippedWeapon(AWeapon* weapon);
 	bool IsAiming();
-
-private:
-	EPlayerStance _stance;
-
-
-public:
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
+	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
+	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
+	
 };
