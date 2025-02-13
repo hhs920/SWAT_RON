@@ -7,6 +7,9 @@
 #include "Weapon.generated.h"
 
 enum class EEquipmentType : uint8;
+class USkeletalMeshComponent;
+class USphereComponent;
+class UWidgetComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -15,7 +18,15 @@ enum class EWeaponState : uint8
 	EWS_Equipped UMETA(DisplayName = "Equipped State"),
 	EWS_Gathered UMETA(DisplayName = "Gathered State"),
 
-	// EWS_Max UMETA(DisplayName = "Default MAX")
+	EWS_Max UMETA(DisplayName = "Default MAX")
+};
+
+UENUM(BlueprintType)
+enum class ESelectorState : uint8
+{
+	EST_SemiAuto	UMETA(DisplayName = "단발"),
+	EST_Burst		UMETA(DisplayName = "점사"),
+	EST_FullAuto	UMETA(DisplayName = "연발")
 };
 
 UCLASS()
@@ -32,57 +43,59 @@ protected:
 
 
 public:
-	void DoAction();
-
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<ABullet> Bullet;
-	
 	void ShowGatherEvidenceWidget(bool bShowWidget);
 
 	/*
-	 * 총기마다 줌 FOV를 갖고있는다.
+	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
 	 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "FOV")
 	float ZoomedFOV = 70.f;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "FOV")
 	float ZoomInterpSpeed = 20.f;
 	
-protected:
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+private:
+	UPROPERTY(EditAnywhere, Category = "FOV", meta = (AllowPrivateAccess = true))
 	bool bCanZoom = false;
 	
-	UFUNCTION()
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult );
+
+protected:
 	
 	UFUNCTION()
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USkeletalMeshComponent* WeaponMesh;
+	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* AreaSphere;
+	USphereComponent* AreaSphere;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EEquipmentType EquipmentType;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties",  meta = (AllowPrivateAccess = "true"))
 	EWeaponState WeaponState;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class UWidgetComponent* GatherEvidenceWidget;
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties",  meta = (AllowPrivateAccess = "true"))
+	ESelectorState SelectorState;
 
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UWidgetComponent* GatherEvidenceWidget;
+
+	// Get Set
 public:
 	void SetWeaponState(EWeaponState State);
 	void SetWeaponType(EEquipmentType Type);
 	void SetCanZoom(bool bEnabled);
 	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const {return WeaponMesh;}
 	FORCEINLINE EEquipmentType GetEquipmentType() const {	return EquipmentType; }
 	FORCEINLINE float GetCanZoom() const { return bCanZoom; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }

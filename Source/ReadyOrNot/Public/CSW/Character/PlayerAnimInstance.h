@@ -33,6 +33,9 @@ private:
 	bool bIsAccelerating;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	class AWeapon* EquippedWeapon;	
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	EEquipmentType EquipmentType;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
@@ -53,4 +56,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
 	float AO_Pitch;
+
+	 // FABRIK IF
+	UPROPERTY(BlueprintReadOnly, Category = FABRIK_IK, meta = (AllowPrivateAccess = true))
+	FTransform LeftHandTransform;
+	
 };

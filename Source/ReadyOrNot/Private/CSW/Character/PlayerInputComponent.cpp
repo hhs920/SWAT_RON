@@ -119,7 +119,7 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 	PlayerInput->BindAction(IA_PlayerTurn, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerTurn);
 	PlayerInput->BindAction(IA_PlayerLookUp, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::PlayerLookUp);
 
-	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::FireStarted);
+	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::	FireStarted);
 	PlayerInput->BindAction(IA_Fire, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::FireCompleted);
 
 	PlayerInput->BindAction(IA_PrimaryEquip, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::PrimaryEquip);

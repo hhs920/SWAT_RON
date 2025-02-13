@@ -132,6 +132,7 @@ public:
 	EEquipmentType GetEquipmentType();
 	void SetEquippedWeapon(AWeapon* weapon);
 	bool IsAiming();
+	AWeapon* GetEquippedWeapon() const;
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
