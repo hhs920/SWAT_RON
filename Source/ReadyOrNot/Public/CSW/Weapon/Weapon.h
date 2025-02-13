@@ -37,30 +37,12 @@ class READYORNOT_API AWeapon : public AActor
 public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	
+	void ShowGatherEvidenceWidget(bool bShowWidget);
 
 protected:
 	virtual void BeginPlay() override;
 
-
-public:
-	void ShowGatherEvidenceWidget(bool bShowWidget);
-
-	/*
-	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
-	 */
-	UPROPERTY(EditAnywhere, Category = "FOV")
-	float ZoomedFOV = 70.f;
-	
-	UPROPERTY(EditAnywhere, Category = "FOV")
-	float ZoomInterpSpeed = 20.f;
-	
-private:
-	UPROPERTY(EditAnywhere, Category = "FOV", meta = (AllowPrivateAccess = true))
-	bool bCanZoom = false;
-	
-
-protected:
-	
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -70,6 +52,18 @@ protected:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
+	/*
+	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
+	 */
+	UPROPERTY(EditAnywhere, Category = "FOV")
+	float ZoomedFOV = 70.f;
+	
+	UPROPERTY(EditAnywhere, Category = "FOV")
+	float ZoomInterpSpeed = 20.f;
+	
+	// Zoom 가능한지
+	UPROPERTY(EditAnywhere, Category = "FOV", meta = (AllowPrivateAccess = true))
+	bool bCanZoom = false;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;

@@ -59,20 +59,28 @@ void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-	if (PlayerCharacter)
+	if (WeaponState == EWeaponState::EWS_Dropped)
 	{
-		PlayerCharacter->SetInteractingWeapon(this);
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->SetInteractingWeapon(this);
+		}
 	}
+		
+
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-	if (PlayerCharacter)
+	if (WeaponState == EWeaponState::EWS_Dropped)
 	{
-		PlayerCharacter->SetInteractingWeapon(nullptr);
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->SetInteractingWeapon(nullptr);
+		}
 	}
 }
 
@@ -89,9 +97,15 @@ void AWeapon::SetWeaponState(EWeaponState State)
 		break;
 		
 	case EWeaponState::EWS_Dropped:
+		{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);	
+		}
 		break;
 		
 	case EWeaponState::EWS_Gathered:
+		{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
 		break;
 
 	default:

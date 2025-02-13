@@ -19,20 +19,18 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void SetUpEquipments() override;
-	virtual void EquipWeapon(class AWeapon* WeaponToEquip) override;
+	virtual void ChangeEquipment(EEquipmentType Type) override;
 
-	void GatherEvidence(class AWeapon* EvidenceToGather);
+	virtual void Fire() override;
 	
-	/**
-	 * Aiming and FOV
-	 */
+	// Aiming and FOV
 	void SetAiming(bool bIsAiming);
 	
 	// BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	void InterpFOV(float DeltaTime); // Weapon의 FOV 관련 세팅값에 따라 동작한다.
 	
 	UPROPERTY(VisibleAnywhere, Category = PlayerCharacter)
-    	class APlayerCharacter* PlayerCharacter;
+    class APlayerCharacter* PlayerCharacter;
 	
 	void FireButtonPressed(bool bPressed);
 
@@ -45,29 +43,40 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class AWeapon* CableTie;
 
-	FORCEINLINE bool GetAiming() const { return bAiming; }
+	// 바닥에 있는 증거 무기를 수집한다.
+	void GatherEvidence(class AWeapon* EvidenceToGather);
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetUpInitialEquippedWeapon() override;
 
-	
-private:
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> GrenadeWeaponClass;
+	UPROPERTY()
+	const USkeletalMeshSocket* GrenadeSocket; // 장비가 플레이어에 붙는 위치
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> TacticalWeaponClass;
+	UPROPERTY()
+	const USkeletalMeshSocket* TacticalSocket; // 장비가 플레이어에 붙는 위치
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> LongTacticalWeaponClass;
+	UPROPERTY()
+	const USkeletalMeshSocket* LongTacticalSocket; // 장비가 플레이어에 붙는 위치
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> CableTieWeaponClass;
+	UPROPERTY()
+	const USkeletalMeshSocket* CableTieSocket; // 장비가 플레이어에 붙는 위치
 
+	bool bFireButtonPressed { false };
 
-	bool bAiming;
-	float DefaultFOV;
-	float CurrentFOV;
+private:
+	float DefaultFOV; // BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
+	float CurrentFOV; // Weapon의 FOV 관련 세팅값에 따라 동작한다.
 	
-	bool bFireButtonPressed;
+public:
+	FORCEINLINE bool GetAiming() const { return bAiming; }
+
 };

@@ -130,7 +130,7 @@ public:
 	void PlayFireMontage(bool bAiming); 
 	
 	EEquipmentType GetEquipmentType();
-	void SetEquippedWeapon(AWeapon* weapon);
+	void ChangeEquipment(EEquipmentType Type);
 	bool IsAiming();
 	AWeapon* GetEquippedWeapon() const;
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}

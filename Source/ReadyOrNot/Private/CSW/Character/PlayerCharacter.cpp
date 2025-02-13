@@ -5,9 +5,8 @@
 
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
-#include "CSW/PlayerCombatComponent.h"
+#include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
-#include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -81,6 +80,7 @@ void APlayerCharacter::PostInitializeComponents()
 
 	if (CombatComp)
 	{
+		CombatComp->Character = this;
 		CombatComp->PlayerCharacter = this;
 	}
 
@@ -165,37 +165,37 @@ void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
-	SetEquippedWeapon(CombatComp->Primary);
+	ChangeEquipment(EEquipmentType::EET_Primary);
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
-	SetEquippedWeapon(CombatComp->Secondary);
+	ChangeEquipment(EEquipmentType::EET_Secondary);
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
-	SetEquippedWeapon(CombatComp->Grenade);
+	ChangeEquipment(EEquipmentType::EET_Grenade);
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
-	SetEquippedWeapon(CombatComp->Tactical);
+	ChangeEquipment(EEquipmentType::EET_Tactical);
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
-	SetEquippedWeapon(CombatComp->LongTactical);
+	ChangeEquipment(EEquipmentType::EET_LongTactical);
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
-	SetEquippedWeapon(CombatComp->CableTie);
+	ChangeEquipment(EEquipmentType::EET_CableTie);
 }
 
 void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
@@ -354,16 +354,16 @@ EEquipmentType APlayerCharacter::GetEquipmentType()
 }
 
 // 플레이어의 입력을 받아서 weapon을 Set한다.
-void APlayerCharacter::SetEquippedWeapon(AWeapon* weapon)
+void APlayerCharacter::ChangeEquipment(EEquipmentType Type)
 {
-	if (CombatComp == nullptr || weapon == nullptr)
+	if (CombatComp == nullptr)
 		return;
 
 	// 이미 들고있는 무기면 return
-	if (GetEquippedWeapon()->GetEquipmentType() == weapon->GetEquipmentType())
+	if (GetEquippedWeapon()->GetEquipmentType() == Type)
 		return;
 	
-	CombatComp->EquippedWeapon = weapon;
+	CombatComp->ChangeEquipment(Type);
 }
 
 bool APlayerCharacter::IsAiming()

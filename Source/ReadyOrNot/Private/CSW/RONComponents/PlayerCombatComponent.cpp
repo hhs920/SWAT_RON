@@ -1,13 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CSW/PlayerCombatComponent.h"
+#include "CSW/RONComponents/PlayerCombatComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerCharacter.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "Kismet/GameplayStatics.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent() : UCombatComponent()
 {
@@ -17,6 +16,7 @@ UPlayerCombatComponent::UPlayerCombatComponent() : UCombatComponent()
 void UPlayerCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (PlayerCharacter)
 	{
 		// DefaultFOV 세팅
@@ -28,82 +28,154 @@ void UPlayerCombatComponent::BeginPlay()
 	}
 }
 
+void UPlayerCombatComponent::SetUpInitialEquippedWeapon()
+{
+	Super::SetUpInitialEquippedWeapon();
+}
+
+void UPlayerCombatComponent::ChangeEquipment(EEquipmentType Type)
+{
+	Super::ChangeEquipment(Type);
+
+	// 기존에 들고있던 무기를 EquipmentType에 맞는 소켓에 돌려놓는다(Attach).
+	switch (EquippedWeapon->GetEquipmentType())
+	{
+	case EEquipmentType::EET_Grenade:
+		{
+			if (GrenadeSocket)
+			{
+				GrenadeSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+			}
+		}
+		break;
+	case EEquipmentType::EET_Tactical:
+		{
+			if (TacticalSocket)
+			{
+				TacticalSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+			}
+		}
+		break;
+	case EEquipmentType::EET_LongTactical:
+		{
+			if (LongTacticalSocket)
+			{
+				LongTacticalSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+			}
+		}
+		break;
+	case EEquipmentType::EET_CableTie:
+		{
+			if (CableTieSocket)
+			{
+				CableTieSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+			}
+		}
+		break;
+	}
+
+	// 바꿔들을 무기를 RightHandSocket에 Attach한다.
+	switch (Type)
+	{
+	case EEquipmentType::EET_Grenade:
+		{
+			if (GrenadeSocket)
+			{
+				GrenadeSocket->AttachActor(Grenade, Character->GetMesh());
+				RightHandSocket->AttachActor(Grenade, Character->GetMesh());
+				EquippedWeapon = Grenade;
+			}
+		}
+		break;
+	case EEquipmentType::EET_Tactical:
+		{
+			if (TacticalSocket)
+			{
+				TacticalSocket->AttachActor(Tactical, Character->GetMesh());
+				RightHandSocket->AttachActor(Tactical, Character->GetMesh());
+				EquippedWeapon = Tactical;
+			}
+		}
+		break;
+	case EEquipmentType::EET_LongTactical:
+		{
+			if (LongTacticalSocket)
+			{
+				LongTacticalSocket->AttachActor(LongTactical, Character->GetMesh());
+				RightHandSocket->AttachActor(LongTactical, Character->GetMesh());
+				EquippedWeapon = LongTactical;
+			}
+		}
+		break;
+	case EEquipmentType::EET_CableTie:
+		{
+			if (CableTieSocket)
+			{
+				CableTieSocket->AttachActor(CableTie, Character->GetMesh());
+				RightHandSocket->AttachActor(CableTie, Character->GetMesh());
+				EquippedWeapon = CableTie;
+			}
+		}
+		break;
+	}
+}
+
 void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->PlayFireMontage(bAiming);
+		if (bFireButtonPressed)
+		{
+			PlayerCharacter->PlayFireMontage(bAiming);
+		}
+		else
+		{
+			// 총기가 연사모드인지 단발모드인지 점사모드인지 알아야한다.
+		}
 	}
 }
 
 void UPlayerCombatComponent::SetUpEquipments()
 {
 	Super::SetUpEquipments();
-
 	Grenade = GetWorld()->SpawnActor<AWeapon>(GrenadeWeaponClass);
-	Grenade->SetWeaponType(EEquipmentType::EET_Grenade);
-
 	Tactical = GetWorld()->SpawnActor<AWeapon>(TacticalWeaponClass);
-	Tactical->SetWeaponType(EEquipmentType::EET_Tactical);
-	
 	LongTactical = GetWorld()->SpawnActor<AWeapon>(LongTacticalWeaponClass);
-	LongTactical->SetWeaponType(EEquipmentType::EET_LongTactical);
-
 	CableTie = GetWorld()->SpawnActor<AWeapon>(CableTieWeaponClass);
+
+	Grenade->SetWeaponState(EWeaponState::EWS_Equipped);
+	Tactical->SetWeaponState(EWeaponState::EWS_Equipped);
+	LongTactical->SetWeaponState(EWeaponState::EWS_Equipped);
+	CableTie->SetWeaponState(EWeaponState::EWS_Equipped);
+
+	Grenade->SetWeaponType(EEquipmentType::EET_Grenade);
+	Tactical->SetWeaponType(EEquipmentType::EET_Tactical);
+	LongTactical->SetWeaponType(EEquipmentType::EET_LongTactical);
 	CableTie->SetWeaponType(EEquipmentType::EET_CableTie);
 	
-	PlayerCharacter->SetEquippedWeapon(Primary);
+	GrenadeSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("GrenadeSocket"));
+	if (GrenadeSocket)
+		GrenadeSocket->AttachActor(Grenade, PlayerCharacter->GetMesh());
 
-	// TODO : 플레이어 캐릭터의 장비로 만들기 // 장비X일 때의 위치에 있도록 하기
+	TacticalSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("TacticalSocket"));
+	if (TacticalSocket)
+		TacticalSocket->AttachActor(Tactical, PlayerCharacter->GetMesh());
+
+	LongTacticalSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("LongTacticalSocket"));
+	if (LongTacticalSocket)
+		LongTacticalSocket->AttachActor(LongTactical, PlayerCharacter->GetMesh());
+
+	CableTieSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("CableTieSocket"));
+	if (CableTieSocket)
+		CableTieSocket->AttachActor(CableTie, PlayerCharacter->GetMesh());
 }
 
-void UPlayerCombatComponent::EquipWeapon(class AWeapon* WeaponToEquip)
+void UPlayerCombatComponent::Fire()
 {
-	if (PlayerCharacter == nullptr || WeaponToEquip == nullptr)
-		return;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "EquipWeapon");
+	Super::Fire();
+}
 
-	switch (WeaponToEquip->GetEquipmentType())
-	{
-	case EEquipmentType::EET_Primary:
-		{
-			Primary = WeaponToEquip;
-		}
-		break;
-	case EEquipmentType::EET_Secondary:
-		{
-			Secondary = WeaponToEquip;
-		}
-		break;
-	case EEquipmentType::EET_Grenade:
-		{
-			Grenade = WeaponToEquip;
-		}
-		break;
-	case EEquipmentType::EET_Tactical:
-		{
-			Tactical = WeaponToEquip;
-		}
-		break;
-	case EEquipmentType::EET_LongTactical:
-		{
-			LongTactical = WeaponToEquip;
-		}
-		break;
-	case EEquipmentType::EET_CableTie:
-		{
-			CableTie = WeaponToEquip;
-		}
-		break;
-	}
-	WeaponToEquip->SetWeaponState(EWeaponState::EWS_Equipped);
-
-	const USkeletalMeshSocket* HandSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	if (HandSocket)
-	{
-		HandSocket->AttachActor(WeaponToEquip, PlayerCharacter->GetMesh());
-	}}
 
 void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                            FActorComponentTickFunction* ThisTickFunction)
@@ -136,12 +208,12 @@ void UPlayerCombatComponent::InterpFOV(float DeltaTime)
 	if (bAiming)
 	{
 		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(),
-			DeltaTime, EquippedWeapon->ZoomInterpSpeed);
+			DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
 	}
 	else
 	{
 		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV,
-			DeltaTime, EquippedWeapon->ZoomInterpSpeed);
+			DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
 	}
 
 	if (PlayerCharacter && PlayerCharacter->GetFollowCamera())
@@ -157,7 +229,3 @@ void UPlayerCombatComponent::GatherEvidence(class AWeapon* EvidenceToGather)
 	
 	EvidenceToGather->SetWeaponState(EWeaponState::EWS_Gathered);
 }
-
-
-
-

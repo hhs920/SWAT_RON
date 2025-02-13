@@ -67,15 +67,5 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		LeftHandTransform.SetLocation(outPosition);
 		LeftHandTransform.SetRotation(FQuat(outRotation));
-		
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, 
-				FString::Printf(TEXT("outPosition: X=%.2f, Y=%.2f, Z=%.2f"), outPosition.X, outPosition.Y, outPosition.Z));
-    
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, 
-				FString::Printf(TEXT("outRotation: Pitch=%.2f, Yaw=%.2f, Roll=%.2f"), outRotation.Pitch, outRotation.Yaw, outRotation.Roll));
-		}
-
 	}
 }
