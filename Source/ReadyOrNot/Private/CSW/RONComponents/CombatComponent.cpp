@@ -97,7 +97,15 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if (Character)
 	{
-		Character->PlayFireMontage(bAiming);
+		if (bFireButtonPressed)
+		{
+			Character->PlayFireMontage(bAiming);
+			
+		}
+		else
+		{
+			// 총기가 연사모드인지 단발모드인지 점사모드인지 알아야한다.
+		}
 	}
 }
 

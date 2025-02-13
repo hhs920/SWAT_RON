@@ -289,7 +289,7 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 		if (CombatComp->EquippedWeapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(true);
-			_stance = EPlayerStance::EPS_Assault;
+			//_stance = EPlayerStance::EPS_Assault;
 			
 			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
@@ -315,8 +315,11 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 			{
 				GetCharacterMovement()->MaxWalkSpeed = LowReadyWalkSpeed;
 			}
+			else if (_stance == EPlayerStance::EPS_Crouching)
+			{
+				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchWalkSpeed;
+			}
 
-			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchWalkSpeed;
 		}
 	}
 }
@@ -341,13 +344,14 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 		return;
 	
 	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	// Aim(줌인) 상태와 Ironsights(Assault 스탠스)일 때 다른 애니메이션을 출력한다.
 	if (animInstance && FireWeaponMontage)
 	{
 		animInstance->Montage_Play(FireWeaponMontage);
-		FName SectionName;
-		// SectionName =	bAiming ? FName("FireAim") : FName("FireIronsight");
-		SectionName = FName("FireIronsight");
+		// FName  SectionName = bAiming ? FName("FireAim") : FName("FireIronsight");
+		FName SectionName = FName("Fire_Rifle_Ironsights");
 		animInstance->Montage_JumpToSection(SectionName);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
 	}
 } 
 
