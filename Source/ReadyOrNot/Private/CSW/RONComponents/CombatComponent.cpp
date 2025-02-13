@@ -21,6 +21,15 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	SetUpEquipments();
+
+	// 주무기를 처음에 들고있는다.
+	HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (HandSocket)
+	{
+		HandSocket->AttachActor(Primary, Character->GetMesh());
+		EquippedWeapon = Primary;
+
+	}
 	
 	if (Character)
 	{
@@ -46,26 +55,52 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 void UCombatComponent::SetUpEquipments()
 {
 	Primary = GetWorld()->SpawnActor<AWeapon>(PrimaryWeaponClass);
-	Primary->SetWeaponType(EEquipmentType::EET_Primary);
-	
 	Secondary = GetWorld()->SpawnActor<AWeapon>(SecondaryWeaponClass);
-	Secondary->SetWeaponType(EEquipmentType::EET_Secondary);
-
 	Grenade = GetWorld()->SpawnActor<AWeapon>(GrenadeWeaponClass);
-	Grenade->SetWeaponType(EEquipmentType::EET_Grenade);
-
 	Tactical = GetWorld()->SpawnActor<AWeapon>(TacticalWeaponClass);
-	Tactical->SetWeaponType(EEquipmentType::EET_Tactical);
-	
 	LongTactical = GetWorld()->SpawnActor<AWeapon>(LongTacticalWeaponClass);
-	LongTactical->SetWeaponType(EEquipmentType::EET_LongTactical);
-
 	CableTie = GetWorld()->SpawnActor<AWeapon>(CableTieWeaponClass);
-	CableTie->SetWeaponType(EEquipmentType::EET_CableTie);
 	
-	Character->SetEquippedWeapon(Primary);
+	Primary->SetWeaponType(EEquipmentType::EET_Primary);
+	Secondary->SetWeaponType(EEquipmentType::EET_Secondary);
+	Grenade->SetWeaponType(EEquipmentType::EET_Grenade);
+	Tactical->SetWeaponType(EEquipmentType::EET_Tactical);
+	LongTactical->SetWeaponType(EEquipmentType::EET_LongTactical);
+	CableTie->SetWeaponType(EEquipmentType::EET_CableTie);
 
-	// TODO : 플레이어 캐릭터의 장비로 만들기, 안보이게 하기
+	// 플레이어의 소켓에 부착한다.
+	PrimarySocket = Character->GetMesh()->GetSocketByName(FName("PrimarySocket"));
+	if (PrimarySocket)
+		PrimarySocket->AttachActor(Primary, Character->GetMesh());
+
+	SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SecondarySocket"));
+	if (SecondarySocket)
+		SecondarySocket->AttachActor(Secondary, Character->GetMesh());
+
+	GrenadeSocket = Character->GetMesh()->GetSocketByName(FName("GrenadeSocket"));
+	if (GrenadeSocket)
+		GrenadeSocket->AttachActor(Grenade, Character->GetMesh());
+
+	TacticalSocket = Character->GetMesh()->GetSocketByName(FName("TacticalSocket"));
+	if (TacticalSocket)
+		TacticalSocket->AttachActor(Tactical, Character->GetMesh());
+
+	LongTacticalSocket = Character->GetMesh()->GetSocketByName(FName("LongTacticalSocket"));
+	if (LongTacticalSocket)
+		LongTacticalSocket->AttachActor(LongTactical, Character->GetMesh());
+
+	CableTieSocket = Character->GetMesh()->GetSocketByName(FName("CableTieSocket"));
+	if (CableTieSocket)
+		CableTieSocket->AttachActor(CableTie, Character->GetMesh());
+
+}
+
+void UCombatComponent::ChangeEquipment(EEquipmentType EquipmentType)
+{
+}
+
+void UCombatComponent::AttachEquipmentToSocket(EEquipmentType EquipmentType)
+{
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -109,7 +144,7 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	}
 }
 
-void UCombatComponent::EquipWeapon(class AWeapon* WeaponToEquip)
+void UCombatComponent::PickUpWeapon(class AWeapon* WeaponToEquip)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr)
 		return;
@@ -148,7 +183,7 @@ void UCombatComponent::EquipWeapon(class AWeapon* WeaponToEquip)
 	}
 	WeaponToEquip->SetWeaponState(EWeaponState::EWS_Equipped);
 
-	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (HandSocket)
 	{
 		HandSocket->AttachActor(WeaponToEquip, Character->GetMesh());

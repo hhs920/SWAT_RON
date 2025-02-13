@@ -276,7 +276,7 @@ void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 	
 	if (CombatComp)
 	{
-		CombatComp->EquipWeapon(InteractingWeapon);
+		//CombatComp->EquipWeapon(InteractingWeapon);
 	}
 }
 
@@ -368,12 +368,23 @@ void APlayerCharacter::SetEquippedWeapon(AWeapon* weapon)
 	if (CombatComp == nullptr || weapon == nullptr)
 		return;
 
+	// 이미 들고있는 무기면 return
+	if (GetEquippedWeapon()->GetEquipmentType() == weapon->GetEquipmentType())
+		return;
+	
 	CombatComp->EquippedWeapon = weapon;
 }
 
 bool APlayerCharacter::IsAiming()
 {
 	return CombatComp && CombatComp->bAiming;
+}
+
+AWeapon* APlayerCharacter::GetEquippedWeapon() const
+{
+	if (CombatComp == nullptr) return nullptr;
+
+	return CombatComp->EquippedWeapon;
 }
 
 

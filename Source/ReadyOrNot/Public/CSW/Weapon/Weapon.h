@@ -81,6 +81,7 @@ public:
 	void SetWeaponType(EEquipmentType Type);
 	void SetCanZoom(bool bEnabled);
 	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const {return WeaponMesh;}
 	FORCEINLINE EEquipmentType GetEquipmentType() const {	return EquipmentType; }
 	FORCEINLINE float GetCanZoom() const { return bCanZoom; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
