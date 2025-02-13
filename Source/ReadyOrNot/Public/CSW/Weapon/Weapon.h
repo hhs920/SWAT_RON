@@ -7,6 +7,9 @@
 #include "Weapon.generated.h"
 
 enum class EEquipmentType : uint8;
+class USkeletalMeshComponent;
+class USphereComponent;
+class UWidgetComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -16,6 +19,14 @@ enum class EWeaponState : uint8
 	EWS_Gathered UMETA(DisplayName = "Gathered State"),
 
 	EWS_Max UMETA(DisplayName = "Default MAX")
+};
+
+UENUM(BlueprintType)
+enum class ESelectorState : uint8
+{
+	EST_SemiAuto	UMETA(DisplayName = "단발"),
+	EST_Burst		UMETA(DisplayName = "점사"),
+	EST_FullAuto	UMETA(DisplayName = "연발")
 };
 
 UCLASS()
@@ -61,10 +72,10 @@ protected:
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USkeletalMeshComponent* WeaponMesh;
+	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* AreaSphere;
+	USphereComponent* AreaSphere;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EEquipmentType EquipmentType;
@@ -72,8 +83,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties",  meta = (AllowPrivateAccess = "true"))
 	EWeaponState WeaponState;
 
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties",  meta = (AllowPrivateAccess = "true"))
+	ESelectorState SelectorState;
+
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class UWidgetComponent* GatherEvidenceWidget;
+	UWidgetComponent* GatherEvidenceWidget;
 
 	// Get Set
 public:

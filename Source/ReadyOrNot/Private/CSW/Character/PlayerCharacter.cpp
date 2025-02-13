@@ -59,9 +59,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-
+	
 }
 
 // Called every frame
