@@ -66,7 +66,7 @@ public:
 
 	// 타겟
 	UPROPERTY(VisibleAnywhere, Category = FSM)
-	class AFPSCharacter* target;
+	class APlayerCharacter* target;
 
 	// 소유 액터
 	UPROPERTY()
@@ -74,11 +74,11 @@ public:
 
 	// 공격 범위
 	UPROPERTY(EditAnywhere, Category = FSM)
-	float attackRange = 750.0f;
+	float attackRange = 500.0f;
 	
 	// 공격 대기 시간
 	UPROPERTY(EditAnywhere, Category = FSM)
-	float attackDelayTime = 0.2f;
+	float attackDelayTime = 0.1f;
 
 	// 피격 알림 이벤트 함수
 	void OnDamageProcess();
@@ -91,6 +91,7 @@ public:
 	UPROPERTY(EditAnywhere, Category=FSM)
 	float damageDelayTime = 2.0f;
 
-
-	//bool bPlayed = false;
+	UPROPERTY()
+	class UEnemyAnim* anim;
+	
 };

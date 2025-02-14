@@ -13,8 +13,7 @@ struct FInputActionValue;
 UENUM(BlueprintType)
 enum class EPlayerStance : uint8
 {
-	EPS_Assault       UMETA(DisplayName = "Assault"),		// 돌격자세
-	//EPS_Aiming        UMETA(DisplayName = "Aiming"),        // 조준 상태
+	EPS_Assault		  UMETA(DisplayName = "Aiming"),        // 조준 상태
 	EPS_Crouching     UMETA(DisplayName = "Crouching"),     // 웅크리기
 	EPS_LowReady      UMETA(DisplayName = "Low Ready"),     // 무기를 아래로 내린 상태 (저준비 자세)
 };
@@ -24,8 +23,9 @@ class READYORNOT_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	friend class UPlayerCombatComponent;
 public:
+	friend class UPlayerCombatComponent;
+	friend class UCombatComponent; 
 	
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -71,6 +71,9 @@ protected:
 #pragma region 입력
 	
 public:
+
+#pragma region 입력
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UPlayerInputComponent* InputComp;
 	
@@ -105,18 +108,29 @@ public:
 	void AimCompleted(const FInputActionValue& inputValue);			// 상호작용			RMB
 	
 #pragma endregion
+#pragma region 스프링암, 카메라
 
 public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
-	class UCameraComponent* CameraComp;
+	class USpringArmComponent* SpringArmComp;
 
+	UPROPERTY(VisibleAnywhere, Category=Camera)
+	class UCameraComponent* CameraComp;
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
 
+#pragma endregion
+
+#pragma region 상호작용
+	
+public:
 	UPROPERTY(VisibleAnywhere, Category = Interaction)
 	class AWeapon* InteractingWeapon;
 	
 	void SetInteractingWeapon(AWeapon* Weapon);
 	
+#pragma endregion
+#pragma region 컴뱃 컴포넌트
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UPlayerCombatComponent* CombatComp;
@@ -136,5 +150,12 @@ public:
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
+
+#pragma region AI 인식
 	
+private:
+	class UAIPerceptionStimuliSourceComponent* StimulusSource;
+	void SetupStimulusSource();
+	
+#pragma endregion
 };

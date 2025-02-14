@@ -7,8 +7,14 @@
 #include "Camera/CameraComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
+#include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -49,13 +55,17 @@ APlayerCharacter::APlayerCharacter()
 
 	// CharacterMovement의 Crouch 기능 켜기
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	SetupStimulusSource();	// AI 인식
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+
 }
 
 // Called every frame
@@ -376,6 +386,16 @@ AWeapon* APlayerCharacter::GetEquippedWeapon() const
 	if (CombatComp == nullptr) return nullptr;
 
 	return CombatComp->EquippedWeapon;
+}
+
+void APlayerCharacter::SetupStimulusSource()
+{
+	StimulusSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus"));
+	if (StimulusSource)
+	{
+		StimulusSource->RegisterForSense(TSubclassOf<UAISense_Sight>());
+		StimulusSource->RegisterWithPerceptionSystem();
+	}
 }
 
 

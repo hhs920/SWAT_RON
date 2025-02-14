@@ -11,23 +11,25 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	ConstructorHelpers::FObjectFinder<USkeletalMesh>MeshTmp(TEXT("/Script/Engine.SkeletalMesh'/Game/HHS/Anim/SK_Mannequin.SK_Mannequin'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh>MeshTmp(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
 	if (MeshTmp.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshTmp.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -88), FRotator(0, -90, 0));
 	}
 	
-	ConstructorHelpers::FObjectFinder<UAnimBlueprint>ABP_Manny(TEXT("/Script/Engine.AnimBlueprint'/Game/HHS/Anim/ABP_Manny.ABP_Manny'"));
+	// EnemyFSM 컴포넌트 추가
+	FSM = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 
-	if (ABP_Manny.Succeeded())
+	// 애니메이션 블루프린트 할당
+	ConstructorHelpers::FClassFinder<UAnimInstance>tempClass(TEXT("/Script/Engine.AnimBlueprint'/Game/HHS/BluePrints/ABP_Enemy.ABP_Enemy_C'"));
+
+	if (tempClass.Succeeded())
 	{
-		GetMesh()->SetAnimClass(ABP_Manny.Object->GeneratedClass);
+		GetMesh()->SetAnimInstanceClass(tempClass.Class);
 	}
 	
 	
-	// EnemyFSM 컴포넌트 추가
-	FSM = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 
 // Called when the game starts or when spawned

@@ -7,28 +7,28 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "Slate/SGameLayerManager.h"
 
-UBTTask_FindPlayerLocation::UBTTask_FindPlayerLocation(FObjectInitializer const& ObjectInitializer)
+UBTTask_FindPlayerLocation::UBTTask_FindPlayerLocation(FObjectInitializer const& ObjectInitializer) :
+	UBTTask_BlackboardBase{ObjectInitializer}
 {
 	NodeName = TEXT("Find Player Location");
 }
 
 EBTNodeResult::Type UBTTask_FindPlayerLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	// get player character
+	// 플레이어 가져오기
 	if (auto* const Player = UGameplayStatics::GetPlayerCharacter(GetWorld(),0))
 	{
-		// get player location to use as an origin
+		// 플레이어 위치 가져오기
 		auto const PlayerLocation = Player->GetActorLocation();
 		if (SearchRandom)
 		{
 			FNavLocation Loc;
 
-			// get the naviagation system and generate a random location near the player
+			// 내비게이션 가져오고 플레이어 근처에 랜덤 위치 생성
 			if (auto* const NavSys = UNavigationSystemV1::GetCurrent(GetWorld()))
 			{
-				// try to get a random location near the player
+				// 플레이어 근처에 랜덤 위치 생성
 				if (NavSys->GetRandomPointInNavigableRadius(PlayerLocation, SearchRadius, Loc))
 				{
 					OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(),Loc.Location);

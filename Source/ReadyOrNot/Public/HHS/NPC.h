@@ -3,12 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AICharacterBase.h"
+#include "CombatInterface.h"
+#include "PatrolPath.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "GameFramework/Character.h"
 #include "NPC.generated.h"
+//#include "Animation/AnimMontage.h"
 
 UCLASS()
-class READYORNOT_API ANPC : public ACharacter
+class READYORNOT_API ANPC : public AAICharacterBase, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -23,13 +27,25 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UBehaviorTree* GetBehaviorTree() const;
+
+	APatrolPath* GetPatrolPath() const;
+
+	UAnimMontage* GetMontage() const;
+
+	int MeleeAttack_Implementation() override;
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AI", meta=(AllowPrivateAccess=true))
+private:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AI", meta=(AllowPrivateAccess="true"))
 	UBehaviorTree* Tree;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
+	APatrolPath* PatrolPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess="true"))
+	UAnimMontage* Montage;
 	
 };
