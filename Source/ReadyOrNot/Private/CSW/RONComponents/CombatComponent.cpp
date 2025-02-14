@@ -65,6 +65,7 @@ void UCombatComponent::SetUpInitialEquippedWeapon()
 		{
 			// 보조무기가 있으면 보조무기를 처음에 들고있는다.
 			RightHandSocket->AttachActor(Secondary, Character->GetMesh());
+			Secondary->GetWeaponMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
 			EquippedWeapon = Secondary;
 		}
 	}
@@ -112,6 +113,7 @@ void UCombatComponent::ChangeEquipment(EEquipmentType Type)
 			{
 				SecondarySocket->AttachActor(Secondary, Character->GetMesh());
 				RightHandSocket->AttachActor(Secondary, Character->GetMesh());
+				Secondary->GetWeaponMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
 				EquippedWeapon = Secondary;
 			}
 		}
