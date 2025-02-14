@@ -21,27 +21,27 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// 상호작용 가능한 Sphere을 달아준다.
-	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
-	AreaSphere->SetupAttachment(RootComponent);
-	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
-	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
-
-	GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
-	GatherEvidenceWidget->SetupAttachment(RootComponent);
+	// AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
+	// AreaSphere->SetupAttachment(RootComponent);
+	// AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	// AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	//
+	// AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
+	// AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
+	//
+	// GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
+	// GatherEvidenceWidget->SetupAttachment(RootComponent);
 }
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (GatherEvidenceWidget)
-	{
-		ShowGatherEvidenceWidget(false);
-	}
+	// if (GatherEvidenceWidget)
+	// {
+	// 	ShowGatherEvidenceWidget(false);
+	// }
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -53,7 +53,7 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
 {
-	GatherEvidenceWidget->SetVisibility(bShowWidget);
+	//GatherEvidenceWidget->SetVisibility(bShowWidget);
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -92,19 +92,19 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	case EWeaponState::EWS_Equipped:
 		{
 			ShowGatherEvidenceWidget(false);
-			AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 		break;
 		
 	case EWeaponState::EWS_Dropped:
 		{
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);	
+		//AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);	
 		}
 		break;
 		
 	case EWeaponState::EWS_Gathered:
 		{
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 		break;
 

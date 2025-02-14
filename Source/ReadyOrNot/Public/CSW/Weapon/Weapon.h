@@ -68,8 +68,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	USphereComponent* AreaSphere;
+	//UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	//USphereComponent* AreaSphere;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EEquipmentType EquipmentType;
@@ -80,15 +80,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties",  meta = (AllowPrivateAccess = "true"))
 	ESelectorState SelectorState;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	UWidgetComponent* GatherEvidenceWidget;
+	//UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	//UWidgetComponent* GatherEvidenceWidget;
 
 	// Get Set
 public:
 	void SetWeaponState(EWeaponState State);
 	void SetWeaponType(EEquipmentType Type);
 	void SetCanZoom(bool bEnabled);
-	FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
+	//FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const {return WeaponMesh;}
 	FORCEINLINE EEquipmentType GetEquipmentType() const {	return EquipmentType; }
 	FORCEINLINE float GetCanZoom() const { return bCanZoom; }
