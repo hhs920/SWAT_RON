@@ -4,28 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "EnemyFSM.generated.h"
+#include "RunEnemyFSM.generated.h"
 
-// 사용할 상태 정의
 UENUM(BlueprintType)
-enum class EEnemyState : uint8
+enum ERunEnemyState : uint8
 {
 	Idle UMETA( DisplayName = "대기" ) ,
-	Move UMETA( DisplayName = "이동" ), 
-	Attack UMETA( DisplayName = "공격" ),
-	Damage UMETA( DisplayName = "데미지" ) ,
-	Die UMETA( DisplayName = "죽음" ) ,
-	
+	Moving UMETA( DisplayName = "이동" ), 
+	// UMETA( DisplayName = "공격" ),
+	//Damage UMETA( DisplayName = "데미지" ) ,
+	//Die UMETA( DisplayName = "죽음" ) ,
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class READYORNOT_API UEnemyFSM : public UActorComponent
+class READYORNOT_API URunEnemyFSM : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UEnemyFSM();
+	URunEnemyFSM();
 
 protected:
 	// Called when the game starts
@@ -35,27 +33,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
-
 public:
-	// 상태 변수
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSM)
-	EEnemyState mState = EEnemyState::Idle;
-	
-	// 대기 상태
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=FSM	)
+	ERunEnemyState mState = ERunEnemyState::Idle;
+
 	void IdleState();
-	
-	// 이동 상태
-	void MoveState();
-	
-	// 공격 상태
-	void AttackState();
-	
-	// 피격 상태
-	void DamageState();
-	
-	// 죽음 상태
-	void DieState();
+	void MovingState();
 
 	// 대기 시간
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
@@ -70,7 +53,7 @@ public:
 
 	// 소유 액터
 	UPROPERTY()
-	class AEnemy* me;
+	class ARunEnemy* me;
 
 	// 공격 범위
 	UPROPERTY(EditAnywhere, Category = FSM)
@@ -80,18 +63,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSM)
 	float attackDelayTime = 0.1f;
 
-	// 피격 알림 이벤트 함수
-	void OnDamageProcess();
 
-	// 체력
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
-	int32 hp = 3;
 
-	// 피격 대기 시간
-	UPROPERTY(EditAnywhere, Category=FSM)
-	float damageDelayTime = 2.0f;
-
-	UPROPERTY()
-	class UEnemyAnim* anim;
 	
 };

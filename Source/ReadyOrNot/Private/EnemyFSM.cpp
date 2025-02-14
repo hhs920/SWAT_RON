@@ -3,12 +3,14 @@
 
 #include "EnemyFSM.h"
 
+#include "CSW/Character/PlayerCharacter.h"
 #include "Enemy.h"
-#include "HHS/FPSCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "ReadyOrNot.h"
+#include "VectorTypes.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AnimInstance.h"
+#include "HHS/EnemyAnim.h"
 
 
 // Sets default values for this component's properties
@@ -27,13 +29,16 @@ void UEnemyFSM::BeginPlay()
 	Super::BeginPlay();
 
 	// 월드에서 ATPSPlayer를 찾아오기
-	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), AFPSCharacter::StaticClass());
+	auto actor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass());
 
 	// ATPSPlayer 타입으로 캐스팅
-	target = Cast<AFPSCharacter>(actor);
+	target = Cast<APlayerCharacter>(actor);
 
 	// 소유 객체 가져오기
 	me = Cast<AEnemy>(GetOwner());
+
+	// UEnemyAnim 할당
+	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
 }
 
 
@@ -68,6 +73,8 @@ void UEnemyFSM::IdleState()
 		mState = EEnemyState::Move;
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
+
+		anim->animState = mState;
 	}
 }
 
@@ -88,29 +95,46 @@ void UEnemyFSM::MoveState()
 	{
 		// 공격 상태로 전환하고 싶다.
 		mState = EEnemyState::Attack;
+		// 애니메이션 상태 동기화
+		anim->animState = mState;
+		// 공격 애니메이션 재생 활성화
+		anim->bAttackPlay = true;
+		// 공격 상태 전환 시 대기 시간이 바로 끝나도록 처리
+		CurrentTime = attackDelayTime;
 	}
 }
 
 void UEnemyFSM::AttackState()
 {
-	/*
 	// 일정 시간에 한 번씩 공격하고 싶다.
 	// 시간이 흐르다가
 	CurrentTime += GetWorld()->DeltaTimeSeconds;	// 위에서도 사용하기 때문에 함수 선언하고 쓰는 것도 좋은 방법
 	// 공격 시간이 되면
 	if ( CurrentTime > attackDelayTime )
 	{
-	//	// 공격을 한다.
+		// 공격을 한다.
 		PRINT_LOG(TEXT("Attack~~!@~#!~#"));
 		
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
+		anim->bAttackPlay = true;
 	}
-	if ( bPlayed == true )	return;
 	// 타겟이 공격 범위를 벗어나면 이동 상태로 전환하고 싶다.
-	// 타겟과의 거리가 필요하다.
-	*/
-	
+	// 1. 타겟과의 거리가 필요하다.
+	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
+
+	// 2. 타겟과의 거리가 공격 범위를 벗어남
+	if ( distance > attackRange )
+	{
+		// 3. 상태를 이동 상태로 전환.
+		mState = EEnemyState::Move;
+		// 4. 애니메이션 상태 동기화
+		anim->animState = mState;
+	}
+}
+
+
+/*
 	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
 	
 	// 타겟과의 거리가 공격 범위를 벗어나면
@@ -119,6 +143,7 @@ void UEnemyFSM::AttackState()
 		// 상태를 이동 상태로 전환하고 싶다.
 		mState = EEnemyState::Move;
 		CurrentTime = 0.0f;
+		//->animState = mState;
 	}
 	else
 	{
@@ -130,63 +155,30 @@ void UEnemyFSM::AttackState()
 			UAnimInstance* AnimInstance = me->GetMesh()->GetAnimInstance();
 			if (AnimInstance != nullptr)
 			{
-				//bPlayed = true;
-				//GEngine->AddOnScreenDebugMessage(-1, 5,FColor::Red,TEXT("33"));
-				AnimInstance->Montage_Play(me->AM_Slash);
-				CurrentTime = 0.0f;
-
-				FVector startPos = me->GetMesh()->GetComponentLocation() + FVector(0, 0, 100);
-				FVector endPos = startPos + (me->GetMesh()->GetRightVector() * 150);
-
-				FHitResult hitInfo;
-
-				FCollisionQueryParams params;
-				params.AddIgnoredActor(me);
-				
-				bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECollisionChannel::ECC_GameTraceChannel1, params);
-
-				if (bHit)
+				if (!AnimInstance->Montage_IsPlaying(me->AM_Slash))
 				{
-					auto enemy = hitInfo.GetActor()->GetDefaultSubobjectByName(TEXT("GunMeshComp"));
-
-					if (enemy)
-					{
-						UGameplayStatics::ApplyDamage(hitInfo.GetActor(), 1, NULL, NULL, NULL);
-					}
+					AnimInstance->Montage_Play(me->AM_Slash);
 				}
-				
-			}
-		}
-	}
-	/*
-	FVector Direction = target->GetActorLocation() - me->GetActorLocation();
-	if (Direction.Size() <= attackRange)
-	{
-		if (CurrentTime > attackDelayTime)
-		{
-			UAnimInstance* AnimInstance = me->GetMesh()->GetAnimInstance();
-			if (AnimInstance != nullptr)
-			{
-				AnimInstance->Montage_Play(me->AM_Slash);
 				CurrentTime = 0.0f;
 			}
 		}
 	}
-	else
-	{
-		mState = EEnemyState::Move;
-		CurrentTime = 0.0f;
-	}
-	*/
 }
+ */
 
 void UEnemyFSM::DamageState()
 {
+	// 1. 시간이 흘렀으니까
 	CurrentTime += GetWorld()->DeltaTimeSeconds;
+	// 2. 만약 경과 시간이 대기 시간을 초과했다면
 	if ( CurrentTime > damageDelayTime )
 	{
+		// 3. 대기 상태로 전환.
 		mState = EEnemyState::Idle;
+		// 4. 경과시간 초기화
 		CurrentTime = 0.0f;
+		// 5. 애니메이션 상태 동기화
+		anim->animState = mState;
 	}
 }
 
@@ -195,10 +187,11 @@ void UEnemyFSM::DieState()
 }
 
 void UEnemyFSM::OnDamageProcess()
-{
+{;
 	// 체력 감소
 	hp--;
-	if (hp>0)
+	// 만약 체력이 남아있다면
+	if ( hp > 0 )
 	{
 		mState = EEnemyState::Damage;
 	}
@@ -207,5 +200,7 @@ void UEnemyFSM::OnDamageProcess()
 		mState = EEnemyState::Die;
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+	// 애니메이션 상태 동기화
+	anim->animState = mState;
 }
 

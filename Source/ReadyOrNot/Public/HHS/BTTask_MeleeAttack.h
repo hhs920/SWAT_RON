@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NPC.h"
+#include "HHS/NPC.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -23,5 +23,4 @@ public:
 
 private:
 	bool MontageHasFinished(ANPC* const npc);
-	
 };

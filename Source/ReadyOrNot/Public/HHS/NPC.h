@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AICharacterBase.h"
 #include "CombatInterface.h"
 #include "PatrolPath.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -11,7 +12,7 @@
 //#include "Animation/AnimMontage.h"
 
 UCLASS()
-class READYORNOT_API ANPC : public ACharacter, public ICombatInterface
+class READYORNOT_API ANPC : public AAICharacterBase, public ICombatInterface
 {
 	GENERATED_BODY()
 

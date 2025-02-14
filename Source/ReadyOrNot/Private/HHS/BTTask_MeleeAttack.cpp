@@ -2,8 +2,9 @@
 
 
 #include "HHS/BTTask_MeleeAttack.h"
-
+#include "HHS/NPC.h"
 #include "AIController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UBTTask_MeleeAttack::UBTTask_MeleeAttack()
 {
@@ -20,11 +21,11 @@ EBTNodeResult::Type UBTTask_MeleeAttack::ExecuteTask(UBehaviorTreeComponent& Own
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return EBTNodeResult::Succeeded;
 	}
-
+	
 	// 범위 내에 있으면 AI의 컨트롤러와 NPC 가져옴
 	auto const * const cont = OwnerComp.GetAIOwner();
 	auto * const npc = Cast<ANPC>(cont->GetPawn());
-
+	
 	// 	NPC가 IComnatInterface를 지원하면 Execute_MeleeAttack 함수 호출
 	if (auto* const icombat = Cast<ICombatInterface>(npc))
 	{
@@ -34,7 +35,6 @@ EBTNodeResult::Type UBTTask_MeleeAttack::ExecuteTask(UBehaviorTreeComponent& Own
 			icombat->Execute_MeleeAttack(npc);
 		}
 	}
-
 	// Task 종료
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	return EBTNodeResult::Type();
@@ -42,7 +42,8 @@ EBTNodeResult::Type UBTTask_MeleeAttack::ExecuteTask(UBehaviorTreeComponent& Own
 
 bool UBTTask_MeleeAttack::MontageHasFinished(ANPC* const npc)
 {
-	return npc->GetMesh()->GetAnimInstance()->Montage_GetIsStopped(npc->GetMontage()); 
+	return npc->GetMesh()->GetAnimInstance()->Montage_GetIsStopped(npc->GetMontage());
+	
 }
 
 
