@@ -88,3 +88,7 @@ void URunEnemyFSM::MovingState()
 	
 }
 
+void URunEnemyFSM::HideState()
+{
+}
+

@@ -10,10 +10,8 @@ UENUM(BlueprintType)
 enum class ERunEnemyState : uint8
 {
 	Idle UMETA( DisplayName = "대기" ) ,
-	Moving UMETA( DisplayName = "이동" ), 
-	// UMETA( DisplayName = "공격" ),
-	//Damage UMETA( DisplayName = "데미지" ) ,
-	//Die UMETA( DisplayName = "죽음" ) ,
+	Move UMETA( DisplayName = "이동" ),
+	Hide UMETA( DisplayName = "숨기" ) ,
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -39,6 +37,7 @@ public:
 
 	void IdleState();
 	void MovingState();
+	void HideState();
 
 	// 대기 시간
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
