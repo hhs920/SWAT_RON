@@ -34,7 +34,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=FSM	)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=FSM)
 	ERunEnemyState mState = ERunEnemyState::Idle;
 
 	void IdleState();
@@ -63,6 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSM)
 	float attackDelayTime = 0.1f;
 
+	// 도주 거리
+	UPROPERTY(editAnywhere, Category = FSM)
+	float escapeRange = 500.0f;
 
 
 	

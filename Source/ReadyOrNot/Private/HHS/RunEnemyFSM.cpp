@@ -3,6 +3,7 @@
 
 #include "HHS/RunEnemyFSM.h"
 
+#include "Chaos/ChaosPerfTest.h"
 #include "CSW/Character/PlayerCharacter.h"
 #include "HHS/RunEnemy.h"
 #include "Kismet/GameplayStatics.h"
@@ -67,6 +68,23 @@ void URunEnemyFSM::IdleState()
 
 void URunEnemyFSM::MovingState()
 {
+	// 타겟 목적지가 필요하다.
+	FVector destination = target->GetActorLocation();
+    
+	// 방향이 필요하다 (플레이어 반대 방향으로 설정)
+	FVector dir = me->GetActorLocation() - destination;
+    
+	// dir 방향으로 이동하고 싶다.
+	me->AddMovementInput(dir.GetSafeNormal());
+    
+	// 타겟과 거리를 체크해서 일정 거리 이상으로 멀어지면 Idle 상태로 전환
+	float distance = dir.Size();
+	if (distance > escapeRange) // escapeRange는 도망갈 최소 거리
+	{
+		mState = ERunEnemyState::Idle;
+		//mState = static_cast<TEnumAsByte<ERunEnemyState>>(ERunEnemyState::Idle);
+		CurrentTime = 0.0f;
+	}
 	
 }
 
