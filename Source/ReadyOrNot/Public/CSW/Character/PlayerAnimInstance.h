@@ -33,7 +33,7 @@ private:
 	bool bIsAccelerating;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
-	class AWeapon* EquippedWeapon;	
+	class AEquipment* HoldingEquipment;	
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	EEquipmentType EquipmentType;

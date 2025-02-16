@@ -28,7 +28,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
 	bIsAccelerating = PlayerCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
-	EquippedWeapon = PlayerCharacter->GetEquippedWeapon();
+	HoldingEquipment = PlayerCharacter->GetHoldingEquipment();
 	
 	// 방향
 	// World -> Local 회전 방향을 구하는 방법.
@@ -46,11 +46,11 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	AO_Pitch = PlayerCharacter->GetAO_Pitch();
 
 	// FABRIK IK
-	if (EquippedWeapon && EquippedWeapon->GetWeaponMesh() &&
+	if (HoldingEquipment && HoldingEquipment->GetMesh() &&
 			PlayerCharacter->GetMesh())
 	{
 		// LeftHandSocket의 WorldTransform
-		LeftHandTransform = EquippedWeapon->GetWeaponMesh()
+		LeftHandTransform = HoldingEquipment->GetMesh()
 			->GetSocketTransform(FName("LeftHandSocket"), RTS_World);
 
 		// World Space to Bone Relative Space

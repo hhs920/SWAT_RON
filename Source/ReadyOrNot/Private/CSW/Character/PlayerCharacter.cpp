@@ -101,7 +101,7 @@ void APlayerCharacter::PostInitializeComponents()
 
 void APlayerCharacter::AimOffset(float DeltaTime)
 {
-	if (CombatComp && CombatComp->EquippedWeapon == nullptr) return;
+	if (CombatComp && CombatComp->HoldingEquipment == nullptr) return;
 	
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
@@ -161,6 +161,11 @@ void APlayerCharacter::FireStarted(const FInputActionValue& inputValue)
 	if (CombatComp)
 	{
 		CombatComp->FireButtonPressed(true);
+
+
+		// TODO : 현재 들고있는 장비가 무기이면 LineTrace를 쏘고
+		// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
+		// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
 	}
 }
 
@@ -175,37 +180,37 @@ void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
-	ChangeEquipment(EEquipmentType::EET_Primary);
+	ChangeEquipment(CombatComp->Primary);
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
-	ChangeEquipment(EEquipmentType::EET_Secondary);
+	ChangeEquipment(CombatComp->Secondary);
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
-	ChangeEquipment(EEquipmentType::EET_Grenade);
+	ChangeEquipment(CombatComp->Grenade);
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
-	ChangeEquipment(EEquipmentType::EET_Tactical);
+	ChangeEquipment(CombatComp->Tactical);
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
-	ChangeEquipment(EEquipmentType::EET_LongTactical);
+	ChangeEquipment(CombatComp->LongTactical);
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
-	ChangeEquipment(EEquipmentType::EET_CableTie);
+	ChangeEquipment(CombatComp->CableTie);
 }
 
 void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
@@ -286,7 +291,8 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 
 	if (CombatComp)
 	{
-		if (CombatComp->EquippedWeapon->GetCanZoom())
+		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
+		if (weapon && weapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(true);
 			//_stance = EPlayerStance::EPS_Assault;
@@ -303,7 +309,8 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 
 	if (CombatComp)
 	{
-		if (CombatComp->EquippedWeapon->GetCanZoom())
+		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
+		if (weapon && weapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(false);
 
@@ -328,19 +335,19 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 {
 	if (InteractingWeapon)
 	{
-		InteractingWeapon->ShowGatherEvidenceWidget(false);
+		//->ShowGatherEvidenceWidget(false);
 	}
 
 	InteractingWeapon = Weapon;
 	if (InteractingWeapon)
 	{
-		InteractingWeapon->ShowGatherEvidenceWidget(true);
+		//InteractingWeapon->ShowGatherEvidenceWidget(true);
 	}
 }
 
 void APlayerCharacter::PlayFireMontage(bool bAiming)
 {
-	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
+	if (CombatComp == nullptr || CombatComp->HoldingEquipment == nullptr)
 		return;
 	
 	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
@@ -357,23 +364,23 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {
-	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
-		return EEquipmentType::EET_None;
-
-	return CombatComp->EquippedWeapon->GetEquipmentType();
+	if (CombatComp == nullptr || CombatComp->HoldingEquipment == nullptr)
+		return EEquipmentType::Max;
+	
+	return CombatComp->HoldingEquipment->GetEquipmentType();
 }
 
 // 플레이어의 입력을 받아서 weapon을 Set한다.
-void APlayerCharacter::ChangeEquipment(EEquipmentType Type)
+void APlayerCharacter::ChangeEquipment(class AEquipment* Equipment)
 {
 	if (CombatComp == nullptr)
 		return;
 
 	// 이미 들고있는 무기면 return
-	if (GetEquippedWeapon()->GetEquipmentType() == Type)
+	if (GetHoldingEquipment()->GetEquipmentType() == Equipment->GetEquipmentType())
 		return;
 	
-	CombatComp->ChangeEquipment(Type);
+	CombatComp->SwapEquipment(Equipment);
 }
 
 bool APlayerCharacter::IsAiming()
@@ -381,11 +388,11 @@ bool APlayerCharacter::IsAiming()
 	return CombatComp && CombatComp->GetAiming();
 }
 
-AWeapon* APlayerCharacter::GetEquippedWeapon() const
+AEquipment* APlayerCharacter::GetHoldingEquipment() const
 {
 	if (CombatComp == nullptr) return nullptr;
 
-	return CombatComp->EquippedWeapon;
+	return CombatComp->HoldingEquipment;
 }
 
 void APlayerCharacter::SetupStimulusSource()

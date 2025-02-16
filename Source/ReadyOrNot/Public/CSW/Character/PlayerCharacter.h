@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CSW/RONComponents/CombatComponent.h"
+#include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "GameFramework/Character.h"
 
 #include "PlayerCharacter.generated.h"
@@ -144,9 +145,9 @@ public:
 	void PlayFireMontage(bool bAiming); 
 	
 	EEquipmentType GetEquipmentType();
-	void ChangeEquipment(EEquipmentType Type);
+	void ChangeEquipment(class AEquipment* Equipment);
 	bool IsAiming();
-	AWeapon* GetEquippedWeapon() const;
+	AEquipment* GetHoldingEquipment() const;
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
