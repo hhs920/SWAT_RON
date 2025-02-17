@@ -4,8 +4,6 @@
 #include "CSW/Character/PlayerCharacter.h"
 
 #include "InputActionValue.h"
-#include "MovieSceneTracksComponentTypes.h"
-#include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
@@ -14,7 +12,6 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 
@@ -40,48 +37,26 @@ APlayerCharacter::APlayerCharacter()
 
 	// 스프링암과 카메라	
 	// SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	// SpringArmComp->SetupAttachment(RootComponent);
+	// SpringArmComp->SetupAttachment(GetMesh());
 	// SpringArmComp->TargetArmLength = 0.f; // FPS
+	// SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
 	// SpringArmComp->SetRelativeLocation(FVector(0.f, 10.f, 170.f));
 	
-	//SpringArmComp->bUsePawnControlRotation = true; // 마우스 입력에 따라 회전
-	//SpringArmComp->SetRelativeLocation(FVector(0.f, 10.f, 170.f));
+	// CameraComp 생성
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
+	CameraComp->SetupAttachment(GetMesh());
+
 	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	CombatComp = CreateDefaultSubobject<UPlayerCombatComponent>(TEXT("CombatComp"));
-	
-	CameraChildActor = CreateDefaultSubobject<UChildActorComponent> (TEXT("CameraChildActor"));
-	CameraChildActor->SetupAttachment(GetMesh());
-	
-	CameraChildActor->bEditableWhenInherited = true; // 블루프린트에서 변경 가능하도록 설정
-	CameraChildActor->SetChildActorClass(ACameraActor::StaticClass()); // CameraActor를 ChildActor로 설정
-	
+
 	// CharacterMovement의 Crouch 기능 켜기
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	SetupStimulusSource();	// AI 인식
-}
-
-void APlayerCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	if (CombatComp)
-	{
-		CombatComp->Character = this;
-		CombatComp->PlayerCharacter = this;
-	}
-
-	if (CameraChildActor)
-	{
-		CameraChildActor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-			TEXT("Camera"));
-		
-		Cast<ACameraActor>(CameraChildActor->GetChildActor())->GetCameraComponent()->bUsePawnControlRotation = true;
-	}
 }
 
 // Called when the game starts or when spawned
@@ -90,7 +65,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
 }
 
 // Called every frame
@@ -109,7 +84,20 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComp->SetUpPlayerInputAction(PlayerInputComponent);
 }
 
+void APlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 
+	if (CombatComp)
+	{
+		CombatComp->Character = this;
+		CombatComp->PlayerCharacter = this;
+	}
+
+	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+		TEXT("Camera"));
+	CameraComp->bUsePawnControlRotation = true;
+}
 
 void APlayerCharacter::AimOffset(float DeltaTime)
 {
@@ -311,9 +299,6 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 			
 			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
-
-			// 카메라 전환
-			PlayerController->SetViewTargetWithBlend(weapon->GetCamera(), 0.5f);
 		}
 	}
 }
@@ -342,8 +327,6 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchWalkSpeed;
 			}
 
-			// 카메라 전환
-			PlayerController->SetViewTargetWithBlend(GetCamera(), 0.5f);
 		}
 	}
 }
@@ -423,7 +406,3 @@ void APlayerCharacter::SetupStimulusSource()
 }
 
 
-class ACameraActor* APlayerCharacter::GetCamera() const
-{
-	return CameraChildActor ? Cast<ACameraActor>(CameraChildActor->GetChildActor()) : nullptr;
-}

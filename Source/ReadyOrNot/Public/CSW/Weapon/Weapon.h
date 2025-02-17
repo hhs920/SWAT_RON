@@ -62,11 +62,10 @@ protected:
 	/*
 	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
 	 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	class USpringArmComponent* SpringArmComp;
-	
-	UPROPERTY(EditAnywhere)
-	class UChildActorComponent* CameraChildActor;
+	UPROPERTY()
+	class UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere, Category = "FOV")
 	float ZoomedFOV = 70.f;
@@ -142,7 +141,4 @@ public:
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
-	class ACameraActor* GetCamera() const;
 };
-
-

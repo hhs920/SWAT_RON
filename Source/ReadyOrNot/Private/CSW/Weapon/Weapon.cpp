@@ -3,8 +3,6 @@
 
 #include "CSW/Weapon/Weapon.h"
 
-#include "MovieSceneTracksComponentTypes.h"
-#include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -20,21 +18,14 @@ AWeapon::AWeapon()
 	
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 0.f;
-	SpringArmComp->SetRelativeLocation(FVector(0.f, -30.f, 13.f));
-
-	CameraChildActor = CreateDefaultSubobject<UChildActorComponent> (TEXT("CameraChildActor"));
-	CameraChildActor->SetupAttachment(SpringArmComp);
-	CameraChildActor->bEditableWhenInherited = true; // 블루프린트에서 변경 가능하도록 설정
-	CameraChildActor->SetChildActorClass(ACameraActor::StaticClass()); // CameraActor를 ChildActor로 설정
-
+	
+	CameraComp = CreateDefaultSubobject<UCameraComponent>( TEXT("CameraComp"));
+	CameraComp->SetupAttachment(SpringArmComp);
 }
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
-
 	
 	// if (GatherEvidenceWidget)
 	// {
@@ -112,10 +103,4 @@ bool AWeapon::IsEmpty()
 void AWeapon::SetSelectorState(ESelectorState State)
 {
 	SelectorState = State;
-}
-
-class ACameraActor* AWeapon::GetCamera() const
-{
-	return CameraChildActor ? Cast<ACameraActor>(CameraChildActor->GetChildActor()) : nullptr;
-
 }
