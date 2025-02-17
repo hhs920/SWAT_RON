@@ -25,8 +25,8 @@ class READYORNOT_API APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	friend class UPlayerCombatComponent;
-	friend class UCombatComponent; 
+	//friend class UPlayerCombatComponent;
+	//friend class UCombatComponent; 
 	
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -115,9 +115,14 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
 	class USpringArmComponent* SpringArmComp;
 
-	UPROPERTY(VisibleAnywhere, Category=Camera)
-	class UCameraComponent* CameraComp;
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
+	// UPROPERTY(VisibleAnywhere, Category=Camera)
+	// class UCameraComponent* CameraComp;
+	// FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
+
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* CameraChildActor;
+	class ACameraActor* GetCamera() const;
+
 
 #pragma endregion
 
@@ -133,6 +138,10 @@ public:
 #pragma region 컴뱃 컴포넌트
 
 private:
+	UPROPERTY(VisibleAnywhere, Category = Controller)
+	class APlayerController* PlayerController;
+	
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UPlayerCombatComponent* CombatComp;
 
