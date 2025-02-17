@@ -18,12 +18,21 @@ class READYORNOT_API UEnemyAnim : public UAnimInstance
 public:
 	// 상태 머신 기억 변수
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=FSM)
-	EEnemyState animState;
+	EEnemyState animState = EEnemyState::Idle;
+
+	//// 이동 속도
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=TPSPlayerAnimInstance)
+	//float Speed = 0.0f;
 
 	// 공격 상태 재생할지 여부
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
-	bool bAttackPlay = false;
+	bool bAttackPlay;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
+	class UAnimMontage* EnemyMontage;
+	
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
 	
 	
 	// 공격 애니메이션 끝나는 이벤트 함수

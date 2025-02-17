@@ -46,7 +46,7 @@ void URunEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	switch ( mState )
     	{
     		case ERunEnemyState::Idle:		{ IdleState();		}	break;
-    		case ERunEnemyState::Moving:	{ MovingState();	}	break;
+    		case ERunEnemyState::Move:	{ MovingState();	}	break;
     	}
 
 }
@@ -60,7 +60,7 @@ void URunEnemyFSM::IdleState()
 	if ( CurrentTime > IdleDelayTime )
 	{
 		// 이동 상태로 전환하고 싶다.
-		mState = ERunEnemyState::Moving;
+		mState = ERunEnemyState::Move;
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
 	}

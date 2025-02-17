@@ -81,7 +81,7 @@ public:
 	float attackDelayTime = 0.1f;
 
 	// 피격 알림 이벤트 함수
-	void OnDamageProcess();
+	void OnDamageProcess(int32 damage);
 
 	// 체력
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
@@ -91,7 +91,23 @@ public:
 	UPROPERTY(EditAnywhere, Category=FSM)
 	float damageDelayTime = 2.0f;
 
+	// 이동 속도
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+	float moveSpeed = 300.0f;
+
 	UPROPERTY()
 	class UEnemyAnim* anim;
+
+	// Enemy를 소유하고 있는 AIController
+	UPROPERTY()
+	class AAIController* ai;
+
+	// 길찾기 수행시 랜덤 위치
+	FVector randomPos;
+	
+	// 랜덤 위치 가져오기
+	bool GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest);
+	
+	void OnAttackEnd();
 	
 };

@@ -1,29 +1,24 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "EnemyFSM.h"
 
+#include "AIController.h"
 #include "CSW/Character/PlayerCharacter.h"
 #include "Enemy.h"
+#include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "ReadyOrNot.h"
 #include "VectorTypes.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AnimInstance.h"
 #include "HHS/EnemyAnim.h"
+#include "Navigation/PathFollowingComponent.h"
 
 
-// Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	
 }
 
 
-// Called when the game starts
 void UEnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
@@ -39,14 +34,16 @@ void UEnemyFSM::BeginPlay()
 
 	// UEnemyAnim 할당
 	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
+
+	// AIController 할당
+	ai = Cast<AAIController>(me->GetController());
 }
 
 
-// Called every frame
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	// 실행창에 상태 메세지 출력
 	FString logMsg = UEnum::GetValueAsString(mState);
 	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, logMsg);
@@ -69,11 +66,12 @@ void UEnemyFSM::IdleState()
 	// 만약 경과 시간이 대기 시간을 초과했다면
 	if ( CurrentTime > IdleDelayTime )
 	{
-		// 이동 상태로 전환하고 싶다.
+		// 새로운 랜덤 위치 가져오기
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500.0f, randomPos);
+		// 이동 상태로 전환
 		mState = EEnemyState::Move;
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
-
 		anim->animState = mState;
 	}
 }
@@ -85,14 +83,48 @@ void UEnemyFSM::MoveState()
 	
 	// 방향이 필요하다.
 	FVector dir = destination - me->GetActorLocation();
+	
+	// 월드에 Navigation System을 가져옴
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 
-	// dir 방향으로 이동하고 싶다.
-	me->AddMovementInput(dir.GetSafeNormal());
+	// 목적지 길찾기 경로 데이터 검색
+	FPathFindingQuery query;
+	FAIMoveRequest req;
+
+	// 목적지에서 인지할 수 있는 범위
+	req.SetAcceptanceRadius(3);
+	// 목적지 설정
+	req.SetGoalLocation(destination);
+
+	// 길 찾기를 위한 쿼리 생성
+	ai->BuildPathfindingQuery(req, query);
+	// 길 찾기 결과를 가져오기
+	FPathFindingResult r = ns->FindPathSync(query);
+
+	// 길 찾기 성공 여부 확인
+	if (r.Result == ENavigationQueryResult::Success)
+	{
+		// 타겟으로 이동
+		ai->MoveToLocation(destination);
+	}
+	else
+	{
+		// 랜덤 위치로 이동
+		auto result = ai->MoveToLocation(randomPos);
+		// 목적지로 도착하면
+		if (result == EPathFollowingRequestResult::AlreadyAtGoal)
+		{
+			// 새로운 랜덤 위치 가져오기
+			GetRandomPositionInNavMesh(me->GetActorLocation(), 500.0f, randomPos);
+		}
+	}
 	
 	// 타겟과 거리를 체크해서 attackRange 안으로 들어오면 공격상태로 전환하고 싶다.
 	// 거리 체크
 	if ( dir.Size() < attackRange )
 	{
+		// 길 찾기 기능 중지
+		ai->StopMovement();
 		// 공격 상태로 전환하고 싶다.
 		mState = EEnemyState::Attack;
 		// 애니메이션 상태 동기화
@@ -126,45 +158,14 @@ void UEnemyFSM::AttackState()
 	// 2. 타겟과의 거리가 공격 범위를 벗어남
 	if ( distance > attackRange )
 	{
+		// 새로운 랜덤 위치 가져오기
+		GetRandomPositionInNavMesh(me->GetActorLocation(), 500.0f, randomPos);
 		// 3. 상태를 이동 상태로 전환.
 		mState = EEnemyState::Move;
 		// 4. 애니메이션 상태 동기화
 		anim->animState = mState;
 	}
 }
-
-
-/*
-	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());
-	
-	// 타겟과의 거리가 공격 범위를 벗어나면
-	if ( distance > attackRange )
-	{
-		// 상태를 이동 상태로 전환하고 싶다.
-		mState = EEnemyState::Move;
-		CurrentTime = 0.0f;
-		//->animState = mState;
-	}
-	else
-	{
-		// 일정 시간에 한 번씩 공격하고 싶다.
-		// 시간이 흐르다가
-		CurrentTime += GetWorld()->DeltaTimeSeconds;
-		if (CurrentTime > attackDelayTime)
-		{
-			UAnimInstance* AnimInstance = me->GetMesh()->GetAnimInstance();
-			if (AnimInstance != nullptr)
-			{
-				if (!AnimInstance->Montage_IsPlaying(me->AM_Slash))
-				{
-					AnimInstance->Montage_Play(me->AM_Slash);
-				}
-				CurrentTime = 0.0f;
-			}
-		}
-	}
-}
- */
 
 void UEnemyFSM::DamageState()
 {
@@ -186,21 +187,48 @@ void UEnemyFSM::DieState()
 {
 }
 
-void UEnemyFSM::OnDamageProcess()
-{;
+void UEnemyFSM::OnDamageProcess(int32 damage)
+{
 	// 체력 감소
-	hp--;
+	hp -= damage;
 	// 만약 체력이 남아있다면
 	if ( hp > 0 )
 	{
+		// 상태를 피격으로 변환
 		mState = EEnemyState::Damage;
+		
+		int32 randValue = FMath::RandRange(0,1);
+		FString sectionName = FString::Printf(TEXT("Damage%d"), randValue);
+		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, FName(*sectionName));
 	}
 	else
 	{
+		// 상태를 죽음으로 전환
 		mState = EEnemyState::Die;
-		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 죽음 애니메이션 재생
+		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
 	}
+	// 길찾기 기능 중지
+	ai->StopMovement();
 	// 애니메이션 상태 동기화
 	anim->animState = mState;
 }
+
+bool UEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest)
+{
+	// 월드에 있는 Navigation System을 가져온다.
+	auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+
+	FNavLocation loc;
+	// Radius 범위 안에서 도달할 수 있는 랜덤 위치를 가져옴
+	bool result = ns->GetRandomReachablePointInRadius(centerLocation, radius, loc);
+	dest = loc.Location;
+	return result;
+}
+
+void UEnemyFSM::OnAttackEnd()
+{
+	anim->bAttackPlay = false;
+}
+
 

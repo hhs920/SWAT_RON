@@ -32,8 +32,9 @@ public:
 	class UEnemyFSM* FSM;
 
 public:
-	UPROPERTY(EditAnywhere)
-	UAnimMontage* AM_Slash;
+	UPROPERTY(EditDefaultsOnly)
+	class USkeletalMeshComponent* GunMeshComp;
+	
 
 	
 };
