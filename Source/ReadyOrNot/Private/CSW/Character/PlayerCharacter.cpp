@@ -312,7 +312,7 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
 		if (weapon && weapon->GetCanZoom())
 		{
-			CombatComp->SetAiming(false);
+			CombatComp->SetAiming(true);
 
 			if (_stance == EPlayerStance::EPS_Assault)
 			{
