@@ -56,7 +56,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Input)
 	float LeanRollValue;
 	UPROPERTY(EditAnywhere, Category = Input)
-	float MaxLeanRollValue = 10.f;
+	float MaxLeanRollValue = 15.f;
 	UPROPERTY(EditAnywhere, Category = Input)
 	float LeanInterpSpeed = 5.f;
 	
