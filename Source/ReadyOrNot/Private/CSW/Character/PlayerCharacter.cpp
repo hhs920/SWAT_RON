@@ -219,14 +219,48 @@ void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 	ChangeEquipment(CombatComp->CableTie);
 }
 
-void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
+void APlayerCharacter::LeanStarted(const FInputActionValue& inputValue)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanLeft");
+	if (bLeaning)
+	{
+		// 기울인 상태에서 QE 입력 시, LeaningResetProcess를 취소한다.
+		GetWorld()->GetTimerManager().ClearTimer(LeanCompletedTimer);
+	}
+
+	bLeaning = true;
 }
 
-void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
+void APlayerCharacter::Lean(const FInputActionValue& inputValue)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanRight");
+	float value = inputValue.Get<float>(); // -1 ~ 1
+
+	// [-1, 1] 을 [-MaxRollValue, MaxRollValue]로 변환
+	float clampedValue = FMath::GetMappedRangeValueClamped(FVector2d(-1, 1), FVector2d(-MaxLeanRollValue, MaxLeanRollValue), value);
+	// 
+	LeanRollValue = FMath::FInterpTo(LeanRollValue, clampedValue, GetWorld()->GetDeltaSeconds(), LeanInterpSpeed);
+	// Bone 회전 값 넣어주기
+}
+
+void APlayerCharacter::LeanCompleted(const FInputActionValue& inputValue)
+{
+	// RollValue를 0으로 돌려놓기
+	// Timer이용
+	GetWorld()->GetTimerManager().SetTimer(LeanCompletedTimer, this, &ThisClass::LeaningResetProcess, GetWorld()->GetDeltaSeconds(), true);
+}
+
+void APlayerCharacter::LeaningResetProcess()
+{
+	// RollValue가 0이 될 때까지 RollValue FInterp 처리
+	if (LeanRollValue != 0)
+	{
+		LeanRollValue = FMath::FInterpTo(LeanRollValue, 0, GetWorld()->GetDeltaSeconds(), LeanInterpSpeed);
+	}
+	else
+	{
+		// RollValue가 0이 되어, 기울이기 끝
+		bLeaning = false; 
+		GetWorld()->GetTimerManager().ClearTimer(LeanCompletedTimer); // 타이머 끝내기
+	}
 }
 
 void APlayerCharacter::LowReady(const FInputActionValue& inputValue)

@@ -44,11 +44,9 @@ UPlayerInputComponent::UPlayerInputComponent()
     static ConstructorHelpers::FObjectFinder<UInputAction> CableTieEquipAction(TEXT("/Game/CSW/Input/IA_CableTieEquip.IA_CableTieEquip"));
     if (CableTieEquipAction.Succeeded()) { IA_CableTieEquip = CableTieEquipAction.Object; }
 
-    static ConstructorHelpers::FObjectFinder<UInputAction> LeanLeftAction(TEXT("/Game/CSW/Input/IA_LeanLeft.IA_LeanLeft"));
-    if (LeanLeftAction.Succeeded()) { IA_LeanLeft = LeanLeftAction.Object; }
+    static ConstructorHelpers::FObjectFinder<UInputAction> LeanAction(TEXT("/Game/CSW/Input/IA_Lean.IA_Lean"));
+    if (LeanAction.Succeeded()) { IA_Lean = LeanAction.Object; }
 
-    static ConstructorHelpers::FObjectFinder<UInputAction> LeanRightAction(TEXT("/Game/CSW/Input/IA_LeanRight.IA_LeanRight"));
-    if (LeanRightAction.Succeeded()) { IA_LeanRight = LeanRightAction.Object; }
 
     static ConstructorHelpers::FObjectFinder<UInputAction> LowReadyAction(TEXT("/Game/CSW/Input/IA_LowReady.IA_LowReady"));
     if (LowReadyAction.Succeeded()) { IA_LowReady = LowReadyAction.Object; }
@@ -129,11 +127,11 @@ void UPlayerInputComponent::SetUpPlayerInputAction(UInputComponent* PlayerInputC
 	PlayerInput->BindAction(IA_LongTacticalEquip, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LongTacticalEquip);
 	PlayerInput->BindAction(IA_CableTieEquip, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::CableTieEquip);
 
-	PlayerInput->BindAction(IA_LeanLeft, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LeanLeft);
-	PlayerInput->BindAction(IA_LeanLeft, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::LeanLeft);
-	PlayerInput->BindAction(IA_LeanRight, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LeanRight);
-	PlayerInput->BindAction(IA_LeanRight, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::LeanRight);
-
+	PlayerInput->BindAction(IA_Lean, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LeanStarted);
+	PlayerInput->BindAction(IA_Lean, ETriggerEvent::Triggered, OwnerCharacter, &APlayerCharacter::Lean);
+	PlayerInput->BindAction(IA_Lean, ETriggerEvent::Completed, OwnerCharacter, &APlayerCharacter::LeanCompleted);
+	PlayerInput->BindAction(IA_Lean, ETriggerEvent::Canceled, OwnerCharacter, &APlayerCharacter::LeanCompleted);
+	
 	PlayerInput->BindAction(IA_LowReady, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::LowReady);
 	
 	PlayerInput->BindAction(IA_Crouch, ETriggerEvent::Started, OwnerCharacter, &APlayerCharacter::CrouchStarted);

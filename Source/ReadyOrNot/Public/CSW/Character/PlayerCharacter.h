@@ -51,6 +51,18 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float CrouchAimWalkSpeed {200.f}; // Crouch Stance
+
+	// 기울이기 Q E
+	UPROPERTY(VisibleAnywhere, Category = Input)
+	float LeanRollValue;
+	UPROPERTY(EditAnywhere, Category = Input)
+	float MaxLeanRollValue = 10.f;
+	UPROPERTY(EditAnywhere, Category = Input)
+	float LeanInterpSpeed = 5.f;
+	
+	FTimerHandle LeanCompletedTimer;
+
+	bool bLeaning = false;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -68,6 +80,8 @@ protected:
 	float AO_Yaw;
 	float AO_Pitch;
 	FRotator StartingAimRotation;
+
+
 
 #pragma region 입력
 	
@@ -94,8 +108,10 @@ public:
 	void LongTacticalEquip(const FInputActionValue& inputValue);	// 긴전술장비		5
 	void CableTieEquip(const FInputActionValue& inputValue);		// 케이블타이		6
 	
-	void LeanLeft(const FInputActionValue& inputValue);				// 기울이기_왼쪽		Q 
-	void LeanRight(const FInputActionValue& inputValue);			// 기울이기_오른쪽	E
+	void LeanStarted(const FInputActionValue& inputValue);					// 기울이기 Q - E 
+	void Lean(const FInputActionValue& inputValue);					// 기울이기 Q - E 
+	void LeaningResetProcess(); // 기울이기를 끝내기 위한 처리
+	void LeanCompleted(const FInputActionValue& inputValue);		// 기울이기 Q - E 
 	
 	void LowReady(const FInputActionValue& inputValue);				// 로우레디			spacebar
 	void CrouchStarted(const FInputActionValue& inputValue);			// 앉기				ctrl

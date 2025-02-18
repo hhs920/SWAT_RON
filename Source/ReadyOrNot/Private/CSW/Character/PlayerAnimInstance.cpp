@@ -68,4 +68,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandTransform.SetLocation(outPosition);
 		LeftHandTransform.SetRotation(FQuat(outRotation));
 	}
+
+	// Leaning
+	LeanRollValue = PlayerCharacter->LeanRollValue;
 }

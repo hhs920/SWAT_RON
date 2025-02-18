@@ -60,9 +60,7 @@ private:
 	class UInputAction* IA_CableTieEquip;		// 케이블타이		6
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
-	class UInputAction* IA_LeanLeft;			// 기울이기_왼쪽		Q 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
-	class UInputAction* IA_LeanRight;			// 기울이기_오른쪽	E
+	class UInputAction* IA_Lean;			// 기울이기		Q - E
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input, meta=(AllowPrivateAccess=true))
 	class UInputAction* IA_LowReady;			// 로우레디			spacebar
