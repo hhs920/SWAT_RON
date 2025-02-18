@@ -30,6 +30,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
 	class UAnimMontage* EnemyMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
+	class UAnimMontage* EnemySurrender;
 	
 	UFUNCTION()
 	void AnimNotify_AttackEnd();

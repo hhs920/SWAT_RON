@@ -3,7 +3,11 @@
 
 #include "CSW/Character/PlayerCharacter.h"
 
+#include "Enemy.h"
+#include "EnemyFSM.h"
+#include "EngineUtils.h"
 #include "InputActionValue.h"
+#include "ReadyOrNot.h"
 #include "Camera/CameraComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
@@ -82,6 +86,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 	InputComp->SetUpInputMappingContext(Controller);
 	InputComp->SetUpPlayerInputAction(PlayerInputComponent);
+
+	// // #$!@$##!$#$!@  <<<Enemy 데미지 테스트용>>>  @#$!#!@$!$@#@$#!$!@!$$!$
+	PlayerInputComponent->BindAction("DamageEnemy", IE_Pressed, this, &APlayerCharacter::DamageToEnemy);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -395,6 +402,36 @@ void APlayerCharacter::SetupStimulusSource()
 	{
 		StimulusSource->RegisterForSense(TSubclassOf<UAISense_Sight>());
 		StimulusSource->RegisterWithPerceptionSystem();
+	}
+}
+
+void APlayerCharacter::DamageToEnemy()			// #$!@$##!$#$!@  <<<Enemy 데미지 테스트용>>>  @#$!#!@$!$@#@$#!$!@!$$!$
+{
+	// 플레이어 주변에서 가장 가까운 적 찾기
+	AEnemy* closestEnemy = nullptr;
+	float closestDistance = 1000.0f; // 감지 범위 설정
+
+	for (TActorIterator<AEnemy> It(GetWorld()); It; ++It)
+	{
+		AEnemy* enemy = *It;
+		float distance = FVector::Dist(GetActorLocation(), enemy->GetActorLocation());
+
+		if (distance < closestDistance)
+		{
+			closestDistance = distance;
+			closestEnemy = enemy;
+		}
+	}
+
+	if (closestEnemy)
+	{
+		// 데미지 적용 (예: 1만큼 감소)
+		UEnemyFSM* enemyFSM = closestEnemy->FindComponentByClass<UEnemyFSM>();
+		if (enemyFSM)
+		{
+			enemyFSM->OnDamageProcess(1); // 데미지 1 적용
+			PRINT_LOG(TEXT("적에게 데미지를 입힘!"));
+		}
 	}
 }
 

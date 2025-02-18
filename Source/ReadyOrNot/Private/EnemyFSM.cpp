@@ -9,6 +9,7 @@
 #include "VectorTypes.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AnimInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HHS/EnemyAnim.h"
 #include "Navigation/PathFollowingComponent.h"
 
@@ -37,6 +38,12 @@ void UEnemyFSM::BeginPlay()
 
 	// AIController 할당
 	ai = Cast<AAIController>(me->GetController());
+	    
+	// 이동 속도 설정
+	if (me)
+	{
+		me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed;
+	}
 }
 
 
@@ -191,6 +198,22 @@ void UEnemyFSM::OnDamageProcess(int32 damage)
 {
 	// 체력 감소
 	hp -= damage;
+	if (hp <= surrenderHP && mState != EEnemyState::Surrender)	// 항복 상태 체크
+	{
+		mState = EEnemyState::Surrender;
+		ai->StopMovement();
+		//me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Surrender"));
+		if (anim && anim->EnemySurrender)
+		{
+			me->PlayAnimMontage(anim->EnemySurrender, 1.0f, TEXT("Surrender"));
+			PRINT_LOG(TEXT("적이 항복했습니다!"));
+		}
+		else
+		{
+			PRINT_LOG(TEXT("Error: EnemyMontage가 없습니다!"));
+		}
+		return;
+	}
 	// 만약 체력이 남아있다면
 	if ( hp > 0 )
 	{
@@ -229,6 +252,18 @@ bool UEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius,
 void UEnemyFSM::OnAttackEnd()
 {
 	anim->bAttackPlay = false;
+}
+
+void UEnemyFSM::SurrenderState()
+{
+	ai->StopMovement();
+
+	if (anim)
+	{
+		anim->animState = EEnemyState::Surrender;
+	}
+	PRINT_LOG(TEXT("surrender!!!!"));
+	me->PlayAnimMontage(anim->EnemySurrender, 1.0f, TEXT("Surrender"));
 }
 
 

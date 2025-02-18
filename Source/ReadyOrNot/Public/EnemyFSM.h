@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,6 +13,7 @@ enum class EEnemyState : uint8
 	Attack UMETA( DisplayName = "공격" ),
 	Damage UMETA( DisplayName = "데미지" ) ,
 	Die UMETA( DisplayName = "죽음" ) ,
+	Surrender UMETA(DisplayName = "항복"),
 	
 };
 
@@ -24,15 +23,12 @@ class READYORNOT_API UEnemyFSM : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UEnemyFSM();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	
@@ -85,15 +81,15 @@ public:
 
 	// 체력
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
-	int32 hp = 3;
+	int32 hp = 5;
 
 	// 피격 대기 시간
 	UPROPERTY(EditAnywhere, Category=FSM)
 	float damageDelayTime = 2.0f;
 
 	// 이동 속도
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
-	float moveSpeed = 300.0f;
+	UPROPERTY(EditAnywhere, Category=FSM)
+	float moveSpeed = 150.0f;
 
 	UPROPERTY()
 	class UEnemyAnim* anim;
@@ -109,5 +105,11 @@ public:
 	bool GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest);
 	
 	void OnAttackEnd();
+
+	// 항복 체력 기준
+	UPROPERTY(EditAnywhere, Category=FSM)
+	int32 surrenderHP = 1;
+
+	void SurrenderState();
 	
 };
