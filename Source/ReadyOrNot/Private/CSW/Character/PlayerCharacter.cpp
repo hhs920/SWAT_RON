@@ -162,6 +162,12 @@ void APlayerCharacter::FireStarted(const FInputActionValue& inputValue)
 	{
 		CombatComp->FireButtonPressed(true);
 
+		// LowReady 상태에서 Fire시 Assault로 바로 변경
+		if (_stance == EPlayerStance::EPS_LowReady)
+		{
+			_stance = EPlayerStance::EPS_Assault;
+		}
+
 
 		// TODO : 현재 들고있는 장비가 무기이면 LineTrace를 쏘고
 		// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
@@ -179,53 +185,53 @@ void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
 	ChangeEquipment(CombatComp->Primary);
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
 	ChangeEquipment(CombatComp->Secondary);
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
 	ChangeEquipment(CombatComp->Grenade);
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
 	ChangeEquipment(CombatComp->Tactical);
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
 	ChangeEquipment(CombatComp->LongTactical);
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
 	ChangeEquipment(CombatComp->CableTie);
 }
 
 void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanLeft");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanLeft");
 }
 
 void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanRight");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanRight");
 }
 
 void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
 
 	if (!bIsCrouched)
 	{
@@ -244,7 +250,7 @@ void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 
 void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchStarted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchStarted");
 
 	if (!bIsCrouched)
 	{
@@ -256,7 +262,7 @@ void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
 	if (bIsCrouched)
 	{
 		_stance = EPlayerStance::EPS_Assault;
@@ -266,12 +272,12 @@ void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reload");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reload");
 }
 
 void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
 
 }
 
@@ -287,7 +293,7 @@ void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 
 void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimStarted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimStarted");
 
 	if (CombatComp)
 	{
@@ -295,7 +301,12 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 		if (weapon && weapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(true);
-			//_stance = EPlayerStance::EPS_Assault;
+
+			// LowReady 상태에서 Aim시 Assault로 바로 변경
+			if (_stance == EPlayerStance::EPS_LowReady)
+			{
+				_stance = EPlayerStance::EPS_Assault;
+			}
 			
 			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
@@ -305,14 +316,14 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimCompleted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimCompleted");
 
 	if (CombatComp)
 	{
 		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
 		if (weapon && weapon->GetCanZoom())
 		{
-			CombatComp->SetAiming(true);
+			CombatComp->SetAiming(false);
 
 			if (_stance == EPlayerStance::EPS_Assault)
 			{
@@ -358,7 +369,7 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 		// FName  SectionName = bAiming ? FName("FireAim") : FName("FireIronsight");
 		FName SectionName = FName("Fire_Rifle_Ironsights");
 		animInstance->Montage_JumpToSection(SectionName);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
 	}
 } 
 
