@@ -59,9 +59,11 @@ void UCombatComponent::Equip(AEquipment* Equipment)
 {
 	if ( !Equipment ) return;
 
-	if (Equipment->OwnerCharacter == nullptr) 
+	if (Equipment->OwnerCharacter == nullptr)
+	{
 		Equipment->OwnerCharacter = Character;
-
+		Equipment->SetOwner(Character);
+	}
 	USkeletalMeshSocket const* socketToEquipped = Equipment->GetSocketToEquipped();
 	if (socketToEquipped)
 	{

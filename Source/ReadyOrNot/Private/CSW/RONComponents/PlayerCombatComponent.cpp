@@ -60,7 +60,7 @@ void UPlayerCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
 		[this, holdingWeapon](){
 			this->HoldingEquipment->BeginUse();
 			this->PlayFireMontage(this->bAiming);
-			holdingWeapon->Fire();
+			holdingWeapon->Fire(HitTarget);
 		},
 		holdingWeapon->GetFireDelay(),
 		true
@@ -85,7 +85,7 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 		case ESelectorState::SemiAuto:
 			holdingWeapon->BeginUse(); // 한발 쏜다.
 			PlayFireMontage(bAiming);
-			holdingWeapon->Fire();
+			holdingWeapon->Fire(HitTarget);
 			break;
 		case ESelectorState::Burst:
 			{
@@ -152,13 +152,13 @@ void UPlayerCombatComponent::SetUpEquipments()
 void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 {
 	// 화면 중앙에서
-	FVector2D viewpostSize;
+	FVector2D ViewportSize { FVector2d() };
 	if (GEngine && GEngine->GameViewport)
 	{
-		GEngine->GameViewport->GetViewportSize(viewpostSize);
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
 
-	FVector2D CrossharLocation(viewpostSize.X / 2.f, viewpostSize.Y / 2.f);
+	FVector2D CrossharLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 
 	// Screen Location To World Location
 	FVector CrosshairWorldPosition;
@@ -170,23 +170,26 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 	if(bScreenToWorld)
 	{
 		// LineTrace
-		FVector start = CrosshairWorldPosition;
-		FVector end = start + CrosshairWorldDirection * TraceLength;
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + CrosshairWorldDirection * TraceLength;
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult, start, end, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
 		
-		if (!TraceHitResult.bBlockingHit) // 적중안하면
+		if (!TraceHitResult.bBlockingHit) 
 		{
-			TraceHitResult.ImpactPoint = end;
+			// 적중안하면
+			TraceHitResult.ImpactPoint = End;
+			HitTarget = End;
 		}
 		else
 		{
+			// 적중하면
+			HitTarget = TraceHitResult.ImpactPoint;
 			// 디버그 - 충돌 지점에 구 그리기
 			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f,
 				12, FColor::Red);
 		}
 	}
-	
 }
 
 void UPlayerCombatComponent::SetAiming(bool bIsAiming)
@@ -196,16 +199,16 @@ void UPlayerCombatComponent::SetAiming(bool bIsAiming)
 
 void UPlayerCombatComponent::InterpFOV(float DeltaTime)
 {
-	AWeapon* weapon = Cast<AWeapon>(HoldingEquipment);
+	AWeapon* Weapon = Cast<AWeapon>(HoldingEquipment);
 	if (bAiming)
 	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, weapon->GetZoomedFOV(),
-			DeltaTime, weapon->GetZoomInterpSpeed());
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, Weapon->GetZoomedFOV(),
+			DeltaTime, Weapon->GetZoomInterpSpeed());
 	}
 	else
 	{
 		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV,
-			DeltaTime, weapon->GetZoomInterpSpeed());
+			DeltaTime, Weapon->GetZoomInterpSpeed());
 	}
 
 	if (PlayerCharacter && PlayerCharacter->GetFollowCamera())

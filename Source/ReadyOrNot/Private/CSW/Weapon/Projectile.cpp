@@ -4,6 +4,8 @@
 #include "CSW/Weapon/Projectile.h"
 
 #include "Components/BoxComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -20,14 +22,26 @@ AProjectile::AProjectile()
 		// 보이는 것에는 물리충돌(Block) 되도록한다.
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Block);
-		 
+
+
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->bRotationFollowsVelocity = true; // 속도에 맞춰 회전 // 중력에 따라 경로가 바뀌는데 영향을 준다.
+	ProjectileMovement->InitialSpeed = 15000.f; // 150 m/s
+	ProjectileMovement->MaxSpeed = 15000.f;
 }
 
 // Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (Tracer)
+	{
+		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
+			Tracer, CollisionBox, FName(),
+			GetActorLocation(), GetActorRotation(),
+			EAttachLocation::KeepWorldPosition);
+	}
 }
 
 // Called every frame

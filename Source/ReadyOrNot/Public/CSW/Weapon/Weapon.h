@@ -49,7 +49,7 @@ public:
 	UPROPERTY()
 	FTimerHandle FireTimer;
 
-	virtual void Fire(); // public Use 에서 사용된다. FVector& HitTarget
+	virtual void Fire(FVector& HitTarget); // public Use 에서 사용된다. 
 
 	
 protected:

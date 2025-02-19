@@ -3,9 +3,31 @@
 
 #include "CSW/Weapon/ProjectileWeapon.h"
 
-void AProjectileWeapon::Fire() // FVector& HitTarget
-{
-	Super::Fire(); // HitTarget
+#include "CSW/Weapon/Projectile.h"
+#include "Engine/SkeletalMeshSocket.h"
 
+void AProjectileWeapon::Fire(FVector& HitTarget)
+{
+	Super::Fire(HitTarget);
+
+	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
+
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetMesh()->GetSocketByName(FName("MuzzleFlash"));
 	
+	if (InstigatorPawn && MuzzleFlashSocket)
+	{
+		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetMesh());
+		FVector DirToTarget = HitTarget - SocketTransform.GetLocation();
+		FRotator RotationoTarget = DirToTarget.Rotation();
+		
+		if (ProjectileClass)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = GetOwner();
+			SpawnParams.Instigator = InstigatorPawn;
+			
+			GetWorld()->SpawnActor<AProjectile>(ProjectileClass,
+				SocketTransform.GetLocation(), RotationoTarget, SpawnParams);
+		}
+	}
 }

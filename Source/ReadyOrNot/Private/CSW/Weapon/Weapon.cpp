@@ -85,7 +85,7 @@ void AWeapon::OnEndInteract()
 
 
 
-void AWeapon::Fire() // FVector& HitTarget
+void AWeapon::Fire(FVector& HitTarget)
 {
 	if (FireAnim)
 	{
@@ -102,14 +102,6 @@ void AWeapon::Fire() // FVector& HitTarget
 			BurstFireCount = 0;
 		}
 	}
-
-	// HitTarget을 계산한다.
-	// GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Purple, TEXT("OnBeginUse - Weapon"));
-	
-
-	// TODO : LineTrace를 쏘고
-	// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
-	// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
 }
 
 
