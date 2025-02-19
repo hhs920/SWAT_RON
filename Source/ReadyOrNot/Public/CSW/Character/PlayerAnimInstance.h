@@ -33,7 +33,7 @@ private:
 	bool bIsAccelerating;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
-	class AWeapon* EquippedWeapon;	
+	class AEquipment* HoldingEquipment;	
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	EEquipmentType EquipmentType;
@@ -46,10 +46,12 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	bool bAiming;
-
+	
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
 	float YawOffset;
-
-	float Lean;
+	
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	float LeanRollValue; // QE 기울기 값
 	
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
 	float AO_Yaw;

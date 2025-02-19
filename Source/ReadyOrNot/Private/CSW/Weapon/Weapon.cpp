@@ -3,33 +3,16 @@
 
 #include "CSW/Weapon/Weapon.h"
 
-#include "Components/SphereComponent.h"
-#include "Components/WidgetComponent.h"
+#include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerCharacter.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	SetRootComponent(WeaponMesh);
-
-	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	// Pawn은 무기를 밟고 지나갈 수 있다.
-	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	// 상호작용 가능한 Sphere을 달아준다.
-	// AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
-	// AreaSphere->SetupAttachment(RootComponent);
-	// AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	// AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	// AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	//
-	// AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
-	// AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
-	//
 	// GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
 	// GatherEvidenceWidget->SetupAttachment(RootComponent);
 }
@@ -42,83 +25,145 @@ void AWeapon::BeginPlay()
 	// {
 	// 	ShowGatherEvidenceWidget(false);
 	// }
+
+	if (bUseSemiAuto) AvailableSelectorStates.Add(ESelectorState::SemiAuto);
+	if (bUseBurst) AvailableSelectorStates.Add(ESelectorState::Burst);
+	if (bUseFullAuto) AvailableSelectorStates.Add(ESelectorState::FullAuto);
 }
+
+
 
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
-
-
-void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
+void AWeapon::OnBeginEquip()
 {
-	//GatherEvidenceWidget->SetVisibility(bShowWidget);
 }
 
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AWeapon::OnEndEquip()
 {
-	if (WeaponState == EWeaponState::EWS_Dropped)
+	SetEquippedState(EEquippedState::Equipped);
+
+	MeshComp->SetSimulatePhysics(false);
+	MeshComp->SetEnableGravity(false);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bUsing = false;
+	
+	// 소유자 세팅
+	//OwnerCharacter = 
+}
+
+void AWeapon::OnBeginUnequip()
+{
+	bUsing = false;
+}
+
+void AWeapon::OnEndUnequip()
+{
+}
+
+void AWeapon::OnBeginUse()
+{
+	bUsing = true;
+}
+
+void AWeapon::OnEndUse()
+{
+	bUsing = false;
+}
+
+void AWeapon::OnBeginInteract()
+{
+}
+
+void AWeapon::OnEndInteract()
+{
+}
+
+
+
+void AWeapon::Fire() // FVector& HitTarget
+{
+	if (FireAnim)
 	{
-		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-		if (PlayerCharacter)
+		MeshComp->PlayAnimation(FireAnim, false);		
+	}
+
+	// 점사면 점사 횟수 카운트
+	if (SelectorState == ESelectorState::Burst)
+	{
+		BurstFireCount++;
+		if (BurstFireCount >= MaxBurstCount)
 		{
-			PlayerCharacter->SetInteractingWeapon(this);
+			GetWorld()->GetTimerManager().ClearTimer(FireTimer);
+			BurstFireCount = 0;
 		}
 	}
-		
 
+	// HitTarget을 계산한다.
+	// GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Purple, TEXT("OnBeginUse - Weapon"));
+	
+
+	// TODO : LineTrace를 쏘고
+	// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
+	// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
 }
 
-void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+
+
+void AWeapon::Reload()
 {
-	if (WeaponState == EWeaponState::EWS_Dropped)
+	if (ReloadAnim)
 	{
-		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-		if (PlayerCharacter)
-		{
-			PlayerCharacter->SetInteractingWeapon(nullptr);
-		}
+		MeshComp->PlayAnimation(ReloadAnim, false);		
 	}
 }
 
-void AWeapon::SetWeaponState(EWeaponState State)
+
+
+void AWeapon::OnDropped()
 {
-	WeaponState = State;
-	switch (WeaponState)
+	SetEquippedState(EEquippedState::Dropped);
+	// 소켓에 붙은 것을 뗀다
+
+	// 중력을 적용한다.
+	MeshComp->SetSimulatePhysics(true);
+	MeshComp->SetEnableGravity(true);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+
+
+// void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
+// {
+// 	//GatherEvidenceWidget->SetVisibility(bShowWidget);
+// }
+
+FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
+{
+	return FVector();
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
+}
+
+void AWeapon::ChangeSelectorState()
+{
+	int32 num = AvailableSelectorStates.Num();
+	int32 curIdx = AvailableSelectorStates.Find(SelectorState);
+	int32 nextIdx = curIdx + 1;
+
+	// 없거나 다음이 크기를 넘어갔으면
+	if (num == 0 || curIdx == INDEX_NONE || nextIdx >= AvailableSelectorStates.Num())
 	{
-	case EWeaponState::EWS_Equipped:
-		{
-			ShowGatherEvidenceWidget(false);
-			//AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		{
-		//AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);	
-		}
-		break;
-		
-	case EWeaponState::EWS_Gathered:
-		{
-		//AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-		break;
-
-	default:
-		break;
+		SelectorState = ESelectorState::SemiAuto;
+		return;
 	}
-}
-
-void AWeapon::SetWeaponType(EEquipmentType Type)
-{
-	EquipmentType = Type;
-}
-
-void AWeapon::SetCanZoom(bool bEnabled)
-{
-	bCanZoom = bEnabled;
+	
+	SelectorState = AvailableSelectorStates[nextIdx];
 }

@@ -18,12 +18,10 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// 캐릭터에 소켓들이 추가되어 있어야 한다.
-	PrimarySocket = Character->GetMesh()->GetSocketByName(FName("PrimarySocket"));
-	SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SecondarySocket"));
 	RightHandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	
 	SetUpEquipments();
-	SetUpInitialEquippedWeapon();
+
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -33,130 +31,136 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::SetUpEquipments()
 {
-	Primary = GetWorld()->SpawnActor<AWeapon>(PrimaryWeaponClass);
-	Secondary = GetWorld()->SpawnActor<AWeapon>(SecondaryWeaponClass);
+	if (PrimaryWeaponClass)
+	{
+		Primary = GetWorld()->SpawnActor<AWeapon>(PrimaryWeaponClass);
+		Primary->SetEquipmentType(EEquipmentType::Primary);
+		Equip(Primary);
+		HoldEquipment(Primary);
+	}
 
-	Primary->SetWeaponState(EWeaponState::EWS_Equipped);
-	Secondary->SetWeaponState(EWeaponState::EWS_Equipped);
-	
-	Primary->SetWeaponType(EEquipmentType::EET_Primary);
-	Secondary->SetWeaponType(EEquipmentType::EET_Secondary);
+	if (SecondaryWeaponClass)
+	{
+		Secondary = GetWorld()->SpawnActor<AWeapon>(SecondaryWeaponClass);
+		Secondary->SetEquipmentType(EEquipmentType::Secondary);
+		Equip(Secondary);
 
-	// 캐릭터의 소켓에 부착한다.
-	if (PrimarySocket)
-		PrimarySocket->AttachActor(Primary, Character->GetMesh());
-
-	if (SecondarySocket)
-		SecondarySocket->AttachActor(Secondary, Character->GetMesh());
+	}
 }
 
-void UCombatComponent::SetUpInitialEquippedWeapon()
+void UCombatComponent::SwapEquipment(class AEquipment* Equipment)
 {
-	// 캐릭터에 RightHandSocket이 있어야한다.
+	UnholdEquipment(); 	// 들고있던 무기(EquippedWeapon)를 돌려놓는다.
+	HoldEquipment(Equipment);
+}
+
+
+void UCombatComponent::Equip(AEquipment* Equipment)
+{
+	if ( !Equipment ) return;
+
+	if (Equipment->OwnerCharacter == nullptr) 
+		Equipment->OwnerCharacter = Character;
+
+	USkeletalMeshSocket const* socketToEquipped = Equipment->GetSocketToEquipped();
+	if (socketToEquipped)
+	{
+		socketToEquipped->AttachActor(Equipment, Character->GetMesh());
+		if (Equipment->bRotateYtoX)
+		{
+			FRotator RotationOffset(0.f, -90.f, 0.f); // Y축을 X축으로 회전 (Yaw -90도)
+			Equipment->SetActorRelativeRotation(RotationOffset);
+		}
+		Equipment->SetEquippedState(EEquippedState::Equipped);
+
+	}
+}
+
+void UCombatComponent::PickUpWeapon(class AWeapon* WeaponToEquip)
+{
+
+	
+	// if (Character == nullptr || WeaponToEquip == nullptr)
+	// 	return;
+	// switch (WeaponToEquip->GetEquipmentType())
+	// {
+	// case EEquipmentType::Primary:
+	// 	{
+	// 		Primary = WeaponToEquip;
+	// 	}
+	// 	break;
+	// case EEquipmentType::Secondary:
+	// 	{
+	// 		Secondary = WeaponToEquip;
+	// 	}
+	// 	break;
+	// }
+	// WeaponToEquip->SetEquippedState(EEquippedState::Equipped);
+	//
+	// RightHandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	// if (RightHandSocket)
+	// {
+	// 	RightHandSocket->AttachActor(WeaponToEquip, Character->GetMesh());
+	// }
+}
+
+// hold중이던 장비를 소켓으로 되돌려놓는다.
+void UCombatComponent::UnholdEquipment()
+{
+	if (Character == nullptr || Character->GetMesh() == nullptr || HoldingEquipment == nullptr)
+		return;
+	
+	HoldingEquipment->Unequip();
+	
+	USkeletalMeshSocket const* socketToEquipped = HoldingEquipment->GetSocketToEquipped();
+	if (socketToEquipped)
+	{
+		socketToEquipped->AttachActor(HoldingEquipment, Character->GetMesh());
+		if (HoldingEquipment->bRotateYtoX)
+		{
+			FRotator RotationOffset(0.f, -90.f, 0.f); // Y축을 X축으로 회전 (Yaw -90도)
+			HoldingEquipment->SetActorRelativeRotation(RotationOffset);
+		}
+		HoldingEquipment->SetEquippedState(EEquippedState::Equipped);
+		HoldingEquipment = nullptr;
+	}
+}
+
+// equip 중이던 장비를 righthand 소켓으로 가져온다.
+void UCombatComponent::HoldEquipment(AEquipment* ToHandle)
+{
+	if (Character == nullptr || Character->GetMesh() == nullptr || ToHandle == nullptr)
+		return;
+	
 	if (RightHandSocket)
 	{
-		if (Primary)
+		RightHandSocket->AttachActor(ToHandle, Character->GetMesh());
+		if (ToHandle->bRotateYtoX)
 		{
-			// 주무기가 있으면 주무기를 처음에 들고있는다.
-			RightHandSocket->AttachActor(Primary, Character->GetMesh());
-			EquippedWeapon = Primary;
+			FRotator RotationOffset(0.f, -90.f, 0.f); // Y축을 X축으로 회전 (Yaw -90도)
+			ToHandle->SetActorRelativeRotation(RotationOffset);
 		}
-		else if (Secondary)
-		{
-			// 보조무기가 있으면 보조무기를 처음에 들고있는다.
-			RightHandSocket->AttachActor(Secondary, Character->GetMesh());
-			Secondary->GetWeaponMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
-			EquippedWeapon = Secondary;
-		}
+		ToHandle->Equip();
+		HoldingEquipment = ToHandle;
+		HoldingEquipment->SetEquippedState(EEquippedState::Holding);
 	}
 }
 
-void UCombatComponent::ChangeEquipment(EEquipmentType Type)
+void UCombatComponent::PlayFireMontage(bool bAim)
 {
-	// 기존에 들고있던 무기를 EquipmentType에 맞는 소켓에 돌려놓는다(Attach).
-	switch (EquippedWeapon->GetEquipmentType())
+	if (HoldingEquipment == nullptr)
+		return;
+	
+	UAnimInstance* animInstance = Character->GetMesh()->GetAnimInstance();
+	// Aim(줌인) 상태와 Ironsights(Assault 스탠스)일 때 다른 애니메이션을 출력한다.
+	if (animInstance && FireWeaponMontage)
 	{
-	case EEquipmentType::EET_Primary:
-		{
-			if (PrimarySocket)
-			{
-				PrimarySocket->AttachActor(EquippedWeapon, Character->GetMesh());
-			}
-		}
-		break;
-	case EEquipmentType::EET_Secondary:
-		{
-			if (SecondarySocket)
-			{
-				SecondarySocket->AttachActor(EquippedWeapon, Character->GetMesh());
-			}
-		}
-		break;
+		animInstance->Montage_Play(FireWeaponMontage);
+		// FName  SectionName = bAim ? FName("FireAim") : FName("FireIronsight");
+		FName SectionName = FName("Fire_Rifle_Ironsights");
+		animInstance->Montage_JumpToSection(SectionName);
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
 	}
 
-	// 바꿔들을 무기를 RightHandSocket에 Attach한다.
-	switch (Type)
-	{
-	case EEquipmentType::EET_Primary:
-		{
-			if (PrimarySocket)
-			{
-				PrimarySocket->AttachActor(Primary, Character->GetMesh());
-				RightHandSocket->AttachActor(Primary, Character->GetMesh());
-				EquippedWeapon = Primary;
-			}
-		}
-		break;
-	case EEquipmentType::EET_Secondary:
-		{
-			if (SecondarySocket)
-			{
-				SecondarySocket->AttachActor(Secondary, Character->GetMesh());
-				RightHandSocket->AttachActor(Secondary, Character->GetMesh());
-				Secondary->GetWeaponMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
-				EquippedWeapon = Secondary;
-			}
-		}
-		break;
-	}
-}
-
-// void UCombatComponent::AttachEquipmentToSocket(EEquipmentType EquipmentType)
-// {
-// }
-
-void UCombatComponent::Fire()
-{
-	//EquippedWeapon->
-}
-
-
-// void UCombatComponent::PickUpWeapon(class AWeapon* WeaponToEquip)
-// {
-// 	if (Character == nullptr || WeaponToEquip == nullptr)
-// 		return;
-// 	switch (WeaponToEquip->GetEquipmentType())
-// 	{
-// 	case EEquipmentType::EET_Primary:
-// 		{
-// 			Primary = WeaponToEquip;
-// 		}
-// 		break;
-// 	case EEquipmentType::EET_Secondary:
-// 		{
-// 			Secondary = WeaponToEquip;
-// 		}
-// 		break;
-// 	}
-// 	WeaponToEquip->SetWeaponState(EWeaponState::EWS_Equipped);
-//
-// 	HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-// 	if (HandSocket)
-// 	{
-// 		HandSocket->AttachActor(WeaponToEquip, Character->GetMesh());
-// 	}
-// }
-
-
-
-
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Playing Fire Montage");
+} 

@@ -18,11 +18,9 @@ public:
 	UPlayerCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void SetUpEquipments() override;
-	virtual void ChangeEquipment(EEquipmentType Type) override;
+	virtual void SwapEquipment(class AEquipment* Equipment) override;
+	void FireWeaponSetTimer(AWeapon* holdingWeapon);
 
-	virtual void Fire() override;
-	
 	// Aiming and FOV
 	void SetAiming(bool bIsAiming);
 	
@@ -44,31 +42,25 @@ public:
 	class AWeapon* CableTie;
 
 	// 바닥에 있는 증거 무기를 수집한다.
-	void GatherEvidence(class AWeapon* EvidenceToGather);
+	//void GatherEvidence(class AWeapon* EvidenceToGather);
+
+	void Interact(AActor* ToInteract);
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetUpInitialEquippedWeapon() override;
+	virtual void SetUpEquipments() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> GrenadeWeaponClass;
-	UPROPERTY()
-	const USkeletalMeshSocket* GrenadeSocket; // 장비가 플레이어에 붙는 위치
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> TacticalWeaponClass;
-	UPROPERTY()
-	const USkeletalMeshSocket* TacticalSocket; // 장비가 플레이어에 붙는 위치
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> LongTacticalWeaponClass;
-	UPROPERTY()
-	const USkeletalMeshSocket* LongTacticalSocket; // 장비가 플레이어에 붙는 위치
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> CableTieWeaponClass;
-	UPROPERTY()
-	const USkeletalMeshSocket* CableTieSocket; // 장비가 플레이어에 붙는 위치
 
 	bool bFireButtonPressed { false };
 

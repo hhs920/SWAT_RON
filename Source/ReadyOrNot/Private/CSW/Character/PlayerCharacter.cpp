@@ -14,7 +14,7 @@
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"	
 #include "GameFramework/SpringArmComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
@@ -108,7 +108,7 @@ void APlayerCharacter::PostInitializeComponents()
 
 void APlayerCharacter::AimOffset(float DeltaTime)
 {
-	if (CombatComp && CombatComp->EquippedWeapon == nullptr) return;
+	if (CombatComp && CombatComp->HoldingEquipment == nullptr) return;
 	
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
@@ -168,6 +168,12 @@ void APlayerCharacter::FireStarted(const FInputActionValue& inputValue)
 	if (CombatComp)
 	{
 		CombatComp->FireButtonPressed(true);
+		
+		// LowReady 상태에서 Fire시 Assault로 바로 변경
+		if (_stance == EPlayerStance::EPS_LowReady)
+		{
+			_stance = EPlayerStance::EPS_Assault;
+		}
 	}
 }
 
@@ -181,53 +187,87 @@ void APlayerCharacter::FireCompleted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::PrimaryEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
-	ChangeEquipment(EEquipmentType::EET_Primary);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PrimaryEquip");
+	ChangeEquipment(CombatComp->Primary);
 }
 
 void APlayerCharacter::SecondaryEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
-	ChangeEquipment(EEquipmentType::EET_Secondary);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "SecondaryEquip");
+	ChangeEquipment(CombatComp->Secondary);
 }
 
 void APlayerCharacter::GrenadeEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
-	ChangeEquipment(EEquipmentType::EET_Grenade);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "GrenadeEquip");
+	ChangeEquipment(CombatComp->Grenade);
 }
 
 void APlayerCharacter::TacticalEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
-	ChangeEquipment(EEquipmentType::EET_Tactical);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "TacticalEquip");
+	ChangeEquipment(CombatComp->Tactical);
 }
 
 void APlayerCharacter::LongTacticalEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
-	ChangeEquipment(EEquipmentType::EET_LongTactical);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LongTacticalEquip");
+	ChangeEquipment(CombatComp->LongTactical);
 }
 
 void APlayerCharacter::CableTieEquip(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
-	ChangeEquipment(EEquipmentType::EET_CableTie);
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CableTieEquip");
+	ChangeEquipment(CombatComp->CableTie);
 }
 
-void APlayerCharacter::LeanLeft(const FInputActionValue& inputValue)
+void APlayerCharacter::LeanStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanLeft");
+	if (bLeaning)
+	{
+		// 기울인 상태에서 QE 입력 시, LeaningResetProcess를 취소한다.
+		GetWorld()->GetTimerManager().ClearTimer(LeanCompletedTimer);
+	}
+
+	bLeaning = true;
 }
 
-void APlayerCharacter::LeanRight(const FInputActionValue& inputValue)
+void APlayerCharacter::Lean(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LeanRight");
+	float value = inputValue.Get<float>(); // -1 ~ 1
+
+	// [-1, 1] 을 [-MaxRollValue, MaxRollValue]로 변환
+	float clampedValue = FMath::GetMappedRangeValueClamped(FVector2d(-1, 1), FVector2d(-MaxLeanRollValue, MaxLeanRollValue), value);
+	// 
+	LeanRollValue = FMath::FInterpTo(LeanRollValue, clampedValue, GetWorld()->GetDeltaSeconds(), LeanInterpSpeed);
+	// Bone 회전 값 넣어주기
+}
+
+void APlayerCharacter::LeanCompleted(const FInputActionValue& inputValue)
+{
+	// RollValue를 0으로 돌려놓기
+	// Timer이용
+	GetWorld()->GetTimerManager().SetTimer(LeanCompletedTimer, this, &ThisClass::LeaningResetProcess, GetWorld()->GetDeltaSeconds(), true);
+}
+
+void APlayerCharacter::LeaningResetProcess()
+{
+	// RollValue가 0이 될 때까지 RollValue FInterp 처리
+	if (LeanRollValue != 0)
+	{
+		LeanRollValue = FMath::FInterpTo(LeanRollValue, 0, GetWorld()->GetDeltaSeconds(), LeanInterpSpeed);
+	}
+	else
+	{
+		// RollValue가 0이 되어, 기울이기 끝
+		bLeaning = false; 
+		GetWorld()->GetTimerManager().ClearTimer(LeanCompletedTimer); // 타이머 끝내기
+	}
 }
 
 void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "LowReady");
 
 	if (!bIsCrouched)
 	{
@@ -246,7 +286,7 @@ void APlayerCharacter::LowReady(const FInputActionValue& inputValue)
 
 void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchStarted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchStarted");
 
 	if (!bIsCrouched)
 	{
@@ -258,7 +298,7 @@ void APlayerCharacter::CrouchStarted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "CrouchCompleted");
 	if (bIsCrouched)
 	{
 		_stance = EPlayerStance::EPS_Assault;
@@ -268,13 +308,18 @@ void APlayerCharacter::CrouchCompleted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reload");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reload");
 }
 
 void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
-
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
+	AWeapon* weapon = Cast<AWeapon>(GetHoldingEquipment());
+	if (weapon)
+	{
+		
+		weapon->ChangeSelectorState();
+	}
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& inputValue)
@@ -289,14 +334,20 @@ void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 
 void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimStarted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimStarted");
 
 	if (CombatComp)
 	{
-		if (CombatComp->EquippedWeapon->GetCanZoom())
+		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
+		if (weapon && weapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(true);
-			//_stance = EPlayerStance::EPS_Assault;
+
+			// LowReady 상태에서 Aim시 Assault로 바로 변경
+			if (_stance == EPlayerStance::EPS_LowReady)
+			{
+				_stance = EPlayerStance::EPS_Assault;
+			}
 			
 			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
@@ -306,11 +357,12 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 
 void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimCompleted");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "AimCompleted");
 
 	if (CombatComp)
 	{
-		if (CombatComp->EquippedWeapon->GetCanZoom())
+		AWeapon* weapon = Cast<AWeapon>(CombatComp->HoldingEquipment);
+		if (weapon && weapon->GetCanZoom())
 		{
 			CombatComp->SetAiming(false);
 
@@ -335,52 +387,39 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 {
 	if (InteractingWeapon)
 	{
-		InteractingWeapon->ShowGatherEvidenceWidget(false);
+		//->ShowGatherEvidenceWidget(false);
 	}
 
 	InteractingWeapon = Weapon;
 	if (InteractingWeapon)
 	{
-		InteractingWeapon->ShowGatherEvidenceWidget(true);
+		//InteractingWeapon->ShowGatherEvidenceWidget(true);
 	}
 }
-
-void APlayerCharacter::PlayFireMontage(bool bAiming)
-{
-	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
-		return;
-	
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	// Aim(줌인) 상태와 Ironsights(Assault 스탠스)일 때 다른 애니메이션을 출력한다.
-	if (animInstance && FireWeaponMontage)
-	{
-		animInstance->Montage_Play(FireWeaponMontage);
-		// FName  SectionName = bAiming ? FName("FireAim") : FName("FireIronsight");
-		FName SectionName = FName("Fire_Rifle_Ironsights");
-		animInstance->Montage_JumpToSection(SectionName);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
-	}
-} 
 
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {
-	if (CombatComp == nullptr || CombatComp->EquippedWeapon == nullptr)
-		return EEquipmentType::EET_None;
-
-	return CombatComp->EquippedWeapon->GetEquipmentType();
+	if (CombatComp == nullptr || CombatComp->HoldingEquipment == nullptr)
+		return EEquipmentType::Max;
+	
+	return CombatComp->HoldingEquipment->GetEquipmentType();
 }
 
 // 플레이어의 입력을 받아서 weapon을 Set한다.
-void APlayerCharacter::ChangeEquipment(EEquipmentType Type)
+void APlayerCharacter::ChangeEquipment(class AEquipment* Equipment)
 {
 	if (CombatComp == nullptr)
 		return;
 
+	// 장비를 사용중이면 장비 교체 불가
+	if (CombatComp->HoldingEquipment->GetUsing())
+		return;
+
 	// 이미 들고있는 무기면 return
-	if (GetEquippedWeapon()->GetEquipmentType() == Type)
+	if (GetHoldingEquipment()->GetEquipmentType() == Equipment->GetEquipmentType())
 		return;
 	
-	CombatComp->ChangeEquipment(Type);
+	CombatComp->SwapEquipment(Equipment);
 }
 
 bool APlayerCharacter::IsAiming()
@@ -388,11 +427,11 @@ bool APlayerCharacter::IsAiming()
 	return CombatComp && CombatComp->GetAiming();
 }
 
-AWeapon* APlayerCharacter::GetEquippedWeapon() const
+AEquipment* APlayerCharacter::GetHoldingEquipment() const
 {
 	if (CombatComp == nullptr) return nullptr;
 
-	return CombatComp->EquippedWeapon;
+	return CombatComp->HoldingEquipment;
 }
 
 void APlayerCharacter::SetupStimulusSource()
