@@ -59,9 +59,11 @@ void UCombatComponent::Equip(AEquipment* Equipment)
 {
 	if ( !Equipment ) return;
 
-	if (Equipment->OwnerCharacter == nullptr) 
+	if (Equipment->OwnerCharacter == nullptr)
+	{
 		Equipment->OwnerCharacter = Character;
-
+		Equipment->SetOwner(Character);
+	}
 	USkeletalMeshSocket const* socketToEquipped = Equipment->GetSocketToEquipped();
 	if (socketToEquipped)
 	{
@@ -161,6 +163,4 @@ void UCombatComponent::PlayFireMontage(bool bAim)
 		animInstance->Montage_JumpToSection(SectionName);
 		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Playing Fire Montage");
 } 

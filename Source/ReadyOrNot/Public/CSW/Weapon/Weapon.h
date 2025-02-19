@@ -49,7 +49,7 @@ public:
 	UPROPERTY()
 	FTimerHandle FireTimer;
 
-	virtual void Fire(); // public Use 에서 사용된다. FVector& HitTarget
+	virtual void Fire(FVector& HitTarget); // public Use 에서 사용된다. 
 
 	
 protected:
@@ -140,8 +140,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapon", meta = (AllowPrivateAccess = true))
 	float HeadShotDamage = 40.f;
 
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<class ACasing> CasingClass; // 탄환
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACasing> CasingClass; // 탄피
 
 	UPROPERTY(EditAnywhere)
 	int32 Ammo;
@@ -157,6 +157,7 @@ protected:
 public:
 	bool IsEmpty();
 	// bool IsFull();
+	FORCEINLINE void SetBurstFireCount(int32 cnt);
 	
 	// GET SET
 	FORCEINLINE ESelectorState GetSelectorState() const {	return SelectorState; }

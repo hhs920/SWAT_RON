@@ -4,7 +4,9 @@
 #include "CSW/Weapon/Weapon.h"
 
 #include "Camera/CameraComponent.h"
+#include "CSW/Casing.h"
 #include "CSW/Character/PlayerCharacter.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -68,6 +70,7 @@ void AWeapon::OnEndUnequip()
 void AWeapon::OnBeginUse()
 {
 	bUsing = true;
+	Fire(LineTraceTarget);
 }
 
 void AWeapon::OnEndUse()
@@ -85,7 +88,7 @@ void AWeapon::OnEndInteract()
 
 
 
-void AWeapon::Fire() // FVector& HitTarget
+void AWeapon::Fire(FVector& HitTarget)
 {
 	if (FireAnim)
 	{
@@ -103,13 +106,21 @@ void AWeapon::Fire() // FVector& HitTarget
 		}
 	}
 
-	// HitTarget을 계산한다.
-	// GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Purple, TEXT("OnBeginUse - Weapon"));
+	if (CasingClass)
+	{
+		if (AmmoEjectSocket == nullptr)
+			AmmoEjectSocket = GetMesh()->GetSocketByName(FName("AmmoEject"));
 	
-
-	// TODO : LineTrace를 쏘고
-	// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
-	// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
+		if (AmmoEjectSocket)
+		{
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(GetMesh());
+			FActorSpawnParameters SpawnParams;
+			GetWorld()->SpawnActor<ACasing>(CasingClass,
+				SocketTransform.GetLocation(),
+				SocketTransform.GetRotation().Rotator(),
+				SpawnParams);
+		}
+	}
 }
 
 
@@ -150,6 +161,11 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 bool AWeapon::IsEmpty()
 {
 	return Ammo <= 0;
+}
+
+void AWeapon::SetBurstFireCount(int32 cnt)
+{
+	BurstFireCount = cnt;
 }
 
 void AWeapon::ChangeSelectorState()

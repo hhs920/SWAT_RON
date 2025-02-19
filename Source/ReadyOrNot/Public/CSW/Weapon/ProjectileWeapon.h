@@ -7,15 +7,15 @@
 #include "ProjectileWeapon.generated.h"
 
 /**
- * 
- */
+    * 
+    */
 UCLASS()
 class READYORNOT_API AProjectileWeapon : public AWeapon
 {
 	GENERATED_BODY()
 
 protected:
-	virtual void Fire() override; // FVector& HitTarget
+	virtual void Fire(FVector& HitTarget) override;
 
 private:
 	UPROPERTY(EditAnywhere)

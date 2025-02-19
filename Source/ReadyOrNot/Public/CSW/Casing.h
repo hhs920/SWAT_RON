@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Projectile.generated.h"
+#include "Casing.generated.h"
 
 UCLASS()
-class READYORNOT_API AProjectile : public AActor
+class READYORNOT_API ACasing : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	AProjectile();
-	virtual void Tick(float DeltaTime) override;
+	ACasing();
 
 protected:
 	virtual void BeginPlay() override;
@@ -21,26 +20,16 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector Normal, const FHitResult& HitResult);
 
-	virtual void Destroyed() override;
-
 private:
-	UPROPERTY(EditAnywhere)
-	class UBoxComponent* CollisionBox;
-
 	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovement;
+	class UStaticMeshComponent* CasingMesh;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* Tracer;
-
-	class UParticleSystemComponent* TracerComponent;
+	float ShellEjectionImpulse;
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* ImpactParticle;
+	class USoundCue* ShellDropSound;
 
-	UPROPERTY(EditAnywhere)
-	class USoundCue* ImpactSound;
-
-public:	
+	FTimerHandle ShellDestroyTimer;
 
 };

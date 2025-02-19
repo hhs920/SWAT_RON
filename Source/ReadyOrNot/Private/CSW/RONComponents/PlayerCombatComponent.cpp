@@ -6,10 +6,10 @@
 #include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerCharacter.h"
 #include "CSW/Weapon/Weapon.h"
+#include "Kismet/GameplayStatics.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent() : UCombatComponent()
 {
-	
 }
 
 void UPlayerCombatComponent::Interact(AActor* ToInteract)
@@ -41,6 +41,10 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 		InterpFOV(DeltaTime);
 	}
+
+	//
+	FHitResult HitResult;
+	TraceUnderCrossHairs(HitResult); 
 }
 
 void UPlayerCombatComponent::SwapEquipment(class AEquipment* Equipment)
@@ -56,7 +60,7 @@ void UPlayerCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
 		[this, holdingWeapon](){
 			this->HoldingEquipment->BeginUse();
 			this->PlayFireMontage(this->bAiming);
-			holdingWeapon->Fire();
+			//holdingWeapon->Fire(HitTarget);
 		},
 		holdingWeapon->GetFireDelay(),
 		true
@@ -75,23 +79,37 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 	
 	if (bFireButtonPressed) // 누를 때
 	{
+
+		
 		// 조정간 상태에 따른 처리
 		switch (holdingWeapon->GetSelectorState())
 		{
 		case ESelectorState::SemiAuto:
 			holdingWeapon->BeginUse(); // 한발 쏜다.
 			PlayFireMontage(bAiming);
+			//holdingWeapon->Fire(HitTarget);
 			break;
 		case ESelectorState::Burst:
 			{
 				if (holdingWeapon->GetUsing())
 					return;
+
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				//holdingWeapon->Fire(HitTarget);
+				holdingWeapon->SetBurstFireCount(1);
 				
 				FireWeaponSetTimer(holdingWeapon);
 			}
 			break;
 		case ESelectorState::FullAuto:
 			{
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				//holdingWeapon->Fire(HitTarget);
+				
 				FireWeaponSetTimer(holdingWeapon);
 			}
 			break;
@@ -144,6 +162,49 @@ void UPlayerCombatComponent::SetUpEquipments()
 
 }
 
+void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
+{
+	// 화면 중앙에서
+	FVector2D ViewportSize { FVector2d() };
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	FVector2D CrossharLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+
+	// Screen Location To World Location
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		CrossharLocation, CrosshairWorldPosition, CrosshairWorldDirection);
+
+	if(bScreenToWorld)
+	{
+		// LineTrace
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + CrosshairWorldDirection * TraceLength;
+
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		
+		if (!TraceHitResult.bBlockingHit) 
+		{
+			// 적중안하면
+			TraceHitResult.ImpactPoint = End;
+			HoldingEquipment->LineTraceTarget = End;
+		}
+		else
+		{
+			// 적중하면
+			HoldingEquipment->LineTraceTarget = End;
+			// 디버그 - 충돌 지점에 구 그리기
+			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f,
+				12, FColor::Red);
+		}
+	}
+}
+
 void UPlayerCombatComponent::SetAiming(bool bIsAiming)
 {
 	bAiming = bIsAiming;
@@ -151,16 +212,16 @@ void UPlayerCombatComponent::SetAiming(bool bIsAiming)
 
 void UPlayerCombatComponent::InterpFOV(float DeltaTime)
 {
-	AWeapon* weapon = Cast<AWeapon>(HoldingEquipment);
+	AWeapon* Weapon = Cast<AWeapon>(HoldingEquipment);
 	if (bAiming)
 	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, weapon->GetZoomedFOV(),
-			DeltaTime, weapon->GetZoomInterpSpeed());
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, Weapon->GetZoomedFOV(),
+			DeltaTime, Weapon->GetZoomInterpSpeed());
 	}
 	else
 	{
 		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV,
-			DeltaTime, weapon->GetZoomInterpSpeed());
+			DeltaTime, Weapon->GetZoomInterpSpeed());
 	}
 
 	if (PlayerCharacter && PlayerCharacter->GetFollowCamera())
