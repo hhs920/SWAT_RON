@@ -60,7 +60,7 @@ void UPlayerCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
 		[this, holdingWeapon](){
 			this->HoldingEquipment->BeginUse();
 			this->PlayFireMontage(this->bAiming);
-			holdingWeapon->Fire(HitTarget);
+			//holdingWeapon->Fire(HitTarget);
 		},
 		holdingWeapon->GetFireDelay(),
 		true
@@ -87,7 +87,7 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 		case ESelectorState::SemiAuto:
 			holdingWeapon->BeginUse(); // 한발 쏜다.
 			PlayFireMontage(bAiming);
-			holdingWeapon->Fire(HitTarget);
+			//holdingWeapon->Fire(HitTarget);
 			break;
 		case ESelectorState::Burst:
 			{
@@ -97,7 +97,7 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 				// 첫 한발 쏜다.
 				holdingWeapon->BeginUse(); 
 				PlayFireMontage(bAiming);
-				holdingWeapon->Fire(HitTarget);
+				//holdingWeapon->Fire(HitTarget);
 				holdingWeapon->SetBurstFireCount(1);
 				
 				FireWeaponSetTimer(holdingWeapon);
@@ -108,7 +108,7 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 				// 첫 한발 쏜다.
 				holdingWeapon->BeginUse(); 
 				PlayFireMontage(bAiming);
-				holdingWeapon->Fire(HitTarget);
+				//holdingWeapon->Fire(HitTarget);
 				
 				FireWeaponSetTimer(holdingWeapon);
 			}
@@ -192,12 +192,12 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 		{
 			// 적중안하면
 			TraceHitResult.ImpactPoint = End;
-			HitTarget = End;
+			HoldingEquipment->LineTraceTarget = End;
 		}
 		else
 		{
 			// 적중하면
-			HitTarget = TraceHitResult.ImpactPoint;
+			HoldingEquipment->LineTraceTarget = End;
 			// 디버그 - 충돌 지점에 구 그리기
 			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f,
 				12, FColor::Red);

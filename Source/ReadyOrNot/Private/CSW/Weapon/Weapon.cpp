@@ -68,6 +68,7 @@ void AWeapon::OnEndUnequip()
 void AWeapon::OnBeginUse()
 {
 	bUsing = true;
+	Fire(LineTraceTarget);
 }
 
 void AWeapon::OnEndUse()
@@ -102,6 +103,8 @@ void AWeapon::Fire(FVector& HitTarget)
 			BurstFireCount = 0;
 		}
 	}
+
+	
 }
 
 

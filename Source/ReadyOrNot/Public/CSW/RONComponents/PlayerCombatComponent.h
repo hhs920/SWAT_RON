@@ -71,7 +71,7 @@ private:
 	float DefaultFOV; // BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	float CurrentFOV; // Weapon의 FOV 관련 세팅값에 따라 동작한다.
 
-	FVector HitTarget;
+	//FVector HitTarget; --> Equipment로 옮겼음!!
 	
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }

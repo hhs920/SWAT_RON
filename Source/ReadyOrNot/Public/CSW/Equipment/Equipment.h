@@ -62,6 +62,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	bool bRotateYtoX = true; // 장비의 방향이 y를 향하고 있으면 x를 향할 수 있도록 켜준다.
 
+	FVector LineTraceTarget;
+	
+
 protected:
 	virtual void BeginPlay() override;
 
