@@ -140,8 +140,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapon", meta = (AllowPrivateAccess = true))
 	float HeadShotDamage = 40.f;
 
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<class ACasing> CasingClass; // 탄환
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACasing> CasingClass; // 탄피
 
 	UPROPERTY(EditAnywhere)
 	int32 Ammo;

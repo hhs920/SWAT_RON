@@ -4,7 +4,9 @@
 #include "CSW/Weapon/Weapon.h"
 
 #include "Camera/CameraComponent.h"
+#include "CSW/Casing.h"
 #include "CSW/Character/PlayerCharacter.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -104,7 +106,21 @@ void AWeapon::Fire(FVector& HitTarget)
 		}
 	}
 
+	if (CasingClass)
+	{
+		if (AmmoEjectSocket == nullptr)
+			AmmoEjectSocket = GetMesh()->GetSocketByName(FName("AmmoEject"));
 	
+		if (AmmoEjectSocket)
+		{
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(GetMesh());
+			FActorSpawnParameters SpawnParams;
+			GetWorld()->SpawnActor<ACasing>(CasingClass,
+				SocketTransform.GetLocation(),
+				SocketTransform.GetRotation().Rotator(),
+				SpawnParams);
+		}
+	}
 }
 
 
