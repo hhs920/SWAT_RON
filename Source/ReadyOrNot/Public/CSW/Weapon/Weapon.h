@@ -157,6 +157,7 @@ protected:
 public:
 	bool IsEmpty();
 	// bool IsFull();
+	FORCEINLINE void SetBurstFireCount(int32 cnt);
 	
 	// GET SET
 	FORCEINLINE ESelectorState GetSelectorState() const {	return SelectorState; }

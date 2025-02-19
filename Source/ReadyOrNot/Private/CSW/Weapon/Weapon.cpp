@@ -144,6 +144,11 @@ bool AWeapon::IsEmpty()
 	return Ammo <= 0;
 }
 
+void AWeapon::SetBurstFireCount(int32 cnt)
+{
+	BurstFireCount = cnt;
+}
+
 void AWeapon::ChangeSelectorState()
 {
 	int32 num = AvailableSelectorStates.Num();

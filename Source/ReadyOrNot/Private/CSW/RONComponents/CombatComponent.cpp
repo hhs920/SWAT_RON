@@ -163,6 +163,4 @@ void UCombatComponent::PlayFireMontage(bool bAim)
 		animInstance->Montage_JumpToSection(SectionName);
 		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Playing Fire Montage");
 } 

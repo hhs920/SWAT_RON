@@ -79,6 +79,8 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 	
 	if (bFireButtonPressed) // 누를 때
 	{
+
+		
 		// 조정간 상태에 따른 처리
 		switch (holdingWeapon->GetSelectorState())
 		{
@@ -91,12 +93,23 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 			{
 				if (holdingWeapon->GetUsing())
 					return;
+
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				holdingWeapon->Fire(HitTarget);
+				holdingWeapon->SetBurstFireCount(1);
 				
 				FireWeaponSetTimer(holdingWeapon);
 			}
 			break;
 		case ESelectorState::FullAuto:
 			{
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				holdingWeapon->Fire(HitTarget);
+				
 				FireWeaponSetTimer(holdingWeapon);
 			}
 			break;
