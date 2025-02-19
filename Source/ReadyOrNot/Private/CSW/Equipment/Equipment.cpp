@@ -81,17 +81,23 @@ void AEquipment::Unequip()
 	OnEndUnequip();
 }
 
-void AEquipment::Use()
+void AEquipment::BeginUse()
 {
 	OnBeginUse();
+}
+
+void AEquipment::EndUse()
+{
 	OnEndUse();
 }
 
-void AEquipment::Interact()
+void AEquipment::BeginInteract()
 {
 	OnBeginInteract();
+}
+void AEquipment::EndInteract()
+{
 	OnEndInteract();
 }
-
 
 

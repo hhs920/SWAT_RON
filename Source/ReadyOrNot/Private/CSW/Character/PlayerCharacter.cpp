@@ -10,7 +10,7 @@
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"	
 #include "GameFramework/SpringArmComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
@@ -161,17 +161,12 @@ void APlayerCharacter::FireStarted(const FInputActionValue& inputValue)
 	if (CombatComp)
 	{
 		CombatComp->FireButtonPressed(true);
-
+		
 		// LowReady 상태에서 Fire시 Assault로 바로 변경
 		if (_stance == EPlayerStance::EPS_LowReady)
 		{
 			_stance = EPlayerStance::EPS_Assault;
 		}
-
-
-		// TODO : 현재 들고있는 장비가 무기이면 LineTrace를 쏘고
-		// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
-		// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
 	}
 }
 
@@ -312,7 +307,12 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 {
 	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "ChangeSelector");
-
+	AWeapon* weapon = Cast<AWeapon>(GetHoldingEquipment());
+	if (weapon)
+	{
+		
+		weapon->ChangeSelectorState();
+	}
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& inputValue)
@@ -390,23 +390,6 @@ void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 	}
 }
 
-void APlayerCharacter::PlayFireMontage(bool bAiming)
-{
-	if (CombatComp == nullptr || CombatComp->HoldingEquipment == nullptr)
-		return;
-	
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	// Aim(줌인) 상태와 Ironsights(Assault 스탠스)일 때 다른 애니메이션을 출력한다.
-	if (animInstance && FireWeaponMontage)
-	{
-		animInstance->Montage_Play(FireWeaponMontage);
-		// FName  SectionName = bAiming ? FName("FireAim") : FName("FireIronsight");
-		FName SectionName = FName("Fire_Rifle_Ironsights");
-		animInstance->Montage_JumpToSection(SectionName);
-		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlayFireMontage");
-	}
-} 
-
 EEquipmentType APlayerCharacter::GetEquipmentType()
 {
 	if (CombatComp == nullptr || CombatComp->HoldingEquipment == nullptr)
@@ -419,6 +402,10 @@ EEquipmentType APlayerCharacter::GetEquipmentType()
 void APlayerCharacter::ChangeEquipment(class AEquipment* Equipment)
 {
 	if (CombatComp == nullptr)
+		return;
+
+	// 장비를 사용중이면 장비 교체 불가
+	if (CombatComp->HoldingEquipment->GetUsing())
 		return;
 
 	// 이미 들고있는 무기면 return

@@ -15,7 +15,7 @@ class READYORNOT_API AProjectileWeapon : public AWeapon
 	GENERATED_BODY()
 
 protected:
-	virtual void Fire(FVector& HitTarget) override;
+	virtual void Fire() override; // FVector& HitTarget
 
 private:
 	UPROPERTY(EditAnywhere)

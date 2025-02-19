@@ -4,6 +4,8 @@
 #include "CSW/Weapon/Weapon.h"
 
 #include "Camera/CameraComponent.h"
+#include "CSW/Character/PlayerCharacter.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -13,14 +15,6 @@ AWeapon::AWeapon()
 
 	// GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
 	// GatherEvidenceWidget->SetupAttachment(RootComponent);
-	
-	bCanZoom = true;
-	
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(RootComponent);
-	
-	CameraComp = CreateDefaultSubobject<UCameraComponent>( TEXT("CameraComp"));
-	CameraComp->SetupAttachment(SpringArmComp);
 }
 
 void AWeapon::BeginPlay()
@@ -31,29 +25,94 @@ void AWeapon::BeginPlay()
 	// {
 	// 	ShowGatherEvidenceWidget(false);
 	// }
+
+	if (bUseSemiAuto) AvailableSelectorStates.Add(ESelectorState::SemiAuto);
+	if (bUseBurst) AvailableSelectorStates.Add(ESelectorState::Burst);
+	if (bUseFullAuto) AvailableSelectorStates.Add(ESelectorState::FullAuto);
 }
+
+
 
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+void AWeapon::OnBeginEquip()
+{
+}
+
+void AWeapon::OnEndEquip()
+{
+	SetEquippedState(EEquippedState::Equipped);
+
+	MeshComp->SetSimulatePhysics(false);
+	MeshComp->SetEnableGravity(false);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bUsing = false;
+	
+	// 소유자 세팅
+	//OwnerCharacter = 
+}
+
+void AWeapon::OnBeginUnequip()
+{
+	bUsing = false;
+}
+
+void AWeapon::OnEndUnequip()
+{
+}
 
 void AWeapon::OnBeginUse()
 {
-	Super::OnBeginUse();
-
-	// HitTarget을 계산한다.
-	// Fire();
+	bUsing = true;
 }
 
-void AWeapon::Fire(FVector& HitTarget)
+void AWeapon::OnEndUse()
+{
+	bUsing = false;
+}
+
+void AWeapon::OnBeginInteract()
+{
+}
+
+void AWeapon::OnEndInteract()
+{
+}
+
+
+
+void AWeapon::Fire() // FVector& HitTarget
 {
 	if (FireAnim)
 	{
 		MeshComp->PlayAnimation(FireAnim, false);		
 	}
+
+	// 점사면 점사 횟수 카운트
+	if (SelectorState == ESelectorState::Burst)
+	{
+		BurstFireCount++;
+		if (BurstFireCount >= MaxBurstCount)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(FireTimer);
+			BurstFireCount = 0;
+		}
+	}
+
+	// HitTarget을 계산한다.
+	// GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Purple, TEXT("OnBeginUse - Weapon"));
+	
+
+	// TODO : LineTrace를 쏘고
+	// 그 결과를 해당 Weapon의 HitTarget에 넣어준다.
+	// Weapon의 Use에서 Fire(HitTarget)을 호출한다.
 }
+
+
 
 void AWeapon::Reload()
 {
@@ -63,15 +122,7 @@ void AWeapon::Reload()
 	}
 }
 
-void AWeapon::OnEquipped()
-{
-	SetEquippedState(EEquippedState::Equipped);
 
-	MeshComp->SetSimulatePhysics(false);
-	MeshComp->SetEnableGravity(false);
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
-}
 
 void AWeapon::OnDropped()
 {
@@ -83,6 +134,7 @@ void AWeapon::OnDropped()
 	MeshComp->SetEnableGravity(true);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
 
 
 // void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
@@ -100,7 +152,18 @@ bool AWeapon::IsEmpty()
 	return Ammo <= 0;
 }
 
-void AWeapon::SetSelectorState(ESelectorState State)
+void AWeapon::ChangeSelectorState()
 {
-	SelectorState = State;
+	int32 num = AvailableSelectorStates.Num();
+	int32 curIdx = AvailableSelectorStates.Find(SelectorState);
+	int32 nextIdx = curIdx + 1;
+
+	// 없거나 다음이 크기를 넘어갔으면
+	if (num == 0 || curIdx == INDEX_NONE || nextIdx >= AvailableSelectorStates.Num())
+	{
+		SelectorState = ESelectorState::SemiAuto;
+		return;
+	}
+	
+	SelectorState = AvailableSelectorStates[nextIdx];
 }

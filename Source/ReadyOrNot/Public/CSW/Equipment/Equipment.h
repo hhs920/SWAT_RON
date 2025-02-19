@@ -51,27 +51,31 @@ public:
 	virtual void Equip() override;
 	virtual void Unequip() override;
 	
-	virtual void Use() override;
+	virtual void BeginUse() override;
+	virtual void EndUse() override;
 	
-	virtual void Interact() override;
+	virtual void BeginInteract() override;
+	virtual void EndInteract() override;
 
 	//virtual void Drop();
 
+	UPROPERTY(EditDefaultsOnly)
+	bool bRotateYtoX = true; // 장비의 방향이 y를 향하고 있으면 x를 향할 수 있도록 켜준다.
 
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void OnBeginEquip() PURE_VIRTUAL(AEquipment::BeginEquip, );
-	virtual void OnEndEquip() PURE_VIRTUAL(AEquipment::EndEquip, );
+	virtual void OnBeginEquip() PURE_VIRTUAL(AEquipment::OnBeginEquip, );
+	virtual void OnEndEquip() PURE_VIRTUAL(AEquipment::OnEndEquip, );
 
-	virtual void OnBeginUnequip() PURE_VIRTUAL(AEquipment::BeginUnequip, );
-	virtual void OnEndUnequip() PURE_VIRTUAL(AEquipment::EndUnequip, );
+	virtual void OnBeginUnequip() PURE_VIRTUAL(AEquipment::OnBeginUnequip, );
+	virtual void OnEndUnequip() PURE_VIRTUAL(AEquipment::OnEndUnequip, );
 
-	virtual void OnBeginUse() PURE_VIRTUAL(AEquipment::BeginUse, );
-	virtual void OnEndUse() PURE_VIRTUAL(AEquipment::EndUse, );
+	virtual void OnBeginUse() PURE_VIRTUAL(AEquipment::OnBeginUse, );
+	virtual void OnEndUse() PURE_VIRTUAL(AEquipment::OnEndUse, );
 
-	virtual void OnBeginInteract() PURE_VIRTUAL(AEquipment::BeginInteract, );
-	virtual void OnEndInteract() PURE_VIRTUAL(AEquipment::EndInteract, );
+	virtual void OnBeginInteract() PURE_VIRTUAL(AEquipment::OnBeginInteract, );
+	virtual void OnEndInteract() PURE_VIRTUAL(AEquipment::OnEndInteract, );
 
 	UPROPERTY(VisibleAnywhere, Category = "Equipment")
 	USkeletalMeshComponent* MeshComp;
@@ -88,9 +92,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Interact")
 	class UWidgetComponent* InteractWidget;
 	
-	bool bEquipping; // 장착 중인지
-	bool bEquipped;  // 장착된 장비인지
-	
+	bool bEquipping;	// 장착 중인지
+	bool bEquipped;		// 장착된 장비인지
+	bool bUsing;		// 장비 사용중인지
+
 public:
 	// GET SET
 	FORCEINLINE EEquippedState GetEquippedState() const {return EquippedState;}
@@ -105,5 +110,7 @@ public:
 	FORCEINLINE bool GetEquipped() const {return bEquipped;}
 
 	class USkeletalMeshSocket const* GetSocketToEquipped() const;
+	
+	FORCEINLINE float GetUsing() const { return bUsing; }
 
 };

@@ -19,9 +19,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void SwapEquipment(class AEquipment* Equipment) override;
+	void FireWeaponSetTimer(AWeapon* holdingWeapon);
 
-	virtual void Fire() override;
-	
 	// Aiming and FOV
 	void SetAiming(bool bIsAiming);
 	

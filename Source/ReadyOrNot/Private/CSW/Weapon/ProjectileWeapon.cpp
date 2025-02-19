@@ -3,9 +3,9 @@
 
 #include "CSW/Weapon/ProjectileWeapon.h"
 
-void AProjectileWeapon::Fire(FVector& HitTarget)
+void AProjectileWeapon::Fire() // FVector& HitTarget
 {
-	Super::Fire(HitTarget);
+	Super::Fire(); // HitTarget
 
 	
 }

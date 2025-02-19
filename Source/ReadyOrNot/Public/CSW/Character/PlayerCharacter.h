@@ -152,13 +152,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UPlayerCombatComponent* CombatComp;
 
-	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage*  FireWeaponMontage;
 
 	EPlayerStance _stance;
 
 public:
-	void PlayFireMontage(bool bAiming); 
 	
 	EEquipmentType GetEquipmentType();
 	void ChangeEquipment(class AEquipment* Equipment);

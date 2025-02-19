@@ -46,26 +46,41 @@ public:
 
 	// virtual void Reload();
 
+	UPROPERTY()
+	FTimerHandle FireTimer;
+
+	virtual void Fire(); // public Use 에서 사용된다. FVector& HitTarget
+
+	
 protected:
 	virtual void BeginPlay() override;
-	virtual void OnBeginUse() override;
 
-	virtual void Fire(FVector& HitTarget); // public Use 에서 사용된다.
+	virtual void OnBeginEquip() override;
+	virtual void OnEndEquip() override; // 캐릭터에 의해 Equip될 때 호출된다.
+	
+	virtual void OnBeginUnequip() override;
+	virtual void OnEndUnequip() override;
+	
+	virtual void OnBeginUse() override;
+	virtual void OnEndUse() override;
+
+	virtual void OnBeginInteract() override;
+	virtual void OnEndInteract() override;
+
 	virtual void Reload();
 
-	bool bFiring;
 	bool bReloading;
 
-	virtual void OnEquipped(); // 캐릭터에 의해 Equip될 때 호출된다.
 	virtual void OnDropped(); // 캐릭터에 의해 Drop될 때 호출된다.
+
 
 	/*
 	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
 	 */
-	UPROPERTY()
-	class USpringArmComponent* SpringArmComp;
-	UPROPERTY()
-	class UCameraComponent* CameraComp;
+	// UPROPERTY()
+	// class USpringArmComponent* SpringArmComp;
+	// UPROPERTY()
+	// class UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere, Category = "FOV")
 	float ZoomedFOV = 70.f;
@@ -75,10 +90,27 @@ protected:
 	
 	// Zoom 가능한지
 	UPROPERTY(EditAnywhere, Category = "FOV", meta = (AllowPrivateAccess = true))
-	bool bCanZoom = false;
-	
+	bool bCanZoom = true;
+
+	// 조정간
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	ESelectorState SelectorState; // 조정간
+	ESelectorState SelectorState;
+	UPROPERTY()
+	TArray<ESelectorState> AvailableSelectorStates;
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bUseSemiAuto = true; // 단발
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bUseBurst = false; //점사
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	int32 MaxBurstCount = 3; // 점사 발수
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	int32 BurstFireCount = 0;
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bUseFullAuto = false; // 연발
 
 	// UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	// EFireType FireType;
@@ -128,7 +160,7 @@ public:
 	
 	// GET SET
 	FORCEINLINE ESelectorState GetSelectorState() const {	return SelectorState; }
-	void SetSelectorState(ESelectorState State);
+	void ChangeSelectorState();
 	
 	//FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
 	
@@ -137,8 +169,14 @@ public:
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	
+	FORCEINLINE float GetFireDelay() const { return FireDelay; }
+
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
+
+	FORCEINLINE float GetBurstFireCount() const { return BurstFireCount; }
+	FORCEINLINE float GetMaxBurstCount() const { return MaxBurstCount; }
+	
 };

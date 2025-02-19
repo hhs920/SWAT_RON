@@ -30,7 +30,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = PlayerCharacter)
 	ACharacter* Character;
 	
-	virtual void Fire();
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage*  FireWeaponMontage;
+	
+	void PlayFireMontage(bool bAim); 
 
 	void PickUpWeapon(class AWeapon* WeaponToEquip); // Dropped된 무기를 줍는 기능(팀의 무기만 가능)
 	
