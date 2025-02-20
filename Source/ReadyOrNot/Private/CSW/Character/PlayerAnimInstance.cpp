@@ -6,6 +6,7 @@
 #include "CSW/Character/PlayerCharacter.h"
 #include "CSW/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -45,28 +46,37 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//AO_Yaw = PlayerCharacter->GetAO_Yaw();
 	AO_Pitch = PlayerCharacter->GetAO_Pitch();
 
-	// FABRIK IK
-	if (HoldingEquipment && HoldingEquipment->GetMesh() &&
-			PlayerCharacter->GetMesh())
+	
+	if (HoldingEquipment && HoldingEquipment->GetMesh() && PlayerCharacter->GetMesh())
 	{
-		// LeftHandSocket의 WorldTransform
+		// FABRIK IK
+			// LeftHandSocket의 WorldTransform
 		LeftHandTransform = HoldingEquipment->GetMesh()
 			->GetSocketTransform(FName("LeftHandSocket"), RTS_World);
 
-		// World Space to Bone Relative Space
-		//
+			// World Space to Bone Relative Space
 		FVector outPosition;
 		FRotator outRotation;
 		
-		// 오른손(RightHand)를 기준으로 LeftHandTransform의 상대좌표를 계산하여 반환한다.
-		PlayerCharacter->GetMesh()->TransformToBoneSpace(
-			FName("RightHand"),
+			// 오른손(RightHand)를 기준으로 LeftHandTransform의 상대좌표를 계산하여 반환한다.
+		PlayerCharacter->GetMesh()->TransformToBoneSpace(FName("RightHand"),
 			LeftHandTransform.GetLocation(), FRotator::ZeroRotator,
 			outPosition, outRotation
 		);
-
 		LeftHandTransform.SetLocation(outPosition);
 		LeftHandTransform.SetRotation(FQuat(outRotation));
+
+		// 총구 방향 조정
+		FTransform RightHandTr = HoldingEquipment->GetMesh()->GetSocketTransform(FName("RightHandSocket"));
+			// ABP에서 RightHandRotation로 적용해서 Transform Modify Bone 노드를 실행한다.
+		RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTr.GetLocation(), PlayerCharacter->GetHitTarget());
+		
+		FTransform MuzzleTipTransform = HoldingEquipment->GetMesh()->GetSocketTransform(FName("MuzzleFlash"),
+			ERelativeTransformSpace::RTS_World);
+			// MuzzleFlash소켓의 X방향
+		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(),  MuzzleTipTransform.GetLocation()+MuzzleX * 1000.f, FColor::Red);
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), PlayerCharacter->GetHitTarget(), FColor::Orange);
 	}
 
 	// Leaning

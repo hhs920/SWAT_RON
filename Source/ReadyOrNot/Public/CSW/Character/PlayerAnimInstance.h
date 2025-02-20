@@ -59,8 +59,12 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = true))
 	float AO_Pitch;
 
-	 // FABRIK IF
-	UPROPERTY(BlueprintReadOnly, Category = FABRIK_IK, meta = (AllowPrivateAccess = true))
+	 // FABRIK
+	UPROPERTY(BlueprintReadOnly, Category = FABRIK, meta = (AllowPrivateAccess = true))
 	FTransform LeftHandTransform;
+
+	 // RightHandSocket 회전
+	UPROPERTY(BlueprintReadOnly, Category = SocketRotation, meta = (AllowPrivateAccess = true))
+	FRotator RightHandRotation;
 	
 };

@@ -146,6 +146,10 @@ public:
 	class UCameraComponent* CameraComp;
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return CameraComp; }
 
+	// UPROPERTY(EditAnywhere)
+	// float CameraCloseThreshold = 200.f;
+	// void HideCameraIfCharacterClose(); 
+
 #pragma endregion
 
 #pragma region 상호작용
@@ -175,7 +179,7 @@ public:
 	FORCEINLINE EPlayerStance GetPlayerStance() const {return _stance;}
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
-
+	FVector GetHitTarget() const;
 #pragma region AI 인식
 	
 private:

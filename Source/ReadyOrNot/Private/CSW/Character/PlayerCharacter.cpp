@@ -32,9 +32,13 @@ APlayerCharacter::APlayerCharacter()
 	if (TempMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(TempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f),
-			FRotator(0.f, -90.f, 0.f));
 	}
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f),
+			FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	
 
 	// 인풋 컴포넌트 만들어 넣기
 	InputComp = CreateDefaultSubobject<UPlayerInputComponent>(TEXT("PlayerInputComp"));
@@ -432,6 +436,27 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 	
 }
 
+// void APlayerCharacter::HideCameraIfCharacterClose()
+// {
+// 	// 카메라가 캐릭터에 너무 가까우면 캐릭터를 안보이게 한다.
+// 	if ((CameraComp->GetComponentLocation() - GetActorLocation()).Size() < CameraCloseThreshold)
+// 	{
+// 		if (CombatComp && CombatComp->HoldingEquipment && CombatComp->HoldingEquipment->GetMesh())
+// 		{
+// 			GetMesh()->SetVisibility(false);
+// 			CombatComp->HoldingEquipment->GetMesh()->bOwnerNoSee = true;
+// 		}
+// 	}
+// 	else
+// 	{
+// 		if (CombatComp && CombatComp->HoldingEquipment && CombatComp->HoldingEquipment->GetMesh())
+// 		{
+// 			GetMesh()->SetVisibility(true);
+// 			CombatComp->HoldingEquipment->GetMesh()->bOwnerNoSee = false;
+// 		}
+// 	}
+// }
+
 void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
 {
 	if (InteractingWeapon)
@@ -481,6 +506,12 @@ AEquipment* APlayerCharacter::GetHoldingEquipment() const
 	if (CombatComp == nullptr) return nullptr;
 
 	return CombatComp->HoldingEquipment;
+}
+
+FVector APlayerCharacter::GetHitTarget() const
+{
+	if (CombatComp == nullptr) return FVector();
+	return CombatComp->HitTarget;
 }
 
 void APlayerCharacter::SetupStimulusSource()

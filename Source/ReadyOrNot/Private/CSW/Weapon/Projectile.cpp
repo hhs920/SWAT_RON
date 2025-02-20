@@ -3,6 +3,7 @@
 
 #include "CSW/Weapon/Projectile.h"
 
+#include "ReadyOrNot.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,6 +23,8 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 		// 보이는 것에는 물리충돌(Block) 되도록한다.
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECollisionResponse::ECR_Block);
+	
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh,  ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Block);
 
 
@@ -52,7 +55,10 @@ void AProjectile::BeginPlay()
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector Normal, const FHitResult& HitResult)
 {
-	Destroy();
+	// TODO : 적 또는 플레이어면 피격해야한다.
+	
+	
+	//Destroy();
 }
 
 void AProjectile::Destroyed()

@@ -44,12 +44,17 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		InterpFOV(DeltaTime);
 	}
 
-	// LineTrace
-	FHitResult HitResult;
-	TraceUnderCrossHairs(HitResult);
+	if (PlayerCharacter)
+	{
+		// LineTrace
+		FHitResult HitResult;
+		TraceUnderCrossHairs(HitResult);
+		HitTarget = HitResult.ImpactPoint;
 
-	// HUD
-	SetHudCrosshairs(DeltaTime);
+		// HUD
+		SetHudCrosshairs(DeltaTime);
+	}
+
 }
 
 void UPlayerCombatComponent::SetHudCrosshairs(float DeltaTime)
@@ -209,7 +214,7 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 	FVector2D CrossharLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 
 	// Screen Location To World Location
-	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldPosition; 
 	FVector CrosshairWorldDirection;
 	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
 		UGameplayStatics::GetPlayerController(this, 0),
@@ -219,6 +224,13 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 	{
 		// LineTrace
 		FVector Start = CrosshairWorldPosition;
+		// LineTrace의 시작 위치를 카메라가 아닌 적합한 위치로 세팅한다. 카메라가 아닌, 총에서 쏘는 것이기 때문이다.
+		if(PlayerCharacter)
+		{
+			float DistToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
+			Start += CrosshairWorldDirection * (DistToCharacter + 100.f);  
+			DrawDebugSphere(GetWorld(), Start, 16.f, 12, FColor::Red, false);
+		}
 		FVector End = Start + CrosshairWorldDirection * TraceLength;
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
@@ -239,6 +251,7 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 		}
 	}
 }
+
 
 void UPlayerCombatComponent::SetAiming(bool bIsAiming)
 {
