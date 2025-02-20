@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "GameFramework/Character.h"
@@ -63,6 +64,16 @@ public:
 	FTimerHandle LeanCompletedTimer;
 
 	bool bLeaning = false;
+
+
+	// ADS (Aiming Down System)
+	UPROPERTY(EditAnywhere, Category = "ADS")
+	UCurveFloat* AdsCurve;
+
+	FTimeline AdsTimeline;
+
+	UFUNCTION()
+	void OnAdsUpdate(float Alpha);
 	
 protected:
 	// Called when the game starts or when spawned

@@ -57,6 +57,13 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	SetupStimulusSource();	// AI 인식
+
+	// ADS
+	ConstructorHelpers::FObjectFinder<UCurveFloat> curve(TEXT("/Script/Engine.CurveFloat'/Game/CSW/Miscellaneous/CV_ADS.CV_ADS'"));
+	if (curve.Succeeded())
+	{
+		AdsCurve = curve.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -65,7 +72,11 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	
+	FOnTimelineFloat ProgressUpdate;
+	ProgressUpdate.BindUFunction(this, FName("OnAdsUpdate"));
 
+	AdsTimeline.AddInterpFloat(AdsCurve, ProgressUpdate);
 }
 
 // Called every frame
