@@ -99,6 +99,9 @@ protected:
 	bool bEquipped;		// 장착된 장비인지
 	bool bUsing;		// 장비 사용중인지
 
+	UPROPERTY(EditDefaultsOnly)
+	float DistanceFromADS = 10.f; // ADS 위치로부터의 카메라 거리
+
 public:
 	// GET SET
 	FORCEINLINE EEquippedState GetEquippedState() const {return EquippedState;}
@@ -115,5 +118,6 @@ public:
 	class USkeletalMeshSocket const* GetSocketToEquipped() const;
 	
 	FORCEINLINE float GetUsing() const { return bUsing; }
+	FORCEINLINE float GetDistanceFromADS() const { return DistanceFromADS; }
 
 };
