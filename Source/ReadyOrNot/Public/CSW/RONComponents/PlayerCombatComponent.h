@@ -27,8 +27,13 @@ public:
 	// BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	void InterpFOV(float DeltaTime); // Weapon의 FOV 관련 세팅값에 따라 동작한다.
 	
-	UPROPERTY(VisibleAnywhere, Category = PlayerCharacter)
+	UPROPERTY(VisibleAnywhere, Category = Player)
     class APlayerCharacter* PlayerCharacter;
+	
+	UPROPERTY(VisibleAnywhere, Category = Player)
+	class ARONPlayerController* Controller; // 컨트롤러
+	UPROPERTY(VisibleAnywhere, Category = Player)
+	class ARONPlayerHUD* HUD;	
 	
 	void FireButtonPressed(bool bPressed);
 
@@ -64,9 +69,14 @@ protected:
 
 	bool bFireButtonPressed { false };
 
+	// Line Trace
 	void TraceUnderCrossHairs(FHitResult& TraceHitResult);
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float TraceLength  = 80000.f;
+
+	// HUD
+	void SetHudCrosshairs(float DeltaTime);
+	
 private:
 	float DefaultFOV; // BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	float CurrentFOV; // Weapon의 FOV 관련 세팅값에 따라 동작한다.

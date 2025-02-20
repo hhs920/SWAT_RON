@@ -3,12 +3,8 @@
 
 #include "CSW/Weapon/Weapon.h"
 
-#include "Camera/CameraComponent.h"
-#include "CSW/Casing.h"
-#include "CSW/Character/PlayerCharacter.h"
+#include "CSW/Weapon/Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()

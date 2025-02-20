@@ -5,6 +5,8 @@
 
 #include "Camera/CameraComponent.h"
 #include "CSW/Character/PlayerCharacter.h"
+#include "CSW/Character/RONPlayerController.h"
+#include "CSW/HUD/RONPlayerHUD.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -42,14 +44,81 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		InterpFOV(DeltaTime);
 	}
 
-	//
+	// LineTrace
 	FHitResult HitResult;
-	TraceUnderCrossHairs(HitResult); 
+	TraceUnderCrossHairs(HitResult);
+
+	// HUD
+	SetHudCrosshairs(DeltaTime);
+}
+
+void UPlayerCombatComponent::SetHudCrosshairs(float DeltaTime)
+{
+	if (PlayerCharacter == nullptr || PlayerCharacter->Controller == nullptr) return;
+
+	Controller = (Controller == nullptr) ?
+		Cast<ARONPlayerController>(PlayerCharacter->GetController()) :
+		Controller;
+
+	if (Controller)
+	{
+		HUD = (HUD == nullptr) ? Cast<ARONPlayerHUD>(Controller->GetHUD()) : HUD;
+
+		if (HUD) // 크로스헤어 세팅
+		{
+			if (HoldingEquipment)
+			{
+				HUD->SetHUDPackage(HoldingEquipment->HUDPackage);
+			}
+			else
+			{
+				FHUDPackage HUDPackage;
+				HUDPackage.CrosshairsCenter = nullptr;
+				HUD->SetHUDPackage(HUDPackage);
+
+			}
+		}
+	}
+	
 }
 
 void UPlayerCombatComponent::SwapEquipment(class AEquipment* Equipment)
 {
 	Super::SwapEquipment(Equipment);
+}
+
+void UPlayerCombatComponent::SetUpEquipments()
+{
+	Super::SetUpEquipments();
+
+	if (GrenadeWeaponClass)
+	{
+		Grenade = GetWorld()->SpawnActor<AWeapon>(GrenadeWeaponClass);
+		Grenade->SetEquipmentType(EEquipmentType::Grenade);
+		Equip(Grenade);
+	}
+
+	if (TacticalWeaponClass)
+	{
+		Tactical = GetWorld()->SpawnActor<AWeapon>(TacticalWeaponClass);
+		Tactical->SetEquipmentType(EEquipmentType::Tactical);
+		Equip(Tactical);
+	}
+
+	if (LongTacticalWeaponClass)
+	{
+		LongTactical = GetWorld()->SpawnActor<AWeapon>(LongTacticalWeaponClass);
+		LongTactical->SetEquipmentType(EEquipmentType::LongTactical);
+		Equip(LongTactical);
+	}
+
+	if (CableTieWeaponClass)
+	{
+		CableTie = GetWorld()->SpawnActor<AWeapon>(CableTieWeaponClass);
+		CableTie->SetEquipmentType(EEquipmentType::CableTie);
+		Equip(CableTie);
+	}
+
 }
 
 void UPlayerCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
@@ -126,40 +195,6 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 				break;
 		}
 	}
-}
-
-void UPlayerCombatComponent::SetUpEquipments()
-{
-	Super::SetUpEquipments();
-
-	if (GrenadeWeaponClass)
-	{
-		Grenade = GetWorld()->SpawnActor<AWeapon>(GrenadeWeaponClass);
-		Grenade->SetEquipmentType(EEquipmentType::Grenade);
-		Equip(Grenade);
-	}
-
-	if (TacticalWeaponClass)
-	{
-		Tactical = GetWorld()->SpawnActor<AWeapon>(TacticalWeaponClass);
-		Tactical->SetEquipmentType(EEquipmentType::Tactical);
-		Equip(Tactical);
-	}
-
-	if (LongTacticalWeaponClass)
-	{
-		LongTactical = GetWorld()->SpawnActor<AWeapon>(LongTacticalWeaponClass);
-		LongTactical->SetEquipmentType(EEquipmentType::LongTactical);
-		Equip(LongTactical);
-	}
-
-	if (CableTieWeaponClass)
-	{
-		CableTie = GetWorld()->SpawnActor<AWeapon>(CableTieWeaponClass);
-		CableTie->SetEquipmentType(EEquipmentType::CableTie);
-		Equip(CableTie);
-	}
-
 }
 
 void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)

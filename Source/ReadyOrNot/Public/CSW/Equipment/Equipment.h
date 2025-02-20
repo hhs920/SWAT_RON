@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CSW/HUD/RONPlayerHUD.h"
 #include "CSW/Interface/Equipable.h"
 #include "CSW/Interface/Usable.h"
 #include "CSW/Interface/Interactable.h"
@@ -63,7 +64,9 @@ public:
 	bool bRotateYtoX = true; // 장비의 방향이 y를 향하고 있으면 x를 향할 수 있도록 켜준다.
 
 	FVector LineTraceTarget;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	FHUDPackage HUDPackage;
 
 protected:
 	virtual void BeginPlay() override;
