@@ -33,6 +33,10 @@ void UPistolEnemyFSM::BeginPlay()
 	{
 		me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed;
 	}
+	if (ai)
+	{
+		ai->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UPistolEnemyFSM::OnMoveCompleted);
+	}
 }
 
 
@@ -169,7 +173,7 @@ void UPistolEnemyFSM::EscapeState()
 			ai->MoveToLocation(escapeLocation);
 		}
 		else
-		{
+		{	
 			PRINT_LOG(TEXT("적이 도망 중..."));
 		}
 	}
@@ -177,36 +181,16 @@ void UPistolEnemyFSM::EscapeState()
 	// 도망 애니메이션 실행
 	if (anim && anim->EnemyRun)
 	{
-		UAnimInstance* AnimInstance = me->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			if (AnimInstance->Montage_IsPlaying(anim->EnemyRun))
-			{
-				PRINT_LOG(TEXT("도망 애니메이션 중지 후 다시 실행."));
-				AnimInstance->Montage_Stop(0.1f, anim->EnemyRun);
-			}
-			PRINT_LOG(TEXT("도망 애니메이션 실행"));
-			AnimInstance->Montage_Play(anim->EnemyRun, 1.0f);
-		}
-		else
-		{
-			PRINT_LOG(TEXT("Error: AnimInstance가 없습니다!"));
-		}
+		me->PlayAnimMontage(anim->EnemyRun, 1.0f, TEXT("Escape"));
 	}
-	else
-	{
-		PRINT_LOG(TEXT("Error: 도망 애니메이션 EnemyRun이 없습니다!"));
-	}
-
-	// AI가 도망 위치에 도착하면 Idle 상태로 전환
-	if (ai->GetMoveStatus() == EPathFollowingStatus::Idle)
-	{
-		PRINT_LOG(TEXT("적이 도망 위치에 도착! 대기 상태로 전환"));
-		mState = EPTEnemyState::Idle;
-		anim->AnimState = mState;
-		bIsEscaping = false;
-	}
-	
+	//// AI가 도망 위치에 도착하면 Idle 상태로 전환
+	//if (ai->GetMoveStatus() == EPathFollowingStatus::Idle)
+	//{
+	//	PRINT_LOG(TEXT("적이 도망 위치에 도착! 대기 상태로 전환"));
+	//	mState = EPTEnemyState::Idle;
+	//	anim->AnimState = mState;
+	//	bIsEscaping = false;
+	//}
 }
 
 void UPistolEnemyFSM::OnDamageProcess(int32 damage)
@@ -251,4 +235,16 @@ bool UPistolEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float r
 void UPistolEnemyFSM::OnAttackEnd()
 {
 	anim->bAttackPlay = false;
+}
+
+void UPistolEnemyFSM::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	if (mState == EPTEnemyState::Escape)
+	{
+		PRINT_LOG(TEXT("적이 도망 위치에 도착! Idle 상태로 전환"));
+
+		mState = EPTEnemyState::Idle;
+		anim->AnimState = mState;
+		bIsEscaping = false;
+	}
 }

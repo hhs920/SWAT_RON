@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Navigation/PathFollowingComponent.h" // 추가
+#include "AITypes.h" // 추가 (FAIRequestID 정의 포함)
 #include "PistolEnemyFSM.generated.h"
 
 // 사용할 상태 정의
@@ -116,6 +118,8 @@ public:
 
 	// 도망 상태 여부
 	bool bIsEscaping = false;
+
+	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
 
 };
