@@ -70,7 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ADS")
 	UCurveFloat* AdsCurve;
 
-	FTimeline AdsTimeline;
+	FTimeline AdsTimeline; // 델리게이트
 
 	UFUNCTION()
 	void OnAdsUpdate(float Alpha);

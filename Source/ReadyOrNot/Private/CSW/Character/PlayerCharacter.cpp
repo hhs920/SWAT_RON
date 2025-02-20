@@ -70,13 +70,15 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+  
 	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	
-	FOnTimelineFloat ProgressUpdate;
-	ProgressUpdate.BindUFunction(this, FName("OnAdsUpdate"));
+	FOnTimelineFloat AdsUpdate; // 델리게이트 생성
+	AdsUpdate.BindUFunction(this, FName("OnAdsUpdate")); // 바인딩
 
-	AdsTimeline.AddInterpFloat(AdsCurve, ProgressUpdate);
+	// AdsCurve데이터의 값이 변경될 때 AdsUpdate가 호출된다.
+	// 즉, AdsTimeline.Play() 또는 .Reverse() 시에 호출된다.
+	AdsTimeline.AddInterpFloat(AdsCurve, AdsUpdate); 
 }
 
 // Called every frame
@@ -85,6 +87,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+
+	AdsTimeline.TickTimeline(DeltaTime);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -136,6 +140,33 @@ void APlayerCharacter::AimOffset(float DeltaTime)
 	// AO_Pitch 세팅
 	AO_Pitch = GetBaseAimRotation().Pitch;
 }
+
+// Alpha는 0.0 ~ 1.0 사이의 값이다. Timeline에서 현재 진행 상태이다.
+void APlayerCharacter::OnAdsUpdate(float Alpha)
+{
+	// 카메라 트랜스폼
+	FTransform camSocket = GetMesh()->GetSocketTransform(FName("Camera"));
+	
+	// 손에 들고있는 장비의 소켓
+	FTransform adsSocket = GetHoldingEquipment()->GetMesh()->GetSocketTransform(FName("Ads"));
+		// Ads소켓보다 20cm 뒤의 위치
+	adsSocket.SetLocation(adsSocket.GetLocation() + adsSocket.GetRotation().GetForwardVector() * (-1) * GetHoldingEquipment()->GetDistanceFromADS());
+
+	// 위치 보간 (FVector 사용)
+	FVector lerpedLocation = FMath::Lerp(camSocket.GetLocation(), adsSocket.GetLocation(), Alpha);
+
+	// 회전 보간 (FRotator 사용)
+	FRotator lerpedRotation = FMath::Lerp(camSocket.GetRotation().Rotator(), adsSocket.GetRotation().Rotator(), Alpha);
+
+	// 보간된 값으로 새로운 Transform 생성
+	FTransform tr;
+	tr.SetLocation(lerpedLocation);
+	tr.SetRotation(lerpedRotation.Quaternion());
+
+	// 카메라 Transform 적용
+	GetFollowCamera()->SetWorldTransform(tr);
+}
+
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 {
@@ -355,8 +386,12 @@ void APlayerCharacter::AimStarted(const FInputActionValue& inputValue)
 			
 			GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;
 			GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchAimWalkSpeed;
+
+			AdsTimeline.Play();
 		}
 	}
+	
+	
 }
 
 void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
@@ -383,8 +418,11 @@ void APlayerCharacter::AimCompleted(const FInputActionValue& inputValue)
 				GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchWalkSpeed;
 			}
 
+			AdsTimeline.Reverse();
 		}
 	}
+	
+	
 }
 
 void APlayerCharacter::SetInteractingWeapon(AWeapon* Weapon)
