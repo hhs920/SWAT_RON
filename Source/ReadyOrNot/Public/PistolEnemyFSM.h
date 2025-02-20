@@ -55,6 +55,10 @@ public:
 	// 죽음 상태
 	void DieState();
 
+	// 항복 상태
+	void SurrenderState();
+
+	
 	// 대기 시간
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	float IdleDelayTime = 2.0f;
@@ -112,7 +116,9 @@ public:
 	UPROPERTY(EditAnywhere, Category=FSM)
 	int32 surrenderHP = 1;
 
-	void SurrenderState();
-	
-		
+	// 도망 위치 지점
+	UPROPERTY(EditAnywhere, Category = FSM)
+	FVector escapeLocation; 
+
+	void EscapeState();
 };

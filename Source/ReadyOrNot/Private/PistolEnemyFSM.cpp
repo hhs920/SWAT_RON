@@ -145,6 +145,14 @@ void UPistolEnemyFSM::DieState()
 void UPistolEnemyFSM::OnDamageProcess(int32 damage)
 {
 	hp -= damage;
+
+	 if (hp <= 2)
+        {
+            mState = EPTEnemyState::Escape;
+            anim->AnimState = mState;
+            PRINT_LOG(TEXT("적이 도망칩니다!"));
+            return;
+        }
 	
 	if (hp <= surrenderHP && mState != EPTEnemyState::Surrender)
 	{
@@ -192,6 +200,23 @@ bool UPistolEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float r
 void UPistolEnemyFSM::OnAttackEnd()
 {
 	anim->bAttackPlay = false;
+}
+
+void UPistolEnemyFSM::EscapeState()
+{
+//	// 특정 위치로 도망
+//	if (ai)
+//	{
+//		ai->MoveToLocation(escapeLocation);
+//	}
+//
+//	// 도망 위치에 도착하면 대기 상태로 전환
+//	if (FVector::DistSquared(me->GetActorLocation(), escapeLocation) < 100.0f)
+//	{
+//		mState = EPTEnemyState::Idle;
+//		anim->AnimState = mState;
+//		PRINT_LOG(TEXT("적이 도망 위치에 도착하여 대기 상태로 전환됨!"));
+//	}
 }
 
 void UPistolEnemyFSM::SurrenderState()
