@@ -23,6 +23,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, category=FSM)
 	bool bAttackPlay;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=FSM)
+	class UAnimMontage* EnemyRun;
+	
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
 

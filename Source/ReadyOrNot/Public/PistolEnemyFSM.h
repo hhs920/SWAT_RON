@@ -15,7 +15,6 @@ enum class EPTEnemyState : uint8
 	Attack UMETA( DisplayName = "공격" ),
 	Damage UMETA( DisplayName = "데미지" ) ,
 	Die UMETA( DisplayName = "죽음" ) ,
-	Surrender UMETA(DisplayName = "항복"),
 	Escape UMETA(DisplayName = "도망"),
 };
 
@@ -55,8 +54,8 @@ public:
 	// 죽음 상태
 	void DieState();
 
-	// 항복 상태
-	void SurrenderState();
+	// 도망 상태
+	void EscapeState();
 
 	
 	// 대기 시간
@@ -112,13 +111,11 @@ public:
 	
 	void OnAttackEnd();
 
-	// 항복 체력 기준
-	UPROPERTY(EditAnywhere, Category=FSM)
-	int32 surrenderHP = 1;
+	// 도망 위치
+	FVector escapeLocation;
 
-	// 도망 위치 지점
-	UPROPERTY(EditAnywhere, Category = FSM)
-	FVector escapeLocation; 
+	// 도망 상태 여부
+	bool bIsEscaping = false;
 
-	void EscapeState();
+
 };
