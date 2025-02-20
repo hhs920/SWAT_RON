@@ -11,7 +11,7 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	ConstructorHelpers::FObjectFinder<USkeletalMesh>MeshTmp(TEXT("/Script/Engine.SkeletalMesh'/Game/HHS/asset/Ch18_nonPBR.Ch18_nonPBR'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh>MeshTmp(TEXT("/Script/Engine.SkeletalMesh'/Game/HHS/asset/Enemy/Ch18_nonPBR.Ch18_nonPBR'"));
 	if (MeshTmp.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshTmp.Object);
