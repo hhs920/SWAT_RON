@@ -33,6 +33,10 @@ void UPistolEnemyFSM::BeginPlay()
 	{
 		me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed;
 	}
+	if (ai)
+	{
+		ai->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &UPistolEnemyFSM::OnMoveCompleted);
+	}
 }
 
 
@@ -47,9 +51,10 @@ void UPistolEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 	case EPTEnemyState::Idle:		{ IdleState();		}	break;
 	case EPTEnemyState::Move:		{ MoveState();		}	break;
-	case EPTEnemyState::Attack:	{ AttackState();	}	break;
-	case EPTEnemyState::Damage:	{ DamageState();	}	break;
+	case EPTEnemyState::Attack:		{ AttackState();	}	break;
+	case EPTEnemyState::Damage:		{ DamageState();	}	break;
 	case EPTEnemyState::Die:		{ DieState();		}	break;
+	case EPTEnemyState::Escape:		{ EscapeState();	}	break;
 	}
 }
 
@@ -142,24 +147,62 @@ void UPistolEnemyFSM::DieState()
 {
 }
 
+void UPistolEnemyFSM::EscapeState()
+{
+	if (bIsEscaping)
+	{
+		return;
+	}
+	bIsEscaping = true;
+	PRINT_LOG(TEXT("Escape 상태"));
+
+	
+	// 도망 위치 설정 (랜덤 or 특정 위치)
+	escapeLocation = FVector(1000.0f, 500.0f, 200.0f); // 예제 좌표
+	PRINT_LOG(TEXT("도망 위치: %s"), *escapeLocation.ToString());
+
+	// AI 이동 시작 (한 번만 실행)
+	if (ai)
+	{
+		EPathFollowingRequestResult::Type result = ai->MoveToLocation(escapeLocation);
+
+		if (result == EPathFollowingRequestResult::Failed)
+		{
+			PRINT_LOG(TEXT("도망 위치로 이동 실패! 새로운 위치 설정"));
+			GetRandomPositionInNavMesh(me->GetActorLocation(), 1000.0f, escapeLocation);
+			ai->MoveToLocation(escapeLocation);
+		}
+		else
+		{	
+			PRINT_LOG(TEXT("적이 도망 중..."));
+		}
+	}
+
+	// 도망 애니메이션 실행
+	if (anim && anim->EnemyRun)
+	{
+		me->PlayAnimMontage(anim->EnemyRun, 1.0f, TEXT("Escape"));
+	}
+	//// AI가 도망 위치에 도착하면 Idle 상태로 전환
+	//if (ai->GetMoveStatus() == EPathFollowingStatus::Idle)
+	//{
+	//	PRINT_LOG(TEXT("적이 도망 위치에 도착! 대기 상태로 전환"));
+	//	mState = EPTEnemyState::Idle;
+	//	anim->AnimState = mState;
+	//	bIsEscaping = false;
+	//}
+}
+
 void UPistolEnemyFSM::OnDamageProcess(int32 damage)
 {
 	hp -= damage;
-	
-	if (hp <= surrenderHP && mState != EPTEnemyState::Surrender)
+
+	if (hp <= 2 && mState != EPTEnemyState::Escape)
 	{
-		mState = EPTEnemyState::Surrender;
-		ai->StopMovement();
-		//if (anim && anim->EnemySurrender)
-		//{
-		//	me->PlayAnimMontage(anim->EnemySurrender, 1.0f, TEXT("Surrender"));
-		//	PRINT_LOG(TEXT("적이 항복했습니다!"));
-		//}
-		//else
-		//{
-		//	PRINT_LOG(TEXT("Error: EnemyMontage가 없습니다!"));
-		//}
-		//return;
+		mState = EPTEnemyState::Escape;
+		anim->AnimState = mState;
+		PRINT_LOG(TEXT("적이 도망칩니다!"));
+		return;
 	}
 
 	if ( hp > 0 )
@@ -194,15 +237,14 @@ void UPistolEnemyFSM::OnAttackEnd()
 	anim->bAttackPlay = false;
 }
 
-void UPistolEnemyFSM::SurrenderState()
+void UPistolEnemyFSM::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	ai->StopMovement();
+	if (mState == EPTEnemyState::Escape)
+	{
+		PRINT_LOG(TEXT("적이 도망 위치에 도착! Idle 상태로 전환"));
 
-	//if (anim)
-	//{
-	//	anim->animState = EPTEnemyState::Surrender;
-	//}
-	PRINT_LOG(TEXT("surrender!!!!"));
-	//me->PlayAnimMontage(anim->EnemySurrender, 1.0f, TEXT("Surrender"));
+		mState = EPTEnemyState::Idle;
+		anim->AnimState = mState;
+		bIsEscaping = false;
+	}
 }
-

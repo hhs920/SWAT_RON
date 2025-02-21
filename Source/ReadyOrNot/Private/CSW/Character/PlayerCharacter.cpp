@@ -7,6 +7,7 @@
 #include "EnemyFSM.h"
 #include "EngineUtils.h"
 #include "InputActionValue.h"
+#include "PistolEnemyFSM.h"
 #include "ReadyOrNot.h"
 #include "Camera/CameraComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
@@ -17,6 +18,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"	
 #include "GameFramework/SpringArmComponent.h"
+#include "HHS/PistolEnemy.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 
@@ -113,6 +115,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	// // #$!@$##!$#$!@  <<<Enemy 데미지 테스트용>>>  @#$!#!@$!$@#@$#!$!@!$$!$
 	PlayerInputComponent->BindAction("DamageEnemy", IE_Pressed, this, &APlayerCharacter::DamageToEnemy);
+	PlayerInputComponent->BindAction("DamagePistolEnemy", IE_Pressed, this, &APlayerCharacter::DamageToPistolEnemy);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -545,6 +548,9 @@ void APlayerCharacter::SetupStimulusSource()
 	}
 }
 
+
+
+#pragma region AI 데미지 테스트용 처리
 void APlayerCharacter::DamageToEnemy()			// #$!@$##!$#$!@  <<<Enemy 데미지 테스트용>>>  @#$!#!@$!$@#@$#!$!@!$$!$
 {
 	// 플레이어 주변에서 가장 가까운 적 찾기
@@ -575,4 +581,36 @@ void APlayerCharacter::DamageToEnemy()			// #$!@$##!$#$!@  <<<Enemy 데미지 �
 	}
 }
 
+void APlayerCharacter::DamageToPistolEnemy()
+{
+	// 플레이어 주변에서 가장 가까운 적 찾기
+	APistolEnemy* closestEnemy = nullptr;
+	float closestDistance = 1000.0f; // 감지 범위 설정
+
+	for (TActorIterator<APistolEnemy> It(GetWorld()); It; ++It)
+	{
+		APistolEnemy* enemy = *It;
+		float distance = FVector::Dist(GetActorLocation(), enemy->GetActorLocation());
+
+		if (distance < closestDistance)
+		{
+			closestDistance = distance;
+			closestEnemy = enemy;
+		}
+	}
+
+	if (closestEnemy)
+	{
+		// 데미지 적용 (예: 1만큼 감소)
+		UPistolEnemyFSM* enemyFSM = closestEnemy->FindComponentByClass<UPistolEnemyFSM>();
+		if (enemyFSM)
+		{
+			enemyFSM->OnDamageProcess(1); // 데미지 1 적용
+			PRINT_LOG(TEXT("적에게 데미지를 입힘!"));
+		}
+	}
+}
+
+
+#pragma endregion
 

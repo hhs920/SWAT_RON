@@ -205,5 +205,6 @@ private:
 	class UAIPerceptionStimuliSourceComponent* StimulusSource;
 	void SetupStimulusSource();
 	void DamageToEnemy();
+	void DamageToPistolEnemy();
 #pragma endregion
 };
