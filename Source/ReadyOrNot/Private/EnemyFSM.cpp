@@ -9,6 +9,7 @@
 #include "VectorTypes.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AnimInstance.h"
+#include "CSW/Equipment/Equipment.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HHS/EnemyAnim.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -157,6 +158,9 @@ void UEnemyFSM::AttackState()
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
 		anim->bAttackPlay = true;
+
+		me->CombatComp->HoldingEquipment->LineTraceTarget = target->GetActorLocation();
+		me->CombatComp->HoldingEquipment->BeginUse();
 	}
 	// 타겟이 공격 범위를 벗어나면 이동 상태로 전환하고 싶다.
 	// 1. 타겟과의 거리가 필요하다.

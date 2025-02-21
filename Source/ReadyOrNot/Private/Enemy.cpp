@@ -4,6 +4,7 @@
 #include "Enemy.h"
 
 #include "EnemyFSM.h"
+#include "CSW/RONComponents/CombatComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -17,7 +18,7 @@ AEnemy::AEnemy()
 		GetMesh()->SetSkeletalMesh(MeshTmp.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -88), FRotator(0, -90, 0));
 	}
-
+/*
 	// 총 스켈레탈 메시 컴포넌트 등록
 	GunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
    	
@@ -36,6 +37,7 @@ AEnemy::AEnemy()
    		// 총 위치 설정
    		GunMeshComp->SetRelativeLocationAndRotation(FVector(-2.126416, -8.522827, 2.809152) , FRotator(14.477511, -74.495910, 93.967131) );
    	}
+   	*/
 	
 	// EnemyFSM 컴포넌트 추가
 	FSM = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
@@ -47,15 +49,20 @@ AEnemy::AEnemy()
 	{
 		GetMesh()->SetAnimInstanceClass(tempClass.Class);
 	}
-	
-	
+
+	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+void AEnemy::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	CombatComp->Character=this;
 }
 
 // Called every frame

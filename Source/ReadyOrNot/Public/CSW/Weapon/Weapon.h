@@ -38,7 +38,7 @@ class READYORNOT_API AWeapon : public AEquipment
 public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
-
+	
 	FHitResult HitResult; // TODO : 사용될 때 HitTarget을 계산해야한다.
 	FVector TraceEndWithScatter(const FVector& HitTarget);
 
