@@ -2,6 +2,26 @@
 
 
 #include "CSW/HUD/RONPlayerHUD.h"
+#include "Blueprint/UserWidget.h"
+#include "CSW/HUD/CharacterOverlay.h"
+
+void ARONPlayerHUD::BeginPlay()
+{
+	Super::BeginPlay();
+	AddCharacterOverlay();
+}
+
+void ARONPlayerHUD::AddCharacterOverlay()
+{
+	 
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && CharacterOverlayClass)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
+	}
+	
+}
 
 void ARONPlayerHUD::DrawHUD()
 {

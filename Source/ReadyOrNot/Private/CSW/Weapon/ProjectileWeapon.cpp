@@ -22,7 +22,7 @@ void AProjectileWeapon::Fire(FVector& HitTarget)
 		
 		if (ProjectileClass)
 		{
-			FActorSpawnParameters SpawnParams;
+			FActorSpawnParameters SpawnParams; // ApplyDamage에서 Owner, Instigator 정보가 사용됨!
 			SpawnParams.Owner = GetOwner();
 			SpawnParams.Instigator = InstigatorPawn;
 			

@@ -28,7 +28,6 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Block);
 
 
-
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->bRotationFollowsVelocity = true; // 속도에 맞춰 회전 // 중력에 따라 경로가 바뀌는데 영향을 준다.
 	ProjectileMovement->InitialSpeed = 15000.f; // 150 m/s
@@ -55,10 +54,8 @@ void AProjectile::BeginPlay()
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector Normal, const FHitResult& HitResult)
 {
-	// TODO : 적 또는 플레이어면 피격해야한다.
 	
-	
-	//Destroy();
+	Destroy();
 }
 
 void AProjectile::Destroyed()

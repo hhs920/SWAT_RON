@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 #include "CSW/Character/PlayerInputComponent.h"
+#include "CSW/Character/RONPlayerController.h"
 #include "CSW/RONComponents/CombatComponent.h"
 #include "CSW/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -78,6 +79,10 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UpdateHealthHUD();
+	
+	OnTakeAnyDamage.AddDynamic(this, &APlayerCharacter::OnReceiveDamage);
   
 	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	
@@ -123,6 +128,15 @@ void APlayerCharacter::PostInitializeComponents()
 	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
 		TEXT("Camera"));
 	CameraComp->bUsePawnControlRotation = true;
+}
+
+void APlayerCharacter::UpdateHealthHUD()
+{
+	RONPlayerController = Cast<ARONPlayerController>(GetController());
+	if (RONPlayerController)
+	{
+		RONPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void APlayerCharacter::AimOffset(float DeltaTime)
@@ -178,6 +192,13 @@ void APlayerCharacter::OnAdsUpdate(float Alpha)
 	GetFollowCamera()->SetWorldTransform(tr);
 }
 
+void APlayerCharacter::OnReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+   class AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHealthHUD();
+
+}
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 {

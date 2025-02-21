@@ -26,14 +26,17 @@ class READYORNOT_API APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	friend class UPlayerCombatComponent;
-	friend class UCombatComponent; 
+	// friend class UPlayerCombatComponent;
+	// friend class UCombatComponent; 
 	
 	// Sets default values for this character's properties
 	APlayerCharacter();
+	void UpdateHealthHUD();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
+
+	class ARONPlayerController* RONPlayerController;
 	
 	UPROPERTY(EditAnywhere, Category = Input)
 	float LookUpSpeed = 5.f;
@@ -74,6 +77,21 @@ public:
 
 	UFUNCTION()
 	void OnAdsUpdate(float Alpha);
+
+	UFUNCTION()
+	void OnReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+		class AController* InstigatorController, AActor* DamageCauser);
+
+
+private:
+	// 플레이어 체력 HP
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player Stats")
+	float Health = 100.f;
+
+	
 	
 protected:
 	// Called when the game starts or when spawned
@@ -95,11 +113,7 @@ protected:
 
 
 #pragma region 입력
-	
 public:
-
-#pragma region 입력
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Input)
 	class UPlayerInputComponent* InputComp;
 	
@@ -180,6 +194,11 @@ public:
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	FVector GetHitTarget() const;
+
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	
 #pragma region AI 인식
 	
 private:
