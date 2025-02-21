@@ -152,7 +152,7 @@ void UEnemyFSM::AttackState()
 	if ( CurrentTime > attackDelayTime )
 	{
 		// 공격을 한다.
-		PRINT_LOG(TEXT("Attack~~!@~#!~#"));
+		//PRINT_LOG(TEXT("Attack~~!@~#!~#"));
 		
 		// 경과 시간 초기화
 		CurrentTime = 0.0f;
