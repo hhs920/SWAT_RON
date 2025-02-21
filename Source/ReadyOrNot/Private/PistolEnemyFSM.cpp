@@ -68,6 +68,11 @@ void UPistolEnemyFSM::IdleState()
 		mState = EPTEnemyState::Move;
 		CurrentTime = 0.0f;
 		anim->AnimState = mState;
+		
+		if (me)
+		{
+			me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed;  // 원래 속도로 복구
+		}
 	}
 }
 
@@ -183,6 +188,13 @@ void UPistolEnemyFSM::EscapeState()
 	{
 		me->PlayAnimMontage(anim->EnemyRun, 1.0f, TEXT("Escape"));
 	}
+	// 이동 속도 증가 (예: 원래 속도의 3배로 설정)
+	if (me)
+	{
+		me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed * 3.0f;  // 이동 속도를 증가시킴
+	}
+	anim->AnimState = mState;
+
 	//// AI가 도망 위치에 도착하면 Idle 상태로 전환
 	//if (ai->GetMoveStatus() == EPathFollowingStatus::Idle)
 	//{
@@ -211,12 +223,12 @@ void UPistolEnemyFSM::OnDamageProcess(int32 damage)
 		
 		int32 randValue = FMath::RandRange(0,1);
 		FString sectionName = FString::Printf(TEXT("Damage%d"), randValue);
-		//me->PlayAnimMontage(anim->EnemyMontage, 1.0f, FName(*sectionName));
+		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, FName(*sectionName));
 	}
 	else
 	{
 		mState = EPTEnemyState::Die;
-		//me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
+		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
 	}
 	ai->StopMovement();
 	anim->AnimState = mState;
@@ -246,5 +258,17 @@ void UPistolEnemyFSM::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowi
 		mState = EPTEnemyState::Idle;
 		anim->AnimState = mState;
 		bIsEscaping = false;
+
+		// 원래 이동 애니메이션으로 변경
+		if (anim && anim->EnemyWalk)
+		{
+			me->PlayAnimMontage(anim->EnemyWalk, 1.0f, TEXT("Walk"));
+		}
+
+		// 이동 속도를 원래대로 복구
+		if (me)
+		{
+			me->GetCharacterMovement()->MaxWalkSpeed = moveSpeed;
+		}
 	}
 }
