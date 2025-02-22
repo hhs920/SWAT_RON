@@ -35,7 +35,8 @@ class READYORNOT_API AWeapon : public AEquipment
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 	

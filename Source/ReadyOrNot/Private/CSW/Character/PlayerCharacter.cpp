@@ -75,6 +75,7 @@ APlayerCharacter::APlayerCharacter()
 	{
 		AdsCurve = curve.Object;
 	}
+	
 }
 
 // Called when the game starts or when spawned
@@ -82,9 +83,13 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UpdateHealthHUD();
-	
-	OnTakeAnyDamage.AddDynamic(this, &APlayerCharacter::OnReceiveDamage);
+	RONPlayerController = Cast<ARONPlayerController>(GetController());
+	if (RONPlayerController)
+	{
+		UpdateHealthHUD();
+		OnTakeAnyDamage.AddDynamic(this, &APlayerCharacter::OnReceiveDamage);
+	}
+
   
 	//AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	
@@ -93,7 +98,9 @@ void APlayerCharacter::BeginPlay()
 
 	// AdsCurve데이터의 값이 변경될 때 AdsUpdate가 호출된다.
 	// 즉, AdsTimeline.Play() 또는 .Reverse() 시에 호출된다.
-	AdsTimeline.AddInterpFloat(AdsCurve, AdsUpdate); 
+	AdsTimeline.AddInterpFloat(AdsCurve, AdsUpdate);
+
+	
 }
 
 // Called every frame

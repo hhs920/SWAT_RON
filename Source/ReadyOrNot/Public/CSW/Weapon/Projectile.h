@@ -25,11 +25,14 @@ protected:
 	virtual void Destroyed() override;
 
 	UPROPERTY(EditAnywhere)
-	float Damage = 20.f; 
+	float Damage = 1.f; 
 	
 protected:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
+	
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovement;

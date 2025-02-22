@@ -153,8 +153,6 @@ void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
 	
 	if (bFireButtonPressed) // 누를 때
 	{
-
-		
 		// 조정간 상태에 따른 처리
 		switch (holdingWeapon->GetSelectorState())
 		{
@@ -229,7 +227,7 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 		{
 			float DistToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
 			Start += CrosshairWorldDirection * (DistToCharacter + 100.f);  
-			DrawDebugSphere(GetWorld(), Start, 16.f, 12, FColor::Red, false);
+			//DrawDebugSphere(GetWorld(), Start, 16.f, 12, FColor::Red, false);
 		}
 		FVector End = Start + CrosshairWorldDirection * TraceLength;
 
@@ -246,8 +244,7 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 			// 적중하면
 			HoldingEquipment->LineTraceTarget = End;
 			// 디버그 - 충돌 지점에 구 그리기
-			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f,
-				12, FColor::Red);
+			//DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
 		}
 	}
 }

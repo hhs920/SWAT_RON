@@ -51,7 +51,7 @@ void AWeapon::OnEndEquip()
 	bUsing = false;
 	
 	// 소유자 세팅
-	//OwnerCharacter = 
+	// OwnerCharacter =  
 }
 
 void AWeapon::OnBeginUnequip()

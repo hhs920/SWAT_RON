@@ -36,6 +36,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
 
+	UPROPERTY(EditDefaultsOnly)
 	class ARONPlayerController* RONPlayerController;
 	
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -86,13 +87,11 @@ public:
 private:
 	// 플레이어 체력 HP
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
-	float MaxHealth = 100.f;
+	float MaxHealth = 10.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Player Stats")
-	float Health = 100.f;
+	float Health = 10.f;
 
-	
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -109,8 +108,6 @@ protected:
 	float AO_Yaw;
 	float AO_Pitch;
 	FRotator StartingAimRotation;
-
-
 
 #pragma region 입력
 public:

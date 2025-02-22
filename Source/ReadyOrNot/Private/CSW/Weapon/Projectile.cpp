@@ -32,6 +32,9 @@ AProjectile::AProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true; // 속도에 맞춰 회전 // 중력에 따라 경로가 바뀌는데 영향을 준다.
 	ProjectileMovement->InitialSpeed = 15000.f; // 150 m/s
 	ProjectileMovement->MaxSpeed = 15000.f;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetupAttachment(CollisionBox);
 }
 
 // Called when the game starts or when spawned
