@@ -19,8 +19,19 @@ AEquipment::AEquipment()
 	// Pawn은 무기를 밟고 지나갈 수 있다.
 	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
 
+void AEquipment::Drop()
+{
+	SetEquippedState(EEquippedState::Dropped);
+	// 소켓에 붙은 것을 뗀다
 
+	// 중력을 적용한다.
+	MeshComp->SetSimulatePhysics(true);
+	MeshComp->SetEnableGravity(true);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// 상호작용을 할 수 있게 한다.
 	
 }
 

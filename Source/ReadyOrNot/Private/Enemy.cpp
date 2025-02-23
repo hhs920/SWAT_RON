@@ -59,10 +59,16 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 }
 
+// 컴포넌트들이 생성되고나서 BeginPlay() 전에 호출된다.
 void AEnemy::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	CombatComp->Character=this;
+	
+	if (CombatComp && CombatComp->Character)
+	{
+		CombatComp->Character=this;
+		CombatComp->SetUpEquipments();
+	}
 }
 
 // Called every frame

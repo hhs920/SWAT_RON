@@ -68,6 +68,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	FHUDPackage HUDPackage;
 
+	void Drop();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -104,6 +106,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DistanceFromADS = 10.f; // ADS 위치로부터의 카메라 거리
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BoxGathered;
 
 public:
 	// GET SET

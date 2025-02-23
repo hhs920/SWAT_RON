@@ -133,6 +133,7 @@ void APlayerCharacter::PostInitializeComponents()
 	{
 		CombatComp->Character = this;
 		CombatComp->PlayerCharacter = this;
+		CombatComp->SetUpEquipments();
 	}
 
 	CameraComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
@@ -221,14 +222,14 @@ void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)
 	
 	MoveDir = FVector::ZeroVector;
 
-    UE_LOG(LogTemp, Warning, TEXT("PlayerMove"));
+    //UE_LOG(LogTemp, Warning, TEXT("PlayerMove"));
 }
 
 void APlayerCharacter::PlayerTurn(const FInputActionValue& inputValue)
 {
 	float value = inputValue.Get<float>();
 	AddControllerYawInput(value * TurnSpeed * GetWorld()->GetDeltaSeconds());
-	UE_LOG(LogTemp, Warning, TEXT("PlayerTurn"));
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerTurn"));
 
 }
 
@@ -236,7 +237,7 @@ void APlayerCharacter::PlayerLookUp(const FInputActionValue& inputValue)
 {
 	float value = inputValue.Get<float>();
 	AddControllerPitchInput(value * LookUpSpeed * GetWorld()->GetDeltaSeconds()); // Picth는 x축기준 회전
-	UE_LOG(LogTemp, Warning, TEXT("PlayerLookUp"));
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerLookUp"));
 
 }
 
@@ -394,18 +395,15 @@ void APlayerCharacter::ChangeSelector(const FInputActionValue& inputValue)
 	AWeapon* weapon = Cast<AWeapon>(GetHoldingEquipment());
 	if (weapon)
 	{
-		
 		weapon->ChangeSelectorState();
 	}
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& inputValue)
 {
-	// TODO : LineTrace를 쏴서 Interact 대상이 총기(증거품)인지 범죄증거물인지 확인해야한다.
-	
-	if (CombatComp)
+	if (CombatComp && CombatComp->interacting)
 	{
-		//CombatComp->EquipWeapon(InteractingWeapon);
+		CombatComp->interacting->BeginInteract();
 	}
 }
 

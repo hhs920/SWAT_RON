@@ -29,22 +29,88 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	if (HoldingEquipment == nullptr) return;
+	if (Character == nullptr) return; 
+	
+	// 총기일 때
+	AWeapon* holdingWeapon = Cast<AWeapon>(HoldingEquipment);
+	if (holdingWeapon == nullptr) return;
+	
+	if (bPressed) // 누를 때
+	{
+		// 조정간 상태에 따른 처리
+		switch (holdingWeapon->GetSelectorState())
+		{
+		case ESelectorState::SemiAuto:
+			holdingWeapon->BeginUse(); // 한발 쏜다.
+			PlayFireMontage(bAiming);
+			//holdingWeapon->Fire(HitTarget);
+			break;
+		case ESelectorState::Burst:
+			{
+				if (holdingWeapon->GetUsing())
+					return;
+
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				//holdingWeapon->Fire(HitTarget);
+				holdingWeapon->SetBurstFireCount(1);
+				
+				FireWeaponSetTimer(holdingWeapon);
+			}
+			break;
+		case ESelectorState::FullAuto:
+			{
+				// 첫 한발 쏜다.
+				holdingWeapon->BeginUse(); 
+				PlayFireMontage(bAiming);
+				//holdingWeapon->Fire(HitTarget);
+				
+				FireWeaponSetTimer(holdingWeapon);
+			}
+			break;
+		}
+	}
+	else // 뗄 때
+	{
+		HoldingEquipment->EndUse();
+		
+		switch (holdingWeapon->GetSelectorState())
+		{
+		case ESelectorState::FullAuto:
+			GetWorld()->GetTimerManager().ClearTimer(holdingWeapon->FireTimer);
+			break;
+		}
+	}
+}
+
+void UCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
+{
+	// 총 발사
+	GetWorld()->GetTimerManager().SetTimer(
+		holdingWeapon->FireTimer,
+		[this, holdingWeapon](){
+			this->HoldingEquipment->BeginUse();
+			this->PlayFireMontage(this->bAiming);
+			//holdingWeapon->Fire(HitTarget);
+		},
+		holdingWeapon->GetFireDelay(),
+		true
+	);
+}
+
 void UCombatComponent::SetUpEquipments()
 {
 	if (PrimaryWeaponClass)
 	{
 		Primary = GetWorld()->SpawnActor<AWeapon>(PrimaryWeaponClass);
 		Primary->SetEquipmentType(EEquipmentType::Primary);
+		Primary->SetSelectorState(PrimarySelector);
 		Equip(Primary);
 		HoldEquipment(Primary);
-	}
-
-	if (SecondaryWeaponClass)
-	{
-		Secondary = GetWorld()->SpawnActor<AWeapon>(SecondaryWeaponClass);
-		Secondary->SetEquipmentType(EEquipmentType::Secondary);
-		Equip(Secondary);
-
 	}
 }
 
@@ -56,13 +122,20 @@ void UCombatComponent::SwapEquipment(class AEquipment* Equipment)
 
 void UCombatComponent::DropHoldingEquipment()
 {
-	auto holdingWeapon = Cast<AWeapon>(HoldingEquipment);
-	if (holdingWeapon)
-	{
-		holdingWeapon->Drop();
-	}
-}
+	if (HoldingEquipment == nullptr) return;
+	HoldingEquipment->Drop();
 
+	// 장비를 손에서 떼어내기 (Detach)
+	HoldingEquipment->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	
+	FVector DropImpulse = Character->GetActorForwardVector() * 300.0f + FVector(0.0f, 0.0f, 200.0f);
+	HoldingEquipment->GetMesh()->AddImpulse(DropImpulse, NAME_None, true);
+
+	// 상호작용 LineTrace에 맞을 수 있도록
+	HoldingEquipment->GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_EngineTraceChannel4, ECR_Overlap);
+
+	HoldingEquipment = nullptr; // 더 이상 장비를 들고 있지 않음
+}
 
 void UCombatComponent::Equip(AEquipment* Equipment)
 {

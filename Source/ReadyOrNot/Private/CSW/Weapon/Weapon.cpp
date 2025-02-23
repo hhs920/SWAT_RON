@@ -3,26 +3,34 @@
 
 #include "CSW/Weapon/Weapon.h"
 
+#include "Components/WidgetComponent.h"
 #include "CSW/Weapon/Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "HHS/HHS_GameMode.h"
 
 // Sets default values
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	// GatherEvidenceWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("GatherEvidenceWidget"));
-	// GatherEvidenceWidget->SetupAttachment(RootComponent);
+	
+	
 }
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// if (GatherEvidenceWidget)
-	// {
-	// 	ShowGatherEvidenceWidget(false);
-	// }
+
+	if (GatherEvidenceWidget) // UI가 이미 생성되지 않았다면
+	{
+		// 위젯을 생성하고 변수에 저장
+		GatherEvidenceUI = CreateWidget<UUserWidget>(GetWorld(), GatherEvidenceWidget);
+        
+		if (GatherEvidenceUI)
+		{
+			GatherEvidenceUI->AddToViewport(); // 화면에 추가
+			ShowGatherEvidenceWidget(false);
+		}
+	}
 
 	if (bUseSemiAuto) AvailableSelectorStates.Add(ESelectorState::SemiAuto);
 	if (bUseBurst) AvailableSelectorStates.Add(ESelectorState::Burst);
@@ -76,13 +84,32 @@ void AWeapon::OnEndUse()
 
 void AWeapon::OnBeginInteract()
 {
+	// 무기 증거 수집
+	if (EquippedState != EEquippedState::Dropped) return;
+	
+	// 박스를 생성한다.
+	GetWorld()->SpawnActor<AActor>(BoxGathered, GetActorTransform());
+
+	// 무기를 없앤다.
+	if (GatherEvidenceUI)
+	{
+		GatherEvidenceUI->RemoveFromParent(); // UI 제거
+		GatherEvidenceUI = nullptr;
+	}
+	
+	if (AHHS_GameMode* GM = Cast<AHHS_GameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		// 증거 수집 개수 +1
+		GM->IncreaseWeaponCount();
+	}
+	
+	Destroy();	
 }
 
 void AWeapon::OnEndInteract()
 {
+	if (EquippedState != EEquippedState::Dropped) return;
 }
-
-
 
 void AWeapon::Fire(FVector& HitTarget)
 {
@@ -119,8 +146,6 @@ void AWeapon::Fire(FVector& HitTarget)
 	}
 }
 
-
-
 void AWeapon::Reload()
 {
 	if (ReloadAnim)
@@ -129,24 +154,19 @@ void AWeapon::Reload()
 	}
 }
 
-void AWeapon::Drop()
+void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
 {
-	SetEquippedState(EEquippedState::Dropped);
-	// 소켓에 붙은 것을 뗀다
-	
-
-	// 중력을 적용한다.
-	MeshComp->SetSimulatePhysics(true);
-	MeshComp->SetEnableGravity(true);
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (bShowWidget)
+	{
+		if (GatherEvidenceUI)
+			GatherEvidenceUI->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		if (GatherEvidenceUI)
+			GatherEvidenceUI->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
-
-
-
-// void AWeapon::ShowGatherEvidenceWidget(bool bShowWidget)
-// {
-// 	//GatherEvidenceWidget->SetVisibility(bShowWidget);
-// }
 
 FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 {
@@ -165,6 +185,9 @@ void AWeapon::SetBurstFireCount(int32 cnt)
 
 void AWeapon::ChangeSelectorState()
 {
+	if (bUsing)
+		return;
+	
 	int32 num = AvailableSelectorStates.Num();
 	int32 curIdx = AvailableSelectorStates.Find(SelectorState);
 	int32 nextIdx = curIdx + 1;
@@ -178,3 +201,10 @@ void AWeapon::ChangeSelectorState()
 	
 	SelectorState = AvailableSelectorStates[nextIdx];
 }
+
+void AWeapon::SetSelectorState(ESelectorState state)
+{
+	SelectorState = state;
+
+}
+

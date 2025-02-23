@@ -67,16 +67,16 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandTransform.SetRotation(FQuat(outRotation));
 
 		// 총구 방향 조정
-		FTransform RightHandTr = HoldingEquipment->GetMesh()->GetSocketTransform(FName("RightHandSocket"));
-			// ABP에서 RightHandRotation로 적용해서 Transform Modify Bone 노드를 실행한다.
-		RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTr.GetLocation(), PlayerCharacter->GetHitTarget());
-		
-		FTransform MuzzleTipTransform = HoldingEquipment->GetMesh()->GetSocketTransform(FName("MuzzleFlash"),
-			ERelativeTransformSpace::RTS_World);
-			// MuzzleFlash소켓의 X방향
-		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(),  MuzzleTipTransform.GetLocation()+MuzzleX * 1000.f, FColor::Red);
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), PlayerCharacter->GetHitTarget(), FColor::Orange);
+		//FTransform RightHandTr = HoldingEquipment->GetMesh()->GetSocketTransform(FName("RightHandSocket"));
+		//	// ABP에서 RightHandRotation로 적용해서 Transform Modify Bone 노드를 실행한다.
+		//RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTr.GetLocation(), PlayerCharacter->GetHitTarget());
+		//
+		//FTransform MuzzleTipTransform = HoldingEquipment->GetMesh()->GetSocketTransform(FName("MuzzleFlash"),
+		//	ERelativeTransformSpace::RTS_World);
+		//	// MuzzleFlash소켓의 X방향
+		//FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(),  MuzzleTipTransform.GetLocation()+MuzzleX * 1000.f, FColor::Red);
+		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), PlayerCharacter->GetHitTarget(), FColor::Orange);
 	}
 
 	// Leaning

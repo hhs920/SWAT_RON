@@ -43,7 +43,7 @@ public:
 	FHitResult HitResult; // TODO : 사용될 때 HitTarget을 계산해야한다.
 	FVector TraceEndWithScatter(const FVector& HitTarget);
 
-	// void ShowGatherEvidenceWidget(bool bShowWidget);
+	void ShowGatherEvidenceWidget(bool bShowWidget);
 
 	// virtual void Reload();
 
@@ -52,7 +52,7 @@ public:
 
 	virtual void Fire(FVector& HitTarget); // public Use 에서 사용된다. 
 
-	virtual void Drop(); // 캐릭터에 의해 Drop될 때 호출된다.
+	 // 캐릭터에 의해 Drop될 때 호출된다.
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,16 +72,6 @@ protected:
 	virtual void Reload();
 
 	bool bReloading;
-
-
-
-	/*
-	 * 각 무기마다 줌(Aim) 시의 FOV가 다르다.
-	 */
-	// UPROPERTY()
-	// class USpringArmComponent* SpringArmComp;
-	// UPROPERTY()
-	// class UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere, Category = "FOV")
 	float ZoomedFOV = 70.f;
@@ -112,9 +102,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	bool bUseFullAuto = false; // 연발
-
-	// UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	// EFireType FireType;
 	
 	UPROPERTY()
 	const USkeletalMeshSocket* AmmoEjectSocket; // 총알이 발사되는 소켓
@@ -149,11 +136,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	int32 MagCapacity;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> GatherEvidenceWidget;
 	
-	//UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	//UWidgetComponent* GatherEvidenceWidget;
-
-
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UUserWidget* GatherEvidenceUI;
 
 public:
 	bool IsEmpty();
@@ -163,6 +151,7 @@ public:
 	// GET SET
 	FORCEINLINE ESelectorState GetSelectorState() const {	return SelectorState; }
 	void ChangeSelectorState();
+	void SetSelectorState(ESelectorState state);
 	
 	//FORCEINLINE USphereComponent* GetAreaSphere() const {	return AreaSphere; }
 	

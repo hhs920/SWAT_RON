@@ -6,12 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+enum class ESelectorState : uint8;
 enum class EEquipmentType : uint8;
 class USkeletalMeshSocket;
 class ACharacter;
 class AWeapon;
-
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class READYORNOT_API UCombatComponent : public UActorComponent
@@ -24,7 +23,6 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	//virtual void SetUpInitialEquipped();
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = PlayerCharacter)
@@ -39,21 +37,23 @@ public:
 	
 	// 기존에 들고있던 것은 UnEquip하고 손에 들 것을 Equip한다.
 	virtual void SwapEquipment(class AEquipment* Equipment);
-	//virtual void AttachEquipmentToSocket(EEquipmentType EquipmentType);
 
 	void DropHoldingEquipment();
 	
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	AWeapon* Primary;
-	UPROPERTY(VisibleAnywhere, Category = "Combat")
-	AWeapon* Secondary;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	ESelectorState PrimarySelector;
 	
 	// 현재 들고있는 무기. 기본으로 주무기 들고있기
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
 	AEquipment* HoldingEquipment;
+	
+	virtual void FireButtonPressed(bool bPressed);
+	void FireWeaponSetTimer(AWeapon* holdingWeapon);
 
-protected:
 	virtual void SetUpEquipments();
+protected:
 	
 	void Equip(AEquipment* Equipment);
 	void HoldEquipment(AEquipment* EquipmentToAttach);
@@ -64,14 +64,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<AWeapon> PrimaryWeaponClass;
-	// UPROPERTY()
-	// const USkeletalMeshSocket* PrimarySocket; // 장비가 플레이어에 붙는 위치
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	TSubclassOf<AWeapon> SecondaryWeaponClass;
-	// UPROPERTY()
-	// const USkeletalMeshSocket* SecondarySocket; // 장비가 플레이어에 붙는 위치
-	
 	bool bAiming;
 	
 

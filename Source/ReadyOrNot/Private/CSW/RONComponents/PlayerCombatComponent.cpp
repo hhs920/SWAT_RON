@@ -3,20 +3,18 @@
 
 #include "CSW/RONComponents/PlayerCombatComponent.h"
 
+#include "ReadyOrNot.h"
 #include "Camera/CameraComponent.h"
+#include "CSW/Evidence.h"
 #include "CSW/Character/PlayerCharacter.h"
 #include "CSW/Character/RONPlayerController.h"
 #include "CSW/HUD/RONPlayerHUD.h"
 #include "CSW/Weapon/Weapon.h"
+#include "Editor/PropertyEditorTestObject.h"
 #include "Kismet/GameplayStatics.h"
 
 UPlayerCombatComponent::UPlayerCombatComponent() : UCombatComponent()
 {
-}
-
-void UPlayerCombatComponent::Interact(AActor* ToInteract)
-{
-	// F버튼으로 Interact
 }
 
 void UPlayerCombatComponent::BeginPlay()
@@ -55,6 +53,9 @@ void UPlayerCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		SetHudCrosshairs(DeltaTime);
 	}
 
+	if (GetWorld() && GEngine && GEngine->GameViewport)
+		TraceForEvidence();
+
 }
 
 void UPlayerCombatComponent::SetHudCrosshairs(float DeltaTime)
@@ -87,6 +88,91 @@ void UPlayerCombatComponent::SetHudCrosshairs(float DeltaTime)
 	
 }
 
+void UPlayerCombatComponent::TraceForEvidence()
+{
+	if (!GetWorld() || !GEngine || !GEngine->GameViewport) return;
+
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+	FVector2D ViewportCenter = ViewportSize * 0.5f; // 화면 중앙 좌표
+
+	// 화면 중앙의 위치를 3D World 좌표로 변환
+	FVector WorldLocation {FVector()}, WorldDirection {FVector()};
+	if (Controller)
+	{
+		Controller->DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, WorldLocation, WorldDirection);
+	}
+
+	// 라인 트레이스
+	FVector TraceStart = WorldLocation;
+	FVector TraceEnd = TraceStart + (WorldDirection * 150.f); // 1.5m
+	FHitResult HitResult;
+
+	// 충돌 정보 설정
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this->Character); // 플레이어 자신은 무시
+
+	// 레이 트레이스 실행
+	// ECC_EngineTraceChannel4 ) Interact
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Interact, QueryParams);
+    
+	if (bHit && HitResult.GetActor()) 
+	{
+		// 맞은 오브젝트가 상호작용 대상이면
+		IInteractable* interactable = Cast<IInteractable>(HitResult.GetActor());
+		if (interactable)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, FString::Printf(TEXT("%s"), *HitResult.GetActor()->GetName()));
+			// UI에 상호작용 메시지 표시 (예: "Press E to Collect Evidence")
+			//ShowInteractionUI(true, interactable);
+
+			if (interacting != interactable)
+			{
+				auto weapon = Cast<AWeapon>(interacting);
+				if (weapon)
+				{
+					weapon->ShowGatherEvidenceWidget(false);
+				}
+				auto evidence = Cast<AEvidence>(interacting);
+				if (evidence)
+				{
+					evidence->ShowGatherEvidenceWidget(false);
+				}
+				
+				auto newWeapon = Cast<AWeapon>(interactable);
+				if (newWeapon)
+				{
+					newWeapon->ShowGatherEvidenceWidget(true);
+				}
+				auto newEvidence = Cast<AEvidence>(interactable);
+				if (newEvidence)
+				{
+					newEvidence->ShowGatherEvidenceWidget(true);
+				}
+			}
+			
+			interacting = interactable; // 현재 보고 있는 증거
+			return;
+		}
+	}
+
+	// 아무것도 감지하지 못하면 UI 숨김
+	if (interacting)
+	{
+		auto newWeapon = Cast<AWeapon>(interacting);
+		if (newWeapon)
+		{
+			newWeapon->ShowGatherEvidenceWidget(false);
+		}
+		auto newEvidence = Cast<AEvidence>(interacting);
+		if (newEvidence)
+		{
+			newEvidence->ShowGatherEvidenceWidget(false);
+		}
+	}
+	interacting = nullptr;
+}
+
 void UPlayerCombatComponent::SwapEquipment(class AEquipment* Equipment)
 {
 	Super::SwapEquipment(Equipment);
@@ -95,6 +181,17 @@ void UPlayerCombatComponent::SwapEquipment(class AEquipment* Equipment)
 void UPlayerCombatComponent::SetUpEquipments()
 {
 	Super::SetUpEquipments();
+
+	if (SecondaryWeaponClass)
+	{
+		Secondary = GetWorld()->SpawnActor<AWeapon>(SecondaryWeaponClass);
+		Secondary->SetEquipmentType(EEquipmentType::Secondary);
+		Equip(Secondary);
+
+		// 주무기가 없으면 보조무기를 든다.
+		if (!Primary)
+			HoldEquipment(Secondary);
+	}
 
 	if (GrenadeWeaponClass)
 	{
@@ -123,22 +220,6 @@ void UPlayerCombatComponent::SetUpEquipments()
 		CableTie->SetEquipmentType(EEquipmentType::CableTie);
 		Equip(CableTie);
 	}
-
-}
-
-void UPlayerCombatComponent::FireWeaponSetTimer(AWeapon* holdingWeapon)
-{
-	// 총 발사
-	GetWorld()->GetTimerManager().SetTimer(
-		holdingWeapon->FireTimer,
-		[this, holdingWeapon](){
-			this->HoldingEquipment->BeginUse();
-			this->PlayFireMontage(this->bAiming);
-			//holdingWeapon->Fire(HitTarget);
-		},
-		holdingWeapon->GetFireDelay(),
-		true
-	);
 }
 
 void UPlayerCombatComponent::FireButtonPressed(bool bPressed)
@@ -244,7 +325,6 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 			HoldingEquipment->LineTraceTarget = End;
 			// 디버그 - 충돌 지점에 구 그리기
 			//DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
-			// TODO : 상호작용 대상 (ex. 증거품, 떨어뜨린 총기)
 		}
 	}
 }
@@ -275,10 +355,8 @@ void UPlayerCombatComponent::InterpFOV(float DeltaTime)
 	}
 }
 
-// void UPlayerCombatComponent::GatherEvidence(class AWeapon* EvidenceToGather)
-// {
-// 	if (Character == nullptr || EvidenceToGather == nullptr)
-// 		return;
-// 	
-// 	EvidenceToGather->SetWeaponState(EWeaponState::EWS_Gathered);
-// }
+void UPlayerCombatComponent::GatherEvidence(IInteractable* ToInteract)
+{
+	ToInteract->BeginInteract();
+	ToInteract->EndInteract();
+}

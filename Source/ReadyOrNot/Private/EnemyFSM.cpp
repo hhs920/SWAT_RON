@@ -210,6 +210,7 @@ void UEnemyFSM::OnDamageProcess(int32 damage)
 		if (anim && anim->EnemySurrender)
 		{
 			me->PlayAnimMontage(anim->EnemySurrender, 1.0f, TEXT("Surrender"));
+			me->CombatComp->DropHoldingEquipment(); // 들고있던 장비(총)을 드랍한다.
 			PRINT_LOG(TEXT("적이 항복했습니다!"));
 		}
 		else

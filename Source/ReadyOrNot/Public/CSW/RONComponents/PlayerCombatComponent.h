@@ -6,6 +6,7 @@
 #include "CSW/RONComponents/CombatComponent.h"
 #include "PlayerCombatComponent.generated.h"
 
+class IInteractable;
 /**
  * 
  */
@@ -19,7 +20,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void SwapEquipment(class AEquipment* Equipment) override;
-	void FireWeaponSetTimer(AWeapon* holdingWeapon);
+	//void FireWeaponSetTimer(AWeapon* holdingWeapon);
 
 	// Aiming and FOV
 	void SetAiming(bool bIsAiming);
@@ -35,8 +36,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Player)
 	class ARONPlayerHUD* HUD;	
 	
-	void FireButtonPressed(bool bPressed);
+	virtual void FireButtonPressed(bool bPressed) override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	class AWeapon* Secondary;
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class AWeapon* Grenade;
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
@@ -46,16 +49,19 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class AWeapon* CableTie;
 
-	// 바닥에 있는 증거 무기를 수집한다.
-	//void GatherEvidence(class AWeapon* EvidenceToGather);
+	// 바닥에 있는 증거를 수집한다.
+	void GatherEvidence(IInteractable* ToInteract);
 
-	void Interact(AActor* ToInteract);
+	IInteractable* interacting;
 
 	FVector HitTarget;
 
+	virtual void SetUpEquipments() override;
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetUpEquipments() override;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<AWeapon> SecondaryWeaponClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<AWeapon> GrenadeWeaponClass;
@@ -82,6 +88,8 @@ protected:
 private:
 	float DefaultFOV; // BeginPlay에서 카메라의 디폴트 FOV값을 설정한다.
 	float CurrentFOV; // Weapon의 FOV 관련 세팅값에 따라 동작한다.
+
+	void TraceForEvidence();
 
 	
 public:

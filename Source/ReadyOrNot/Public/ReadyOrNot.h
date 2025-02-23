@@ -12,4 +12,5 @@ DECLARE_LOG_CATEGORY_EXTERN(TPS, Log, All);
 
 #define PRINT_LOG(fmt, ...) UE_LOG(TPS, Warning, TEXT("%s %s"), *CALLINFO, *FString::Printf(fmt, ##__VA_ARGS__))
 
-#define ECC_SkeletalMesh ECollisionChannel::ECC_GameTraceChannel1
+#define ECC_SkeletalMesh ECollisionChannel::ECC_GameTraceChannel2
+#define ECC_Interact ECollisionChannel::ECC_GameTraceChannel4

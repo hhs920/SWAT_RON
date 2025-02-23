@@ -6,14 +6,13 @@
 #include "Components/Image.h"
 #include "CSW/HUD/CharacterOverlay.h"
 #include "CSW/HUD/RONPlayerHUD.h"
+#include "HHS/HHS_GameMode.h"
 
 void ARONPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	RONPlayerHUD = Cast<ARONPlayerHUD>(GetHUD());
 }
-
-
 
 void ARONPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -29,6 +28,15 @@ void ARONPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		RONPlayerHUD->CharacterOverlay->CharacterImage->SetColorAndOpacity(
 			FColor(255.f, HealthPercent*255.f, HealthPercent*255.f)
 		);
+
+		if (HealthPercent <= 0.f)
+		{
+			AHHS_GameMode* GM = Cast<AHHS_GameMode>(GetWorld()->GetAuthGameMode());
+			if (GM)
+			{
+				GM->Defeat();
+			}
+		}
 	}
 }
 
