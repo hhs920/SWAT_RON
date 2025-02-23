@@ -52,6 +52,7 @@ public:
 
 	virtual void Fire(FVector& HitTarget); // public Use 에서 사용된다. 
 
+	virtual void Drop(); // 캐릭터에 의해 Drop될 때 호출된다.
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,7 +73,6 @@ protected:
 
 	bool bReloading;
 
-	virtual void OnDropped(); // 캐릭터에 의해 Drop될 때 호출된다.
 
 
 	/*
@@ -136,10 +136,10 @@ protected:
 	bool bUseScatter = false;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon", meta = (AllowPrivateAccess = true))
-	float Damage = 20.f;
+	float Damage = 1.f;
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon", meta = (AllowPrivateAccess = true))
-	float HeadShotDamage = 40.f;
+	float HeadShotDamage = 3.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACasing> CasingClass; // 탄피

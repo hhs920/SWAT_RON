@@ -54,6 +54,15 @@ void UCombatComponent::SwapEquipment(class AEquipment* Equipment)
 	HoldEquipment(Equipment);
 }
 
+void UCombatComponent::DropHoldingEquipment()
+{
+	auto holdingWeapon = Cast<AWeapon>(HoldingEquipment);
+	if (holdingWeapon)
+	{
+		holdingWeapon->Drop();
+	}
+}
+
 
 void UCombatComponent::Equip(AEquipment* Equipment)
 {
@@ -80,8 +89,6 @@ void UCombatComponent::Equip(AEquipment* Equipment)
 
 void UCombatComponent::PickUpWeapon(class AWeapon* WeaponToEquip)
 {
-
-	
 	// if (Character == nullptr || WeaponToEquip == nullptr)
 	// 	return;
 	// switch (WeaponToEquip->GetEquipmentType())

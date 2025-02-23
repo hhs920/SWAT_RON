@@ -40,6 +40,8 @@ public:
 	// 기존에 들고있던 것은 UnEquip하고 손에 들 것을 Equip한다.
 	virtual void SwapEquipment(class AEquipment* Equipment);
 	//virtual void AttachEquipmentToSocket(EEquipmentType EquipmentType);
+
+	void DropHoldingEquipment();
 	
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	AWeapon* Primary;

@@ -233,18 +233,18 @@ void UPlayerCombatComponent::TraceUnderCrossHairs(FHitResult& TraceHitResult)
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
 		
-		if (!TraceHitResult.bBlockingHit) 
+		if (!TraceHitResult.bBlockingHit)  // 적중안하면
 		{
-			// 적중안하면
+			
 			TraceHitResult.ImpactPoint = End;
 			HoldingEquipment->LineTraceTarget = End;
 		}
-		else
+		else // 적중하면
 		{
-			// 적중하면
 			HoldingEquipment->LineTraceTarget = End;
 			// 디버그 - 충돌 지점에 구 그리기
 			//DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
+			// TODO : 상호작용 대상 (ex. 증거품, 떨어뜨린 총기)
 		}
 	}
 }

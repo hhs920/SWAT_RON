@@ -129,12 +129,11 @@ void AWeapon::Reload()
 	}
 }
 
-
-
-void AWeapon::OnDropped()
+void AWeapon::Drop()
 {
 	SetEquippedState(EEquippedState::Dropped);
 	// 소켓에 붙은 것을 뗀다
+	
 
 	// 중력을 적용한다.
 	MeshComp->SetSimulatePhysics(true);

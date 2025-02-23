@@ -513,7 +513,7 @@ EEquipmentType APlayerCharacter::GetEquipmentType()
 // 플레이어의 입력을 받아서 weapon을 Set한다.
 void APlayerCharacter::ChangeEquipment(class AEquipment* Equipment)
 {
-	if (CombatComp == nullptr)
+	if (CombatComp == nullptr || Equipment == nullptr)
 		return;
 
 	// 장비를 사용중이면 장비 교체 불가
