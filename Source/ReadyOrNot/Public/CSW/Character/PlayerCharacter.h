@@ -91,9 +91,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Player Stats")
 	float Health = 10.f;
-	
-	float LastDamagedTime;
-	float DamagedDelayTime = 0.5;
 
 protected:
 	// Called when the game starts or when spawned
@@ -204,7 +201,7 @@ public:
 private:
 	class UAIPerceptionStimuliSourceComponent* StimulusSource;
 	void SetupStimulusSource();
-	void DamageToEnemy();
+	//void DamageToEnemy();
 	void DamageToPistolEnemy();
 #pragma endregion
 };

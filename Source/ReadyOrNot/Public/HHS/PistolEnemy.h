@@ -32,4 +32,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* GunMeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	class UCombatComponent* CombatComp;
 };

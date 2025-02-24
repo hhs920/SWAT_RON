@@ -7,6 +7,7 @@
 #include "NavigationSystem.h"
 #include "ReadyOrNot.h"
 #include "CSW/Character/PlayerCharacter.h"
+#include "CSW/Equipment/Equipment.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HHS/PistolEnemy.h"
 #include "HHS/PTEnemyAnim.h"
@@ -124,6 +125,8 @@ void UPistolEnemyFSM::AttackState()
 		
 		CurrentTime = 0.0f;
 		anim->bAttackPlay = true;
+		me->CombatComp->HoldingEquipment->LineTraceTarget = target->GetActorLocation();
+		me->CombatComp->HoldingEquipment->BeginUse();
 	}
 
 	float distance = FVector::Distance(target->GetActorLocation(), me->GetActorLocation());

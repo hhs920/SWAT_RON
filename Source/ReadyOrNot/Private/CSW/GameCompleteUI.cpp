@@ -24,18 +24,7 @@ void UGameCompleteUI::NativeConstruct()
 
 void UGameCompleteUI::OnRestartButtonClicked()
 {
-	if (GEngine && GEngine->GetWorld())
-	{
-		UGameplayStatics::OpenLevel(GetWorld(), "TestMap2");
-		//
-		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-		if (PlayerController)
-		{
-			// UGameplayStatics::SetGamePaused( GetWorld() , false ); // 게임 일시정지
-			PlayerController->SetInputMode(FInputModeGameOnly()); // UI 모드로 변경
-			PlayerController->SetShowMouseCursor(false);          // 마우스 커서 표시
-		}
-	}
+	UGameplayStatics::OpenLevel(GetWorld(), "TestMap2");
 }
 
 void UGameCompleteUI::OnExitButtonClicked()

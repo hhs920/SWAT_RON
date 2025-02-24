@@ -4,6 +4,7 @@
 #include "HHS/PistolEnemy.h"
 
 #include "PistolEnemyFSM.h"
+#include "CSW/RONComponents/CombatComponent.h"
 
 
 APistolEnemy::APistolEnemy()
@@ -40,7 +41,8 @@ APistolEnemy::APistolEnemy()
 	{
 		GetMesh()->SetAnimInstanceClass(tempClass.Class);
 	}
-
+	
+	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComp"));
 }
 
 // Called when the game starts or when spawned
