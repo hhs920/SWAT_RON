@@ -18,20 +18,20 @@ APistolEnemy::APistolEnemy()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -88), FRotator(0, -90, 0));
 	}
 	
-	GunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
-	GunMeshComp->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
+	//GunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
+	//GunMeshComp->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
    	
-	// 스켈레탈 메시 데이터 로드
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/HHS/asset/PistolEnemy/Pistols_B.Pistols_B'"));
-	// 데이터 로드가 성공했다면
-	if (TempGunMesh.Succeeded())
-	{
-		// 스켈레탈 메시 데이터 할당
-		GunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
-   
-		// 총 위치 설정
-		GunMeshComp->SetRelativeLocationAndRotation(FVector(-1.926740, -9.613768, 4.732659) , FRotator(74.206776, -378.676810, -558.018135) );
-	}
+	//// 스켈레탈 메시 데이터 로드
+	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/HHS/asset/PistolEnemy/Pistols_B.Pistols_B'"));
+	//// 데이터 로드가 성공했다면
+	//if (TempGunMesh.Succeeded())
+	//{
+	//	// 스켈레탈 메시 데이터 할당
+	//	GunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
+   //
+	//	// 총 위치 설정
+	//	GunMeshComp->SetRelativeLocationAndRotation(FVector(-1.926740, -9.613768, 4.732659) , FRotator(74.206776, -378.676810, -558.018135) );
+	//}
 	
 	FSM = CreateDefaultSubobject<UPistolEnemyFSM>(TEXT("FSM"));
 	
@@ -51,6 +51,18 @@ void APistolEnemy::BeginPlay()
 	Super::BeginPlay();
 	
 }
+
+void APistolEnemy::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	if (CombatComp && CombatComp->Character)
+	{
+		CombatComp->Character=this;
+		CombatComp->SetUpEquipments();
+	}
+}
+
 
 // Called every frame
 void APistolEnemy::Tick(float DeltaTime)
