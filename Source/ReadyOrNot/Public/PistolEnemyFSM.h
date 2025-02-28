@@ -121,5 +121,5 @@ public:
 
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
-
+	bool bHasEscaped = false;
 };

@@ -18,10 +18,12 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// 캐릭터에 소켓들이 추가되어 있어야 한다.
-	RightHandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (Character)
+	{
+		RightHandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	
-	SetUpEquipments();
-
+		SetUpEquipments();
+	}
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

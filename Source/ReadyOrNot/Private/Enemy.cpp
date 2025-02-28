@@ -67,8 +67,8 @@ void AEnemy::PostInitializeComponents()
 	if (CombatComp && CombatComp->Character)
 	{
 		CombatComp->Character=this;
-		CombatComp->SetUpEquipments();
 	}
+	CombatComp->SetUpEquipments();
 }
 
 // Called every frame

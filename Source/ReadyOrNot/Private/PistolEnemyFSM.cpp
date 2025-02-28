@@ -153,6 +153,49 @@ void UPistolEnemyFSM::DamageState()
 
 void UPistolEnemyFSM::DieState()
 {
+	PRINT_LOG(TEXT("적이 사망 상태로 전환"));
+
+	mState = EPTEnemyState::Die;
+	anim->AnimState = mState;
+
+	// AI 컨트롤러 해제
+	if (ai)
+	{
+		ai->UnPossess();
+		ai = nullptr;
+	}
+
+	// 적이 들고 있던 무기 드랍
+	if (me->CombatComp)
+	{
+		me->CombatComp->DropHoldingEquipment();
+	}
+
+	// 사망 애니메이션 재생 (애니메이션이 끝날 때까지 물리 적용 X)
+	if (anim && anim->EnemyMontage)
+	{
+		// 상태를 죽음으로 전환
+		mState = EPTEnemyState::Die;
+		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
+		PRINT_LOG(TEXT("적이 사망 애니메이션 재생"));
+	}
+
+	// 일정 시간 후 물리 적용 (예: 1초 뒤)
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		PRINT_LOG(TEXT("적의 물리 시뮬레이션 활성화"));
+
+		me->GetMesh()->SetSimulatePhysics(true);
+		me->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+		// 특정 부위만 물리 적용 (머리, 팔은 유지)
+		me->GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("pelvis"), true, true);
+
+		// 물리 적용 후 더 이상 상태 업데이트 중지
+		this->SetComponentTickEnabled(false);
+
+	}, 3.0f, false); // 1초 후 실행 (사망 애니메이션이 끝난 후 적용)
 }
 
 void UPistolEnemyFSM::EscapeState()
@@ -166,7 +209,7 @@ void UPistolEnemyFSM::EscapeState()
 
 	
 	// 도망 위치 설정 (랜덤 or 특정 위치)
-	escapeLocation = FVector(1000.0f, 500.0f, 200.0f); // 예제 좌표
+	escapeLocation = FVector(1335.0f, -886.0f, 0.0f); // 예제 좌표
 	PRINT_LOG(TEXT("도망 위치: %s"), *escapeLocation.ToString());
 
 	// AI 이동 시작 (한 번만 실행)
@@ -212,29 +255,78 @@ void UPistolEnemyFSM::OnDamageProcess(int32 damage)
 {
 	hp -= damage;
 
-	if (hp <= 2 && mState != EPTEnemyState::Escape)
+	if (hp > 0) // 살아 있을 때만 반응
 	{
-		mState = EPTEnemyState::Escape;
-		anim->AnimState = mState;
-		PRINT_LOG(TEXT("적이 도망칩니다!"));
-		return;
-	}
+		if (ai && target && mState != EPTEnemyState::Escape)
+		{
+			ai->SetFocus(target, EAIFocusPriority::Gameplay);
+			PRINT_LOG(TEXT("적이 플레이어를 바라봄"));
+		}
 
-	if ( hp > 0 )
-	{
+		// ✅ 도망 상태가 한 번만 실행되도록 개선
+		if (hp <= 2 && mState != EPTEnemyState::Escape && !bHasEscaped)
+		{
+			bHasEscaped = true;  // 🟢 한 번만 실행되도록 설정
+
+			mState = EPTEnemyState::Escape;
+			anim->AnimState = mState;
+
+			if (ai)
+			{
+				ai->ClearFocus(EAIFocusPriority::Gameplay);
+				me->bUseControllerRotationYaw = false;
+			}
+
+			PRINT_LOG(TEXT("적이 도망칩니다!"));
+			return;
+		}
+        
 		mState = EPTEnemyState::Damage;
-		
+        
 		int32 randValue = FMath::RandRange(0,1);
 		FString sectionName = FString::Printf(TEXT("Damage%d"), randValue);
 		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, FName(*sectionName));
 	}
-	else
+	else // 적이 죽었을 때
 	{
-		mState = EPTEnemyState::Die;
-		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
+		DieState();  // ✅ 사망 상태 처리 함수 호출
+		return;
 	}
+
 	ai->StopMovement();
 	anim->AnimState = mState;
+//	hp -= damage;
+//
+//	if (ai && target)
+//	{
+//		ai->SetFocus(target, EAIFocusPriority::Gameplay);
+//		PRINT_LOG(TEXT("적이 플레이어를 바라봄"));
+//	}
+//
+//	if ( hp > 0 )
+//	{
+//		if (hp <= 2 && mState != EPTEnemyState::Escape)
+//		{
+//			mState = EPTEnemyState::Escape;
+//			anim->AnimState = mState;
+//			PRINT_LOG(TEXT("적이 도망칩니다!"));
+//			return;
+//		}
+//		
+//		mState = EPTEnemyState::Damage;
+//		
+//		int32 randValue = FMath::RandRange(0,1);
+//		FString sectionName = FString::Printf(TEXT("Damage%d"), randValue);
+//		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, FName(*sectionName));
+//	}
+//	else
+//	{
+//		mState = EPTEnemyState::Die;
+//		me->PlayAnimMontage(anim->EnemyMontage, 1.0f, TEXT("Die"));
+//		me->CombatComp->DropHoldingEquipment();
+//	}
+//	ai->StopMovement();
+//	anim->AnimState = mState;
 }
 
 bool UPistolEnemyFSM::GetRandomPositionInNavMesh(FVector centerLocation, float radius, FVector& dest)

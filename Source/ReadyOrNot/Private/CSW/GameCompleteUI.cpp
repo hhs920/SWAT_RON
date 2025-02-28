@@ -24,7 +24,16 @@ void UGameCompleteUI::NativeConstruct()
 
 void UGameCompleteUI::OnRestartButtonClicked()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "TestMap2");
+	if (GEngine && GEngine->GetWorld())
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), *RestartMapName);
+		APlayerController* pc = GetWorld()->GetFirstPlayerController();
+		if (pc)
+		{
+			pc->SetInputMode(FInputModeGameOnly());
+			pc->SetShowMouseCursor(false);
+		}
+	}
 }
 
 void UGameCompleteUI::OnExitButtonClicked()

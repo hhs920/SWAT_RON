@@ -37,4 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameComplete")
 	void UpdateGameCompleteMessage(const FString& Message);
 
+	UPROPERTY(EditAnywhere)
+	FString RestartMapName = "TestMap2";
 };

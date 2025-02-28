@@ -206,9 +206,13 @@ void APlayerCharacter::OnAdsUpdate(float Alpha)
 void APlayerCharacter::OnReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
    class AController* InstigatorController, AActor* DamageCauser)
 {
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
-	UpdateHealthHUD();
-
+	float currentTime = GetWorld()->GetUnpausedTimeSeconds();
+	if (LastDamagedTime + DamagedDelayTime < currentTime)
+	{
+		Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+		UpdateHealthHUD();
+		LastDamagedTime = currentTime;
+	}
 }
 
 void APlayerCharacter::PlayerMove(const FInputActionValue& inputValue)

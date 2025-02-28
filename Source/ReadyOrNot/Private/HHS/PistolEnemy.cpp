@@ -49,14 +49,13 @@ APistolEnemy::APistolEnemy()
 void APistolEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APistolEnemy::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	if (CombatComp && CombatComp->Character)
+	if (CombatComp)
 	{
 		CombatComp->Character=this;
 		CombatComp->SetUpEquipments();

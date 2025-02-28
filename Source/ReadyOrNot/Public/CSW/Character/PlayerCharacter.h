@@ -83,14 +83,16 @@ public:
 	void OnReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 		class AController* InstigatorController, AActor* DamageCauser);
 
-
-private:
 	// 플레이어 체력 HP
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 10.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Player Stats")
-	float Health = 10.f;
+	float Health = MaxHealth;
+
+private:
+	float LastDamagedTime;
+	float DamagedDelayTime = 0.5f;
 
 protected:
 	// Called when the game starts or when spawned

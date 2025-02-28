@@ -202,6 +202,13 @@ void UEnemyFSM::OnDamageProcess(int32 damage)
 {
 	// 체력 감소
 	hp -= damage;
+	
+	if (ai && target)
+	{
+		ai->SetFocus(target, EAIFocusPriority::Gameplay);
+		PRINT_LOG(TEXT("적이 플레이어를 바라봄"));
+	}
+
 	if (hp <= surrenderHP && mState != EEnemyState::Surrender)	// 항복 상태 체크
 	{
 		mState = EEnemyState::Surrender;
@@ -238,6 +245,8 @@ void UEnemyFSM::OnDamageProcess(int32 damage)
 	}
 	// 길찾기 기능 중지
 	ai->StopMovement();
+	ai->UnPossess();
+
 	// 애니메이션 상태 동기화
 	anim->animState = mState;
 }
